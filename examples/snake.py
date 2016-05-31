@@ -8,7 +8,7 @@ grid_size = 8;
 body_colour = pyb.UGFX.RED
 back_colour = 0;
 food_colour = pyb.UGFX.YELLOW
-
+score = 0;
 edge_x = math.floor(l.get_width()/grid_size);
 edge_y = math.floor(l.get_height()/grid_size);
 
@@ -81,7 +81,8 @@ while(keepgoing > 0):
 	else:
 		food = randn_square()
 		disp_square(food[0],food[1],food_colour)
-		
+		score = score + 1
+
 	disp_square(body_x[-1],body_y[-1],body_colour)
 
 	if ((body_x[-1] >= edge_x) or (body_x[-1] < 0) or (body_y[-1] >= edge_y) or (body_y[-1] < 0)):
@@ -94,5 +95,5 @@ while(keepgoing > 0):
 	pyb.delay(100)
 	
 #	keepgoing = keepgoing - 1
-
-l.text("GAME OVER",30,30,0xFFFF)
+l.area(0,0,l.get_width(),l.get_height(),0)
+l.text("GAME OVER Score: " + str(score) ,30,30,0xFFFF)
