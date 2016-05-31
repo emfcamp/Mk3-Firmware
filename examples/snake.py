@@ -8,12 +8,13 @@ grid_size = 8;
 body_colour = pyb.UGFX.RED
 back_colour = 0;
 food_colour = pyb.UGFX.YELLOW
+wall_colour = pyb.UGFX.BLUE
 score = 0;
-edge_x = math.floor(l.get_width()/grid_size);
-edge_y = math.floor(l.get_height()/grid_size);
+edge_x = math.floor(l.get_width()/grid_size)-2;
+edge_y = math.floor(l.get_height()/grid_size)-2;
 
 def disp_square(x,y,colour):
-	l.area(x*grid_size, y*grid_size, grid_size, grid_size, colour) 
+	l.area((x+1)*grid_size, (y+1)*grid_size, grid_size, grid_size, colour) 
 	
 def randn_square():
 	return  [pyb.rng()%edge_x, pyb.rng()%edge_y]
@@ -22,6 +23,12 @@ body_x = [2,2,2]
 body_y = [12,13,14]
 
 l.area(0,0,l.get_width(),l.get_height(),0)
+
+l.area(0,0,grid_size*(edge_x+1),grid_size,wall_colour)
+l.area(0,0,grid_size,grid_size*(edge_y+1),wall_colour)
+l.area(grid_size*(edge_x+1),0,grid_size,grid_size*(edge_y+1),wall_colour)
+l.area(0,grid_size*(edge_y+1),grid_size*(edge_x+2),grid_size,wall_colour)
+
 
 for i in range(0,len(body_x)):
 	disp_square(body_x[i],body_y[i],body_colour)
@@ -82,7 +89,7 @@ while(keepgoing > 0):
 		food = randn_square()
 		disp_square(food[0],food[1],food_colour)
 		score = score + 1
-
+		
 	disp_square(body_x[-1],body_y[-1],body_colour)
 
 	if ((body_x[-1] >= edge_x) or (body_x[-1] < 0) or (body_y[-1] >= edge_y) or (body_y[-1] < 0)):
@@ -95,5 +102,6 @@ while(keepgoing > 0):
 	pyb.delay(100)
 	
 #	keepgoing = keepgoing - 1
+
 l.area(0,0,l.get_width(),l.get_height(),0)
 l.text("GAME OVER Score: " + str(score) ,30,30,0xFFFF)
