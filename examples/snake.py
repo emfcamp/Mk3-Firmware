@@ -39,11 +39,11 @@ keepgoing = 10;
 food = [20,20]
 disp_square(food[0],food[1],food_colour)
 
-j_up = pyb.Pin(pyb.Pin.board.PD6, pyb.Pin.IN)
-j_down = pyb.Pin(pyb.Pin.board.PD11, pyb.Pin.IN)
-j_left = pyb.Pin(pyb.Pin.board.PA15, pyb.Pin.IN)
-j_right = pyb.Pin(pyb.Pin.board.PD3, pyb.Pin.IN)
-btn_menu = pyb.Pin(pyb.Pin.board.PD10, pyb.Pin.IN)
+j_up = pyb.Pin("JOY_UP", pyb.Pin.IN)
+j_down = pyb.Pin("JOY_DOWN", pyb.Pin.IN)
+j_left = pyb.Pin("JOY_LEFT", pyb.Pin.IN)
+j_right = pyb.Pin("JOY_RIGHT", pyb.Pin.IN)
+btn_menu = pyb.Pin("BTN_MENU", pyb.Pin.IN)
 
 j_up.init(pyb.Pin.IN, pull=pyb.Pin.PULL_DOWN)
 j_down.init(pyb.Pin.IN, pull=pyb.Pin.PULL_DOWN)
