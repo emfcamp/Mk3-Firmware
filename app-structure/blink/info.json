@@ -1,0 +1,6 @@
+{
+    "name": "Blink",
+    "description": "Does some blinking",
+    "author": "Micropython Team",
+    "license": "MIT"
+}
