@@ -4,6 +4,8 @@
 
 import usocket
 import ujson
+import gc
+
 try:
     import ussl
     SUPPORT_SSL = True
@@ -41,25 +43,40 @@ class Response(object):
         if 500 <= self.status_code < 600:
             raise OSError('Server error: %s' % self.status_code)
 
-# Returns (line_as_string, buffer_remainder)
+# Returns http status line
 # Supports \n, \r and \r\n
-def readline(buffer, encoding='utf-8'):
+def read_http_status(buffer):
     i = buffer.find(b"\n")
     j = buffer.find(b"\r")
     if i == -1 and j == -1:
-        return (str(buffer, encoding), b"")
+        raise OSError('Invalid HTTP status header')
     if i == -1:
         j = i
     else:
         if j != -1:
             i = min(i, j)
 
-    line = str(buffer[:i], encoding)
-    if j > -1 and buffer[i+1] == b"\n"[0]:
-        i += 1
-    remainder = buffer[i+1:]
+    line = str(buffer[:i], 'utf-8')
 
-    return line, remainder
+    return line
+
+# Returns index of first http content byte, skipping all headers
+def get_content_index(buffer):
+    indexes = [
+        buffer.find(b"\n\n"),
+        buffer.find(b"\r\r"),
+        buffer.find(b"\r\n\r\n")
+    ]
+
+    indexes = [ index for index in indexes if index > -1 ] # remove -1s
+
+    if len(indexes) == 0:
+        raise OSError('Invalid HTTP response, no double newline found')
+
+    i = min(indexes) + 2
+    if buffer[i:i+2] == b"\r\n":
+        i += 2
+    return i
 
 # Adapted from upip
 def request(method, url, json=None, timeout=None, headers=None):
@@ -115,24 +132,21 @@ def request(method, url, json=None, timeout=None, headers=None):
         sock.send('\r\n')
 
     # Consume the whole response
-    buffer = b"";
-    received = sock.recv(1024)
-    while len(received) > 0:
-        buffer += received
+    buffer = sock.recv(1024)
+    while True:
         received = sock.recv(1024)
-    print("done", buffer)
+        if len(received) == 0:
+            break
+        buffer += received
 
     # Read status line
-    line, buffer = readline(buffer)
-    protover, status, msg = line.split(None, 2)
+    protover, status, msg = read_http_status(buffer).split(None, 2)
 
-    # Skip headers
-    line, buffer = readline(buffer)
-    while line != '' and len(buffer) > 0:
-        line, buffer = readline(buffer)
+    content_index = get_content_index(buffer)
+    print(content_index)
 
     # Return response object
-    return Response(int(status), buffer)
+    return Response(int(status), buffer[content_index:])
 
 
 def get(url, **kwargs):
