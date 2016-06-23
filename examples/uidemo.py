@@ -1,9 +1,9 @@
 import ugfx
 import os
 
-options.destroy()
-btn_ok.destroy()
-btn_menu.destroy()
+#options.destroy()
+#btn_ok.destroy()
+#btn_menu.destroy()
 
 ugfx.init()
 
