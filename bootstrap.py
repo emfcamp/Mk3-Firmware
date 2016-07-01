@@ -61,6 +61,8 @@ def download(path, target):
                 if remaining < 1:
                     break
 
+    sock.close()
+
 
 l = pyb.UGFX()
 l.area(0,0,l.get_width(),l.get_height(),0)
