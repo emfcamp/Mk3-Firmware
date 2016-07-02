@@ -32,7 +32,9 @@ def callback_arrow_left(line):
 
 def _move_arrow(x,y,cursor_loc, win_quick):
 	
-	win_quick.area(cursor_loc[0]*150+4, cursor_loc[1]*35+10, 20,10,ugfx.WHITE)
+	arrow = [[0,0],[20,7],[0,14],[4,7]]
+	
+	win_quick.fill_polygon(cursor_loc[0]*150+4, cursor_loc[1]*35+14, arrow ,ugfx.WHITE)
 
 	cursor_loc[0] += x
 	cursor_loc[1] += y
@@ -47,7 +49,7 @@ def _move_arrow(x,y,cursor_loc, win_quick):
 	if cursor_loc[1] > 3:
 		cursor_loc[1] = 3
 
-	win_quick.area(cursor_loc[0]*150+4, cursor_loc[1]*35+10, 20,10,ugfx.RED)
+	win_quick.fill_polygon(cursor_loc[0]*150+4, cursor_loc[1]*35+14, arrow ,ugfx.RED)
 
 
 def main():
@@ -58,6 +60,12 @@ def main():
 	win_header = ugfx.Container(0,0,wi,30)
 	win_quick = ugfx.Container(0,33,wi,hi-33-33)
 	win_help = ugfx.Container(0,hi-30,wi,30)
+	
+	file_list = ["snake.py","party_mode.py"]
+	
+	while len(file_list) < 8:
+		file_list.append("")
+	file_list[7] = "View All"
 
 
 	ugfx.set_default_font("D*")
@@ -69,15 +77,15 @@ def main():
 	ugfx.set_default_font("c*")
 	ugfx.set_default_style(s)
 
-	btn_c1r1 = ugfx.Button(25,5,100,30,"Map",win_quick)
-	btn_c1r2 = ugfx.Button(25,40,100,30,"SMS",win_quick)
-	btn_c1r3 = ugfx.Button(25,75,100,30,"Snake",win_quick)
-	btn_c1r4 = ugfx.Button(25,110,100,30,"App Store",win_quick)
+	btn_c1r1 = ugfx.Button(25,5,100,30,file_list[0],win_quick)
+	btn_c1r2 = ugfx.Button(25,40,100,30,file_list[1],win_quick)
+	btn_c1r3 = ugfx.Button(25,75,100,30,file_list[2],win_quick)
+	btn_c1r4 = ugfx.Button(25,110,100,30,file_list[3],win_quick)
 	
-	btn_c2r1 = ugfx.Button(180,5,100,30,"Map",win_quick)
-	btn_c2r2 = ugfx.Button(180,40,100,30,"SMS",win_quick)
-	btn_c2r3 = ugfx.Button(180,75,100,30,"Snake",win_quick)
-	btn_c2r4 = ugfx.Button(180,110,100,30,"View All",win_quick)
+	btn_c2r1 = ugfx.Button(180,5,100,30,file_list[4],win_quick)
+	btn_c2r2 = ugfx.Button(180,40,100,30,file_list[5],win_quick)
+	btn_c2r3 = ugfx.Button(180,75,100,30,file_list[6],win_quick)
+	btn_c2r4 = ugfx.Button(180,110,100,30,file_list[7],win_quick)
 
 
 	btn_ok = ugfx.Button(10,5,20,20,"A",win_help)
@@ -144,8 +152,8 @@ def main():
 			win_help.hide()
 			b.disable_interrupts()
 			
-			import party_mode
-			party_mode.main()
+			import snake
+			snake.main()
 			
 			win_header.show()
 			win_quick.show()
@@ -158,23 +166,23 @@ def main():
 			
 	b.disable_interrupts()
 	
-	btn_c1r1.dispose()
-	btn_c1r2.dispose()
-	btn_c1r3.dispose()
-	btn_c1r4.dispose()	
-	btn_c2r1.dispose()
-	btn_c2r2.dispose()
-	btn_c2r3.dispose()
-	btn_c2r4.dispose()
-	btn_ok.dispose()
-	l_ok.dispose()
-	btn_back.dispose()
-	l_back.dispose()
-	btn_menu.dispose()
-	l_back.dispose()
-	win_header.dispose()
-	win_quick.dispose()
-	win_help.dispose()
-	title.dispose()
+	btn_c1r1.destroy()
+	btn_c1r2.destroy()
+	btn_c1r3.destroy()
+	btn_c1r4.destroy()	
+	btn_c2r1.destroy()
+	btn_c2r2.destroy()
+	btn_c2r3.destroy()
+	btn_c2r4.destroy()
+	btn_ok.destroy()
+	l_ok.destroy()
+	btn_back.destroy()
+	l_back.destroy()
+	btn_menu.destroy()
+	l_back.destroy()
+	win_header.destroy()
+	win_quick.destroy()
+	win_help.destroy()
+	title.destroy()
 
 
