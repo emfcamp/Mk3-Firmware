@@ -9,7 +9,7 @@ ugfx.init()
 
 ugfx.set_default_font("D*")
 
-ugfx.text("EMF BADGE 2016",40,0,ugfx.PURPLE)
+ugfx.text(40, 0, "EMF BADGE 2016", ugfx.PURPLE)
 
 ugfx.set_default_font("C*")
 
