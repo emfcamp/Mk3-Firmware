@@ -1,20 +1,21 @@
 import pyb
 import math
+import ugfx
 
 btn_menu = pyb.Pin("BTN_MENU", pyb.Pin.IN)
 btn_menu.init(pyb.Pin.IN, pull=pyb.Pin.PULL_UP)
 
-lcd = pyb.UGFX()
+ugfx.init()
 
-BALLCOLOR1 =    pyb.UGFX.RED
-BALLCOLOR2 =    pyb.UGFX.YELLOW
-WALLCOLOR =     pyb.UGFX.GREEN
-BACKCOLOR =     pyb.UGFX.BLUE
-FLOORCOLOR =    pyb.UGFX.PURPLE
+BALLCOLOR1 =    ugfx.RED
+BALLCOLOR2 =    ugfx.YELLOW
+WALLCOLOR =     ugfx.GREEN
+BACKCOLOR =     ugfx.BLUE
+FLOORCOLOR =    ugfx.PURPLE
 SHADOWALPHA =   (255-255*0.2)
 
-width = lcd.get_width()
-height = lcd.get_height()
+width = ugfx.width()
+height = ugfx.height()
 
 radius=height/5+height%2+1 # The ball radius
 ii = 1.0/radius            # radius as easy math
@@ -38,7 +39,7 @@ def invsqrt(x):
 
 while True:
     # Draw one frame
-    lcd.stream_start(minx, miny, maxx-minx, maxy-miny)
+    ugfx.stream_start(minx, miny, maxx-minx, maxy-miny)
     for y in range(miny, maxy):
         h = (bally-y)*ii
         for x in range(minx, maxx):
@@ -66,8 +67,8 @@ while True:
                 #if (g*(g+.4)+h*(h+.1) < 1)
                 #    colour = gdispBlendColor(colour, Black, SHADOWALPHA);
 
-            lcd.stream_color(colour) # pixel to the LCD
-    lcd.stream_stop()
+            ugfx.stream_color(colour) # pixel to the LCD
+    ugfx.stream_stop()
 
     # Calculate the new frame size (note this is a drawing optimisation only)
     minx = ballx - radius
