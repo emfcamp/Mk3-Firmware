@@ -64,18 +64,17 @@ def download(path, target):
     sock.close()
 
 
-l = pyb.UGFX()
-l.area(0,0,l.get_width(),l.get_height(),0)
-l.text("Downloading Tilda software", 0, 00, pyb.UGFX.RED)
-l.text("Should this not work, try again by", 0, 30, pyb.UGFX.WHITE)
-l.text("pressing the reset button at the back", 0, 50, pyb.UGFX.WHITE)
-l.text("Please wait...", 0, 100, pyb.UGFX.WHITE)
+ugfx.area(0,0, ugfx.width(),ugfx.height(),0)
+ugfx.text(0, 00, "Downloading Tilda software", ugfx.RED)
+ugfx.text(0, 30, "Should this not work, try again by", ugfx.WHITE)
+ugfx.text(0, 50, "pressing the reset button at the back", ugfx.WHITE)
+ugfx.text(0, 100, "Please wait...", ugfx.WHITE)
 
 def message(lines):
     y = 150;
-    l.area(0, y, l.get_width(), l.get_height() - y, 0)
+    ugfx.area(0, y, ugfx.width(), ugfx.height() - y, 0)
     for line in lines:
-        l.text(line, 0, y, pyb.UGFX.WHITE)
+        ugfx.text(0, y, line, ugfx.WHITE)
         y += 20
 
 def mkdirp(path):
