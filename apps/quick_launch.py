@@ -61,11 +61,28 @@ def main():
 	win_quick = ugfx.Container(0,33,wi,hi-33-33)
 	win_help = ugfx.Container(0,hi-30,wi,30)
 	
-	file_list = ["snake.py","party_mode.py"]
+	file_list = ["examples/snake.py","examples/party_mode.py","apps/test_app1/test_app1.py"]
+	file_name = []
+	for f in file_list:
+		sp = f.split("/")
+		if len(sp[-1]) > 3:
+			if sp[-1].endswith(".py"):
+				file_name.append((sp[-1])[:-3])
+			else:
+				file_name.append("")
+			#sp2 = sp[-1].split(".py")
+			#if len(sp2) >= 2:
+			#	file_name.append(sp2[-2])
+			#else:
+			#	file_name.append("")
+		else:
+			file_name.append("")
 	
 	while len(file_list) < 8:
 		file_list.append("")
-	file_list[7] = "View All"
+		file_name.append("")
+	file_list[7] = "apps/file_loader.py"
+	file_name[7] = "View All"
 
 
 	ugfx.set_default_font("D*")
@@ -77,15 +94,15 @@ def main():
 	ugfx.set_default_font("c*")
 	ugfx.set_default_style(s)
 
-	btn_c1r1 = ugfx.Button(25,5,100,30,file_list[0],win_quick)
-	btn_c1r2 = ugfx.Button(25,40,100,30,file_list[1],win_quick)
-	btn_c1r3 = ugfx.Button(25,75,100,30,file_list[2],win_quick)
-	btn_c1r4 = ugfx.Button(25,110,100,30,file_list[3],win_quick)
+	btn_c1r1 = ugfx.Button(25,5,100,30,file_name[0],win_quick)
+	btn_c1r2 = ugfx.Button(25,40,100,30,file_name[1],win_quick)
+	btn_c1r3 = ugfx.Button(25,75,100,30,file_name[2],win_quick)
+	btn_c1r4 = ugfx.Button(25,110,100,30,file_name[3],win_quick)
 	
-	btn_c2r1 = ugfx.Button(180,5,100,30,file_list[4],win_quick)
-	btn_c2r2 = ugfx.Button(180,40,100,30,file_list[5],win_quick)
-	btn_c2r3 = ugfx.Button(180,75,100,30,file_list[6],win_quick)
-	btn_c2r4 = ugfx.Button(180,110,100,30,file_list[7],win_quick)
+	btn_c2r1 = ugfx.Button(180,5,100,30,file_name[4],win_quick)
+	btn_c2r2 = ugfx.Button(180,40,100,30,file_name[5],win_quick)
+	btn_c2r3 = ugfx.Button(180,75,100,30,file_name[6],win_quick)
+	btn_c2r4 = ugfx.Button(180,110,100,30,file_name[7],win_quick)
 
 
 	btn_ok = ugfx.Button(10,5,20,20,"A",win_help)
@@ -128,6 +145,8 @@ def main():
 	stay_here = 1
 	
 	cursor_loc = [0, 0]
+	
+	_move_arrow(0,0,cursor_loc, win_quick)
 
 	while(stay_here):
 		pyb.wfi()
@@ -152,8 +171,15 @@ def main():
 			win_help.hide()
 			b.disable_interrupts()
 			
-			import examples.snake
-			examples.snake.main()
+			torun = file_list[cursor_loc[0]*4 + cursor_loc[1]]
+			if len(torun) > 3:
+				if torun.endswith(".py"):
+					mod = __import__(torun[:-3])
+					mod.main()
+					ugfx.area(0,0,ugfx.width(),ugfx.height(),0)
+			
+			#import examples.snake
+			#examples.snake.main()
 			
 			win_header.show()
 			win_quick.show()
