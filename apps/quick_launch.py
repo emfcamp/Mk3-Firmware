@@ -152,8 +152,8 @@ def main():
 			win_help.hide()
 			b.disable_interrupts()
 			
-			import snake
-			snake.main()
+			import examples.snake
+			examples.snake.main()
 			
 			win_header.show()
 			win_quick.show()
