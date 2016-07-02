@@ -1,33 +1,34 @@
 import pyb
 import math
+import ugfx
 
-l=pyb.UGFX()
-l.set_orientation(270)
+ugfx.init()
+ugfx.orientation(270)
 
 grid_size = 8;
-body_colour = pyb.UGFX.RED
+body_colour = ugfx.RED
 back_colour = 0;
-food_colour = pyb.UGFX.YELLOW
-wall_colour = pyb.UGFX.BLUE
+food_colour = ugfx.YELLOW
+wall_colour = ugfx.BLUE
 score = 0;
-edge_x = math.floor(l.get_width()/grid_size)-2;
-edge_y = math.floor(l.get_height()/grid_size)-2;
+edge_x = math.floor(ugfx.width()/grid_size)-2;
+edge_y = math.floor(ugfx.height()/grid_size)-2;
 
 def disp_square(x,y,colour):
-	l.area((x+1)*grid_size, (y+1)*grid_size, grid_size, grid_size, colour) 
+	ugfx.area((x+1)*grid_size, (y+1)*grid_size, grid_size, grid_size, colour) 
 	
 def disp_body_straight(x,y,rotation,colour):
 	if (rotation == 0):
-		l.area((x+1)*grid_size+1, (y+1)*grid_size+1, grid_size-2, grid_size, colour) 
+		ugfx.area((x+1)*grid_size+1, (y+1)*grid_size+1, grid_size-2, grid_size, colour) 
 	elif (rotation == 90):
-		l.area((x+1)*grid_size+1, (y+1)*grid_size+1, grid_size, grid_size-2, colour) 
+		ugfx.area((x+1)*grid_size+1, (y+1)*grid_size+1, grid_size, grid_size-2, colour) 
 	elif (rotation == 180):
-		l.area((x+1)*grid_size+1, (y+1)*grid_size-1, grid_size-2, grid_size, colour) 
+		ugfx.area((x+1)*grid_size+1, (y+1)*grid_size-1, grid_size-2, grid_size, colour) 
 	else:
-		l.area((x+1)*grid_size-1, (y+1)*grid_size+1, grid_size, grid_size-2, colour) 
+		ugfx.area((x+1)*grid_size-1, (y+1)*grid_size+1, grid_size, grid_size-2, colour) 
 	
 def disp_eaten_food(x,y,colour):
-	l.area((x+1)*grid_size, (y+1)*grid_size, grid_size, grid_size, colour)
+	ugfx.area((x+1)*grid_size, (y+1)*grid_size, grid_size, grid_size, colour)
 
 def randn_square():
 	return  [pyb.rng()%edge_x, pyb.rng()%edge_y]
@@ -35,12 +36,12 @@ def randn_square():
 body_x = [12,13,14,15,16]
 body_y = [2,2,2,2,2]
 
-l.area(0,0,l.get_width(),l.get_height(),0)
+ugfx.area(0,0,ugfx.width(),ugfx.height(),0)
 
-l.area(0,0,grid_size*(edge_x+1),grid_size,wall_colour)
-l.area(0,0,grid_size,grid_size*(edge_y+1),wall_colour)
-l.area(grid_size*(edge_x+1),0,grid_size,grid_size*(edge_y+1),wall_colour)
-l.area(0,grid_size*(edge_y+1),grid_size*(edge_x+2),grid_size,wall_colour)
+ugfx.area(0,0,grid_size*(edge_x+1),grid_size,wall_colour)
+ugfx.area(0,0,grid_size,grid_size*(edge_y+1),wall_colour)
+ugfx.area(grid_size*(edge_x+1),0,grid_size,grid_size*(edge_y+1),wall_colour)
+ugfx.area(0,grid_size*(edge_y+1),grid_size*(edge_x+2),grid_size,wall_colour)
 
 keepgoing = 10;
 
@@ -123,5 +124,5 @@ while(keepgoing > 0):
 	
 #	keepgoing = keepgoing - 1
 
-l.area(0,0,l.get_width(),l.get_height(),0)
-l.text("GAME OVER Score: " + str(score) ,30,30,0xFFFF)
+ugfx.area(0,0,ugfx.width(),ugfx.height(),0)
+ugfx.text(30, 30, "GAME OVER Score: %d" % (score), 0xFFFF)
