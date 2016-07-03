@@ -9,7 +9,7 @@ joy_lr = 0
 
 
 	
-def callback_menu(line):
+def callback_b(line):
 	global stay_here
 	stay_here = 0
 	print("Quitting")
@@ -63,8 +63,9 @@ def main():
 	
 	file_list = []
 	
+	os.sync()
 	try:
-		fh = open("/flash/pinned.txt",'rt')
+		fh = open("/flash/pinned.txt",'r')
 		keepgoing = 7
 		while keepgoing:
 			line = fh.readline()
@@ -76,16 +77,17 @@ def main():
 		fh.close()
 	except OSError:
 		print("List of pinned files doesn't exist, creating default")
+		file_list = ["examples/snake.py","examples/party_mode.py"]
 		try:
-			fh = open("/flash/pinned.txt",'wt')
-			fh.write("examples/snake.py\r\n")
-			fh.write("examples/party_mode.py\r\n")
-			fh.flush()
-			fh.close()
+			fhw = open("/flash/pinned.txt",'w')
+			fhw.write("examples/snake.py\r\n")
+			fhw.write("examples/party_mode.py\r\n")
+			fhw.flush()
+			fhw.close()
 			file_list = ["examples/snake.py","examples/party_mode.py"]
 		except:
 			print("Error creating file")
-
+	os.sync()
 	
 	print(file_list)
 	file_name = []
@@ -157,7 +159,7 @@ def main():
 	#enable_irq()
 	
 	b.init_pins()
-	b.set_interrupt("BTN_MENU", callback_menu)
+	b.set_interrupt("BTN_B", callback_b)
 	b.set_interrupt("JOY_UP", callback_arrow_up)
 	b.set_interrupt("JOY_DOWN", callback_arrow_down)
 	b.set_interrupt("JOY_LEFT", callback_arrow_left)
@@ -192,30 +194,19 @@ def main():
 			joy_lr = 0
 		
 		if b.is_pressed("BTN_A"): #b.switch_a.value() == 0:
-			win_header.hide()
-			win_quick.hide()
-			win_help.hide()
-			b.disable_interrupts()
-			
+						
 			torun = file_list[cursor_loc[0]*4 + cursor_loc[1]]
 			if len(torun) > 3:
 				if torun.endswith(".py"):
+					win_header.hide()
+					win_quick.hide()
+					win_help.hide()
+					b.disable_interrupts()
 					mod = __import__(torun[:-3])
 					mod.main()
 					ugfx.area(0,0,ugfx.width(),ugfx.height(),0)
-			
-			#import examples.snake
-			#examples.snake.main()
-			
-			win_header.show()
-			win_quick.show()
-			win_help.show()
-			b.set_interrupt("BTN_MENU", callback_menu)
-			b.set_interrupt("JOY_UP", callback_arrow_up)
-			b.set_interrupt("JOY_DOWN", callback_arrow_down)
-			b.set_interrupt("JOY_LEFT", callback_arrow_left)
-			b.set_interrupt("JOY_RIGHT", callback_arrow_right)
-			
+					stay_here = 0;
+
 	b.disable_interrupts()
 	
 	btn_c1r1.destroy()

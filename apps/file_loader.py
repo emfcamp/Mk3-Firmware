@@ -1,15 +1,14 @@
 import ugfx
 import os
 import pyb
-
-def callback_button(line):
-	global stay_here
-	stay_here = 0
-	print("Quitting")
+import badge
+import yesno_window
 
 def main():
 	wi = ugfx.width()
 	hi = ugfx.height()
+	b = badge.Badge()
+	b.init_pins()
 
 	win_header = ugfx.Container(0,0,wi,30)
 	win_files = ugfx.Container(0,33,int(wi/2),hi-33)
@@ -39,11 +38,13 @@ def main():
 
 
 	folders = os.listdir("/flash/apps")
+	filepaths = []
 	for folder in folders:
 		try: #is there a better way of doing this in upy?
 			appfiles = os.listdir("/flash/apps/" + folder)
 			if ((folder+".py") in appfiles):
 				options.add_item(folder)
+				filepaths.append("apps/" + folder + "/" + folder+".py")
 		except:
 			2+2
 			#ignore and continue
@@ -60,28 +61,38 @@ def main():
 	#btn_menu.attach_input(ugfx.BTN_MENU)
 	#btn_ok.attach_input(ugfx.BTN_A)
 
-	
-
-	tgl_menu = pyb.Pin("BTN_MENU", pyb.Pin.IN)
-	extint = pyb.ExtInt(tgl_menu, pyb.ExtInt.IRQ_FALLING, pyb.Pin.PULL_UP, callback_button)
-
 	stay_here = 1;
 
 	while(stay_here):
 		pyb.wfi()
-	extint = pyb.ExtInt(tgl_menu, pyb.ExtInt.IRQ_FALLING, pyb.Pin.PULL_UP, None)
+		if b.is_pressed("BTN_MENU"):
+			try:			
+				towrite = filepaths[options.get_selected_index()]
+				
+				if len(towrite) > 3:
+					r = yesno_window.show_yesno_window("Yes","No","Confirm add '"+options.get_selected_text() + "' to quick-launch?")
+					if r:
+						fhw = open("/flash/pinned.txt",'a')
+						fhw.write(towrite + "\r\n")
+						fhw.flush()
+						fhw.close()
+			except:
+				print("Error appending file")
+			pyb.delay(1500)
+		
+		if b.is_pressed("BTN_B"):
+			stay_here = 0
 	
-	
-	win_header.dispose()
-	win_files.dispose()
-	win_preview.dispose()
-	title.dispose()
-	options.dispose()
-	btn_ok.dispose()
-	l_ok.dispose()
-	btn_back.dispose()
-	l_back.dispose()
-	btn_menu.dispose()
-	l_back.dispose()
+	win_header.destroy()
+	win_files.destroy()
+	win_preview.destroy()
+	title.destroy()
+	options.destroy()
+	btn_ok.destroy()
+	l_ok.destroy()
+	btn_back.destroy()
+	l_back.destroy()
+	btn_menu.destroy()
+	l_back.destroy()
 		
 		
