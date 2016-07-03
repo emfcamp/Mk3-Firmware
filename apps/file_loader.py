@@ -30,7 +30,7 @@ def main():
 	l_back = ugfx.Label(35,win_preview.height()-50,100,20,"Back",win_preview)
 
 	btn_menu = ugfx.Button(10,win_preview.height()-75,20,20,"M",win_preview)
-	l_back = ugfx.Label(35,win_preview.height()-75,100,20,"Menu",win_preview)
+	l_back = ugfx.Label(35,win_preview.height()-75,100,20,"Pin",win_preview)
 
 
 	win_header.show()
@@ -38,11 +38,22 @@ def main():
 	win_preview.show()
 
 
-	files = os.listdir()
+	folders = os.listdir("/flash/apps")
+	for folder in folders:
+		try: #is there a better way of doing this in upy?
+			appfiles = os.listdir("/flash/apps/" + folder)
+			if ((folder+".py") in appfiles):
+				options.add_item(folder)
+		except:
+			2+2
+			#ignore and continue
+	
+	
+	#files = os.listdir()
 
-	for f in files:
-		if f.endswith(".py"):
-			options.add_item(f)
+	#for f in files:
+	#	if f.endswith(".py"):
+	#		options.add_item(f)
 
 	options.attach_input(ugfx.JOY_UP,0)
 	options.attach_input(ugfx.JOY_DOWN,1)

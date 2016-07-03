@@ -11,7 +11,9 @@ def button_press():
 	import apps.quick_launch
 	apps.quick_launch.main()
 	
+	
 	display_name()
+	pyb.delay(1500)
 
 def main():
 	display_name()

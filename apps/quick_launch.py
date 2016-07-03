@@ -61,7 +61,33 @@ def main():
 	win_quick = ugfx.Container(0,33,wi,hi-33-33)
 	win_help = ugfx.Container(0,hi-30,wi,30)
 	
-	file_list = ["examples/snake.py","examples/party_mode.py","apps/test_app1/test_app1.py"]
+	file_list = []
+	
+	try:
+		fh = open("/flash/pinned.txt",'rt')
+		keepgoing = 7
+		while keepgoing:
+			line = fh.readline()
+			if len(line) > 0:
+				file_list.append(line.strip())
+				keepgoing -= 1;
+			else:
+				keepgoing = 0;
+		fh.close()
+	except OSError:
+		print("List of pinned files doesn't exist, creating default")
+		try:
+			fh = open("/flash/pinned.txt",'wt')
+			fh.write("examples/snake.py\r\n")
+			fh.write("examples/party_mode.py\r\n")
+			fh.flush()
+			fh.close()
+			file_list = ["examples/snake.py","examples/party_mode.py"]
+		except:
+			print("Error creating file")
+
+	
+	print(file_list)
 	file_name = []
 	for f in file_list:
 		sp = f.split("/")
@@ -69,14 +95,14 @@ def main():
 			if sp[-1].endswith(".py"):
 				file_name.append((sp[-1])[:-3])
 			else:
-				file_name.append("")
+				file_name.append("???")
 			#sp2 = sp[-1].split(".py")
 			#if len(sp2) >= 2:
 			#	file_name.append(sp2[-2])
 			#else:
 			#	file_name.append("")
 		else:
-			file_name.append("")
+			file_name.append("???")
 	
 	while len(file_list) < 8:
 		file_list.append("")
