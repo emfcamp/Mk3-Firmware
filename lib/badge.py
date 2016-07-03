@@ -21,6 +21,25 @@ class Badge:
 	int_center = None
 
 	#def __init__(self):
+	
+	def is_pressed(self, int_in):
+		if int_in == "JOY_UP":
+			return self.switch_up.value() > 0
+		elif int_in == "JOY_DOWN":
+			return self.switch_down.value() > 0
+		elif int_in == "JOY_LEFT":
+			return self.switch_left.value() > 0
+		elif int_in == "JOY_RIGHT":
+			return self.switch_right.value() > 0
+		elif int_in == "JOY_CENTER":
+			return self.switch_center.value() > 0
+		elif int_in == "BTN_A":
+			return self.switch_a.value() == 0
+		elif int_in == "BTN_B":
+			return self.switch_b.value() == 0
+		elif int_in == "BTN_MENU":
+			return self.switch_menu.value() == 0
+
 		
 	def disable_interrupts(self):
 		

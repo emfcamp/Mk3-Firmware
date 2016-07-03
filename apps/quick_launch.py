@@ -165,7 +165,7 @@ def main():
 			joy_updown = 0
 			joy_lr = 0
 		
-		if b.switch_a.value() == 0:
+		if b.is_pressed("BTN_A"): #b.switch_a.value() == 0:
 			win_header.hide()
 			win_quick.hide()
 			win_help.hide()

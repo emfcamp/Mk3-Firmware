@@ -2,6 +2,11 @@ import ugfx
 import os
 import pyb
 
+def callback_button(line):
+	global stay_here
+	stay_here = 0
+	print("Quitting")
+
 def main():
 	wi = ugfx.width()
 	hi = ugfx.height()
@@ -44,10 +49,7 @@ def main():
 	#btn_menu.attach_input(ugfx.BTN_MENU)
 	#btn_ok.attach_input(ugfx.BTN_A)
 
-	def callback_button(line):
-		global stay_here
-		stay_here = 0
-		print("Quitting")
+	
 
 	tgl_menu = pyb.Pin("BTN_MENU", pyb.Pin.IN)
 	extint = pyb.ExtInt(tgl_menu, pyb.ExtInt.IRQ_FALLING, pyb.Pin.PULL_UP, callback_button)
