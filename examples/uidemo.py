@@ -22,7 +22,7 @@ files = os.listdir()
 for f in files:
 	options.add_item(f)
 	
-options.attach_input(ugfx.JOY_UP,0)
-options.attach_input(ugfx.JOY_DOWN,1)
+options.attach_input(ugfx.JOY_UP,1)
+options.attach_input(ugfx.JOY_DOWN,0)
 btn_menu.attach_input(ugfx.BTN_MENU)
 btn_ok.attach_input(ugfx.BTN_A)
