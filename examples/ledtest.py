@@ -1,3 +1,4 @@
+import pyb
 ledr = pyb.Pin("LED_RED",pyb.Pin.OUT)
 ledg = pyb.Pin("LED_GREEN",pyb.Pin.OUT)
 ledt = pyb.Pin("LED_TORCH",pyb.Pin.OUT)
