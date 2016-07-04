@@ -7,6 +7,7 @@ import usocket
 import machine
 import uos
 import json
+import ugfx
 
 def download(path, target):
     host = "badge.marekventur.com"
@@ -61,6 +62,8 @@ def download(path, target):
                 if remaining < 1:
                     break
 
+            pyb.delay(50)
+
     sock.close()
 
 
@@ -77,19 +80,13 @@ def message(lines):
         ugfx.text(0, y, line, ugfx.WHITE)
         y += 20
 
-def mkdirp(path):
-    try:
-        uos.mkdir(path)
-    except OSError:
-        pass
-
-mkdirp("apps")
-mkdirp("lib")
+if "apps" not in uos.listdir(): uos.mkdir("apps")
+if "lib" not in uos.listdir(): uos.mkdir("lib")
 
 message(["Connecting to wifi " + wifi_ssid, "Update bootstrap.py if this is incorrect"])
 nic = network.CC3100()
 nic.connect(wifi_ssid, wifi_pw)
-while (not nic.is_connected()):
+while not nic.is_connected():
     nic.update()
     pyb.delay(100)
 
