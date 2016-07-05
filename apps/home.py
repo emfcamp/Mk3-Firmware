@@ -4,8 +4,11 @@ import pyb
 def display_name():
 	ugfx.area(0,0,ugfx.width(),ugfx.height(),0xFFFF)
 	ugfx.set_default_font("D*")
-	ugfx.text(40,120,"MATT",ugfx.YELLOW)
+	ugfx.text(40,90,"My name is...",ugfx.BLUE)
+	ugfx.text(40,120,"MATT",ugfx.BLUE)
+	ugfx.circle(140,200,40,ugfx.GREEN)
 	ugfx.circle(160,200,40,ugfx.GREEN)
+	ugfx.circle(180,200,40,ugfx.GREEN)
 	
 def button_press():	
 	import apps.quick_launch

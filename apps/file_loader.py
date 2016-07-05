@@ -20,7 +20,7 @@ def main():
 
 
 	ugfx.set_default_font("c*")
-	options = ugfx.List(3,3,win_files.width()-6,win_files.height()-6,win_files)
+	options = ugfx.List(3,3,win_files.width()-6,win_files.height()-6,parent=win_files)
 
 	btn_ok = ugfx.Button(10,win_preview.height()-25,20,20,"A",win_preview)
 	l_ok = ugfx.Label(35,win_preview.height()-25,100,20,"Run",win_preview)
@@ -32,6 +32,10 @@ def main():
 	l_back = ugfx.Label(35,win_preview.height()-75,100,20,"Pin",win_preview)
 
 
+	tim = pyb.Timer(3)
+	tim.init(freq=60)
+	tim.callback(lambda t:ugfx.poll())
+	
 	win_header.show()
 	win_files.show()
 	win_preview.show()
@@ -94,5 +98,6 @@ def main():
 	l_back.destroy()
 	btn_menu.destroy()
 	l_back.destroy()
+	tim.deinit()
 		
 		
