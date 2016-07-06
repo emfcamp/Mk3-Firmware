@@ -52,6 +52,13 @@ def main():
 		except:
 			2+2
 			#ignore and continue
+			
+	files = os.listdir("/flash/examples")
+	for file in files:
+		if file.endswith(".py"):
+			options.add_item(file[:-3])
+			filepaths.append("examples/" + file)
+
 	
 	
 	#files = os.listdir()
