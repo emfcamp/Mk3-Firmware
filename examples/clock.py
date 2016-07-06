@@ -7,8 +7,7 @@ import ugfx
 #       Pixmaps, but I couldn't get them to work :(
 
 ugfx.init()
-ugfx.write_command(0x35,0)
-ugfx.write_command(0x36,0x08)
+ugfx.enable_tear()
 tear = pyb.Pin("TEAR", pyb.Pin.IN)
 sec = 0;
 

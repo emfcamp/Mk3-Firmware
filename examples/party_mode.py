@@ -2,7 +2,7 @@ import ugfx
 import pyb
 
 def main():
-	ugfx.write_command(0x35,0)
+	ugfx.enable_tear()
 	tear = pyb.Pin("PE5", pyb.Pin.IN)
 	keepgoing = 1
 	tgl_menu = pyb.Pin("BTN_MENU", pyb.Pin.IN)
@@ -46,3 +46,5 @@ def main():
 		
 		if tgl_menu.value() == 0:
 			keepgoing = 0
+			
+	ugfx.disable_tear()
