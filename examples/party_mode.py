@@ -35,7 +35,7 @@ def main():
 		while(tear.value()):
 			2+2 
 		ugfx.area(0,0,320,240,ugfx.WHITE)
-		pyb.delay(1200)
+		pyb.delay(60)
 		
 		while(tear.value() == 0):
 			2+2 
