@@ -7,7 +7,9 @@ import ugfx
 #       Pixmaps, but I couldn't get them to work :(
 
 ugfx.init()
-
+ugfx.write_command(0x35,0)
+ugfx.write_command(0x36,0x08)
+tear = pyb.Pin("TEAR", pyb.Pin.IN)
 sec = 0;
 
 def draw_hand(cx, cy, angle, length, thickness, color):
@@ -45,6 +47,10 @@ while True:
     draw_hand(cx, cy, angel_seconds, 50, 1, ugfx.RED)
 
     # Wait
-    pyb.delay(10)
+    #pyb.delay(10)
+    while(tear.value() == 0):
+        2+2 
+    while(tear.value()):
+        2+2 
 
     sec += 1;

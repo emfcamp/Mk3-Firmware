@@ -2,19 +2,47 @@ import ugfx
 import pyb
 
 def main():
+	ugfx.write_command(0x35,0)
+	tear = pyb.Pin("PE5", pyb.Pin.IN)
 	keepgoing = 1
 	tgl_menu = pyb.Pin("BTN_MENU", pyb.Pin.IN)
 	tgl_menu.init(pyb.Pin.IN, pyb.Pin.PULL_UP)
 	while(keepgoing):
-		ugfx.area(0,0,320,240,ugfx.RED)
+	
+		while(tear.value() == 0):
+			2+2 
+		while(tear.value()):
+			2+2 
+		ugfx.area(0,0,320,240,ugfx.RED)		
 		pyb.delay(60)
-		ugfx.area(0,0,320,240,ugfx.GREEN)
+		
+		while(tear.value() == 0):
+			2+2 
+		while(tear.value()):
+			2+2 
+		ugfx.area(0,0,320,240,ugfx.GREEN)		
 		pyb.delay(60)
+		
+		while(tear.value() == 0):
+			2+2 
+		while(tear.value()):
+			2+2 
 		ugfx.area(0,0,320,240,ugfx.YELLOW)
 		pyb.delay(60)
+		
+		while(tear.value() == 0):
+			2+2 
+		while(tear.value()):
+			2+2 
 		ugfx.area(0,0,320,240,ugfx.WHITE)
-		pyb.delay(60)
+		pyb.delay(1200)
+		
+		while(tear.value() == 0):
+			2+2 
+		while(tear.value()):
+			2+2 
 		ugfx.area(0,0,320,240,ugfx.BLUE)
 		pyb.delay(60)
+		
 		if tgl_menu.value() == 0:
 			keepgoing = 0
