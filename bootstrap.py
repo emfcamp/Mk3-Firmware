@@ -1,11 +1,8 @@
-wifi_ssid = "VM9425583"
-wifi_pw = "n3tXpVhvwjsp"
-
 import network
 import pyb
 import usocket
 import machine
-import uos
+import os
 import json
 import ugfx
 
@@ -66,9 +63,9 @@ def download(path, target):
 
     sock.close()
 
-
-ugfx.area(0,0, ugfx.width(),ugfx.height(),0)
-ugfx.text(0, 00, "Downloading Tilda software", ugfx.RED)
+ugfx.init()
+ugfx.area(0, 0, ugfx.width(), ugfx.height(), ugfx.BLACK)
+ugfx.text(0, 0, "Downloading Tilda software", ugfx.RED)
 ugfx.text(0, 30, "Should this not work, try again by", ugfx.WHITE)
 ugfx.text(0, 50, "pressing the reset button at the back", ugfx.WHITE)
 ugfx.text(0, 100, "Please wait...", ugfx.WHITE)
@@ -80,24 +77,47 @@ def message(lines):
         ugfx.text(0, y, line, ugfx.WHITE)
         y += 20
 
-if "apps" not in uos.listdir(): uos.mkdir("apps")
-if "lib" not in uos.listdir(): uos.mkdir("lib")
+def mkdir(d):
+    try:
+        os.mkdir(d)
+    except OSError as e:
+        print(e)
 
-message(["Connecting to wifi " + wifi_ssid, "Update bootstrap.py if this is incorrect"])
+
+mkdir("apps")
+mkdir("apps/updater")
+mkdir("lib")
+
+w = {}
+try:
+    if "wifi.json" in os.listdir():
+        with open("wifi.json") as f:
+            w = json.loads(f.read())
+except ValueError as e:
+    print(e)
+
+if not ("ssid" in w and "pw" in w):
+    message(["Couldn't find a valid wifi.json :(", "See https://badge.emf.camp", "for more information"])
+    while True: pass
+
+wifi_ssid = w["ssid"]
+wifi_pw = w["pw"]
+
+message(["Connecting to wifi " + wifi_ssid, "Update wifi.json if this is incorrect"])
 nic = network.CC3100()
 nic.connect(wifi_ssid, wifi_pw)
 while not nic.is_connected():
     nic.update()
     pyb.delay(100)
 
-with open("wifi.json", 'wb') as f:
-    f.write(json.dumps({"ssid":wifi_ssid, "pw":wifi_pw}))
-
-message(["Downloading updater.py (1/3)"])
-download("/apps/updater.py", "apps/updater.py")
-message(["Downloading http_client.py (2/3)"])
-download("/lib/http_client.py", "lib/http_client.py")
-message(["Downloading boot.py (3/3)"])
-download("/boot.py", "boot.py")
-uos.sync()
+try:
+    message(["Downloading updater.py (1/3)"])
+    download("/apps/updater/main.py", "apps/updater/main.py")
+    message(["Downloading http_client.py (2/3)"])
+    download("/lib/http_client.py", "lib/http_client.py")
+    message(["Downloading boot.py (3/3)"])
+    download("/boot.py", "boot.py")
+finally:
+    os.sync()
 machine.reset()
+
