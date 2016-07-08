@@ -9,12 +9,12 @@ def display_name():
 	ugfx.circle(140,200,40,ugfx.GREEN)
 	ugfx.circle(160,200,40,ugfx.GREEN)
 	ugfx.circle(180,200,40,ugfx.GREEN)
-	
-def button_press():	
+
+def button_press():
 	import apps.quick_launch
 	apps.quick_launch.main()
-	
-	
+
+
 	display_name()
 	pyb.delay(1500)
 
@@ -28,3 +28,6 @@ def main():
 		pyb.wfi()
 		if tgl_menu.value() == 0:
 			button_press()
+
+ugfx.init()
+main()

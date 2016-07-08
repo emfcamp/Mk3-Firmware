@@ -1,0 +1,24 @@
+{
+    "apps": {
+        "home": {
+            "main.py": "hashabc",
+            "file_loader.py": "hashabc",
+            "quick_launch.py": "hashabc"
+        },
+        "updater": {
+            "main.py": "hashabd"
+        },
+        "test_app1": {
+            "main.py": "hashabd"
+        },
+        "test_app2": {
+            "main.py": "hashabd"
+        }
+    },
+    "libs": {
+        "badge.py": "hashabc",
+        "http_client.py": "asdfas",
+        "imu.py": "asdfasd",
+        "yesno_window.py": "asdfas"
+    }
+}

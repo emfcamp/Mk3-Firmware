@@ -8,42 +8,42 @@ joy_updown = 0
 joy_lr = 0
 
 
-	
+
 def callback_b(line):
 	global stay_here
 	stay_here = 0
 	print("Quitting")
-	
+
 def callback_arrow_up(line):
 	global joy_updown
 	joy_updown = 1
-	
+
 def callback_arrow_down(line):
 	global joy_updown
 	joy_updown = -1
-	
+
 def callback_arrow_right(line):
 	global joy_lr
 	joy_lr = 1
-	
+
 def callback_arrow_left(line):
 	global joy_lr
 	joy_lr = -1
 
 def _move_arrow(x,y,cursor_loc, win_quick):
-	
+
 	arrow = [[0,0],[20,7],[0,14],[4,7]]
-	
+
 	win_quick.fill_polygon(cursor_loc[0]*150+4, cursor_loc[1]*35+14, arrow ,ugfx.WHITE)
 
 	cursor_loc[0] += x
 	cursor_loc[1] += y
-	
+
 	if cursor_loc[0] < 0:
 		cursor_loc[0] = 0
 	if cursor_loc[0] > 1:
 		cursor_loc[0] = 1
-		
+
 	if cursor_loc[1] < 0:
 		cursor_loc[1] = 0
 	if cursor_loc[1] > 3:
@@ -60,9 +60,9 @@ def main():
 	win_header = ugfx.Container(0,0,wi,30)
 	win_quick = ugfx.Container(0,33,wi,hi-33-33)
 	win_help = ugfx.Container(0,hi-30,wi,30)
-	
+
 	file_list = []
-	
+
 	os.sync()
 	try:
 		fh = open("/flash/pinned.txt",'r')
@@ -88,7 +88,7 @@ def main():
 		except:
 			print("Error creating file")
 	os.sync()
-	
+
 	print(file_list)
 	file_name = []
 	for f in file_list:
@@ -105,7 +105,7 @@ def main():
 			#	file_name.append("")
 		else:
 			file_name.append("???")
-	
+
 	while len(file_list) < 8:
 		file_list.append("")
 		file_name.append("")
@@ -126,7 +126,7 @@ def main():
 	btn_c1r2 = ugfx.Button(25,40,100,30,file_name[1],win_quick)
 	btn_c1r3 = ugfx.Button(25,75,100,30,file_name[2],win_quick)
 	btn_c1r4 = ugfx.Button(25,110,100,30,file_name[3],win_quick)
-	
+
 	btn_c2r1 = ugfx.Button(180,5,100,30,file_name[4],win_quick)
 	btn_c2r2 = ugfx.Button(180,40,100,30,file_name[5],win_quick)
 	btn_c2r3 = ugfx.Button(180,75,100,30,file_name[6],win_quick)
@@ -155,30 +155,30 @@ def main():
 	#extint3 = pyb.ExtInt(tgl_down, pyb.ExtInt.IRQ_RISING, pyb.Pin.PULL_DOWN, None)
 	#tgl_a = pyb.Pin("BTN_A", pyb.Pin.IN)
 	#tgl_a.init(pyb.Pin.IN, pyb.Pin.PULL_UP)
-	
+
 	#enable_irq()
-	
+
 	b.init_pins()
 	b.set_interrupt("BTN_B", callback_b)
 	b.set_interrupt("JOY_UP", callback_arrow_up)
 	b.set_interrupt("JOY_DOWN", callback_arrow_down)
 	b.set_interrupt("JOY_LEFT", callback_arrow_left)
 	b.set_interrupt("JOY_RIGHT", callback_arrow_right)
-			
-	
+
+
 
 	global stay_here
 	global joy_updown
 	global joy_lr
 	stay_here = 1
-	
+
 	cursor_loc = [0, 0]
-	
+
 	_move_arrow(0,0,cursor_loc, win_quick)
 
 	while(stay_here):
 		pyb.wfi()
-		
+
 		#if b.switch_up.value() == 1:
 	#		cursor_loc = _move_arrow(1,0,cursor_loc, win_quick)
 	#	if b.switch_down.value() == 1:
@@ -187,14 +187,14 @@ def main():
 	#		cursor_loc = _move_arrow(0,1,cursor_loc, win_quick)
 	#	if b.switch_left.value() == 1:
 	#		cursor_loc = _move_arrow(0,-1,cursor_loc, win_quick)
-	
+
 		if (joy_updown != 0) or (joy_lr != 0):
 			_move_arrow(joy_lr, joy_updown, cursor_loc, win_quick)
 			joy_updown = 0
 			joy_lr = 0
-		
+
 		if b.is_pressed("BTN_A"): #b.switch_a.value() == 0:
-						
+
 			torun = file_list[cursor_loc[0]*4 + cursor_loc[1]]
 			if len(torun) > 3:
 				if torun.endswith(".py"):
@@ -208,11 +208,11 @@ def main():
 					stay_here = 0;
 
 	b.disable_interrupts()
-	
+
 	btn_c1r1.destroy()
 	btn_c1r2.destroy()
 	btn_c1r3.destroy()
-	btn_c1r4.destroy()	
+	btn_c1r4.destroy()
 	btn_c2r1.destroy()
 	btn_c2r2.destroy()
 	btn_c2r3.destroy()
