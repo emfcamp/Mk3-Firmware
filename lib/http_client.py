@@ -17,16 +17,15 @@ SUPPORT_TIMEOUT = hasattr(usocket.socket, 'settimeout')
 CONTENT_TYPE_JSON = 'application/json'
 
 class Response(object):
-    def __init__(self, status_code, content):
-        self.status_code = status_code
-        self.content = content
+    def __init__(self):
         self.encoding = 'utf-8'
+        self.headers = {}
+        self.status = None
+        self.content = b"";
 
     @property
     def text(self):
-        content = self.content
-
-        return str(content, self.encoding) if content else ''
+        return str(self.content, self.encoding) if self.content else ''
 
     def close(self):
         if self.raw is not None:
@@ -101,24 +100,53 @@ def open_http_socket(method, url, json=None, timeout=None, headers=None):
 def request(method, url, json=None, timeout=None, headers=None):
     sock = open_http_socket(method, url, json, timeout, headers)
     try:
-        # Consume the whole response
-        buffer = sock.recv(1024)
+        response = Response()
+        state = 1
+        hbuf = b"";
+        remaining = None;
         while True:
+            buf = sock.recv(1024)
+            print(len(buf))
+            if state == 1: # Status
+                nl = buf.find(b"\n")
+                if nl > -1:
+                    hbuf += buf[:nl - 1]
+                    response.status = int(hbuf.split(b' ')[1])
+                    state = 2
+                    hbuf = b"";
+                    buf = buf[nl + 1:]
+                else:
+                    hbuf += buf
+
+            if state == 2: # Headers
+                hbuf += buf
+                nl = hbuf.find(b"\n")
+                while nl > -1:
+                    if nl < 2:
+                        if "Content-Length" not in response.headers:
+                            raise Exception("No Content-Length")
+                        remaining = int(response.headers["Content-Length"])
+                        buf = hbuf[2:]
+                        hbuf = None
+                        state = 3
+                        break
+
+                    header = hbuf[:nl - 1].decode("utf8").split(':', 3)
+                    response.headers[header[0].strip()] = header[1].strip()
+                    hbuf = hbuf[nl + 1:]
+                    nl = hbuf.find(b"\n")
+
+            if state == 3: # Content
+                response.content += buf
+                remaining -= len(buf)
+                if remaining < 1:
+                    break
+
             pyb.delay(50)
-            received = sock.recv(1024)
-            if len(received) == 0:
-                break
-            buffer += received
 
-        # Read status line
-        protover, status, msg = read_http_status(buffer).split(None, 2)
-
-        content_index = get_content_index(buffer)
-
-        # Return response object
-        return Response(int(status), buffer[content_index:])
+        return response
     finally:
-        sock.close();
+        sock.close()
 
 def download(method, url, target, json=None, timeout=None, headers=None):
     sock = open_http_socket(method, url, json, timeout, headers)
@@ -179,3 +207,4 @@ def get(url, **kwargs):
 
 def post(url, **kwargs):
     return request('POST', url, **kwargs)
+
