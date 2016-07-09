@@ -15,32 +15,91 @@ except ImportError:
 
 SUPPORT_TIMEOUT = hasattr(usocket.socket, 'settimeout')
 CONTENT_TYPE_JSON = 'application/json'
+DELAY_BETWEEN_READS = 50
+BUFFER_SIZE = 1024
 
 class Response(object):
     def __init__(self):
         self.encoding = 'utf-8'
         self.headers = {}
         self.status = None
-        self.content = b"";
+        self.socket = None
+        self.content = None
+
+    # Hands the responsibility for a socket over to this reponse. This needs to happen
+    # before any content can be inspected
+    def add_socket(self, socket, content_so_far):
+        self.content_so_far = content_so_far
+        self.socket = socket
+
+    # This is intended to be called internally to read all content and store it in self.content
+    def consume_content(self):
+        if not self.content:
+            if not self.socket:
+                raise IOError("Invalid response socket state. Has the content been downloaded instead?")
+            try:
+                if "Content-Length" not in self.headers:
+                    raise Exception("No Content-Length")
+                content_length = int(self.headers["Content-Length"])
+                self.content = self.content_so_far
+                del self.content_so_far
+
+                while len(self.content) < content_length:
+                    pyb.delay(DELAY_BETWEEN_READS)
+                    self.content += sock.recv(BUFFER_SIZE)
+
+            finally:
+                self.close()
 
     @property
     def text(self):
+        self.consume_content()
         return str(self.content, self.encoding) if self.content else ''
 
+    # If you don't use the content of a Response at all you need to manually close it
     def close(self):
-        if self.raw is not None:
-            self._content = None
-            self.raw.close()
-            self.raw = None
+        if self.socket is not None:
+            self.socket.close()
+            self.socket = None
 
     def json(self):
         return ujson.loads(self.text)
 
+    # Writes content into a file. This function will write while receiving, which avoids
+    # having to load all content into memory
+    def download_to(self, target):
+        if not self.socket:
+            raise IOError("Invalid response socket state. Has the content already been consumed?")
+        try:
+            if "Content-Length" not in self.headers:
+                raise Exception("No Content-Length")
+            remaining = int(self.headers["Content-Length"])
+
+            with open(target, 'wb') as f:
+                f.write(self.content_so_far)
+                remaining -= len(self.content_so_far)
+                del self.content_so_far
+                while remaining > 0:
+                    pyb.delay(DELAY_BETWEEN_READS)
+                    buf = sock.recv(BUFFER_SIZE)
+                    f.write(buf)
+                    remaining -= len(buf)
+
+        finally:
+            self.close()
+
     def raise_for_status(self):
-        if 400 <= self.status_code < 500:
-            raise OSError('Client error: %s' % self.status_code)
-        if 500 <= self.status_code < 600:
-            raise OSError('Server error: %s' % self.status_code)
+        if 400 <= self.status < 500:
+            raise OSError('Client error: %s' % self.status)
+        if 500 <= self.status < 600:
+            raise OSError('Server error: %s' % self.status)
+
+    # In case you want to use "with"
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close();
 
 def open_http_socket(method, url, json=None, timeout=None, headers=None):
     urlparts = url.split('/', 3)
@@ -105,7 +164,7 @@ def request(method, url, json=None, timeout=None, headers=None):
         hbuf = b"";
         remaining = None;
         while True:
-            buf = sock.recv(1024)
+            buf = sock.recv(BUFFER_SIZE)
             print(len(buf))
             if state == 1: # Status
                 nl = buf.find(b"\n")
@@ -123,9 +182,6 @@ def request(method, url, json=None, timeout=None, headers=None):
                 nl = hbuf.find(b"\n")
                 while nl > -1:
                     if nl < 2:
-                        if "Content-Length" not in response.headers:
-                            raise Exception("No Content-Length")
-                        remaining = int(response.headers["Content-Length"])
                         buf = hbuf[2:]
                         hbuf = None
                         state = 3
@@ -137,68 +193,12 @@ def request(method, url, json=None, timeout=None, headers=None):
                     nl = hbuf.find(b"\n")
 
             if state == 3: # Content
-                response.content += buf
-                remaining -= len(buf)
-                if remaining < 1:
-                    break
+                response.add_socket(sock, buf)
+                break
 
-            pyb.delay(50)
+            pyb.delay(DELAY_BETWEEN_READS)
 
         return response
-    finally:
-        sock.close()
-
-def download(method, url, target, json=None, timeout=None, headers=None):
-    sock = open_http_socket(method, url, json, timeout, headers)
-
-    try:
-        with open(target, 'wb') as f:
-            state = 1
-            hbuf = b"";
-            remaining = None;
-            while True:
-                buf = sock.recv(1024)
-                print(len(buf))
-                if state == 1: # Status
-                    nl = buf.find(b"\n")
-                    if nl > -1:
-                        hbuf += buf[:nl - 1]
-                        status = hbuf.split(b' ')[1]
-                        if status != b"200":
-                            raise Exception("Invalid status " + str(status))
-
-                        state = 2
-                        hbuf = b"";
-                        buf = buf[nl + 1:]
-                    else:
-                        hbuf += buf
-
-                if state == 2: # Headers
-                    hbuf += buf
-                    nl = hbuf.find(b"\n")
-                    while nl > -1:
-                        if nl < 2:
-                            if remaining == None:
-                                raise Exception("No Content-Length")
-                            buf = hbuf[2:]
-                            hbuf = None
-                            state = 3
-                            break
-
-                        header = hbuf[:nl - 1].decode("utf8").split(':', 3)
-                        if header[0] == "Content-Length":
-                            remaining = int(header[1].strip())
-
-                        hbuf = hbuf[nl + 1:]
-                        nl = hbuf.find(b"\n")
-
-                if state == 3: # Content
-                    f.write(buf)
-                    remaining -= len(buf)
-                    if remaining < 1:
-                        break
-
-                pyb.delay(50)
     finally:
         sock.close()
 
