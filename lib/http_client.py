@@ -5,6 +5,8 @@
 import usocket
 import ujson
 import gc
+import pyb
+import os
 
 try:
     import ussl
@@ -16,7 +18,7 @@ except ImportError:
 SUPPORT_TIMEOUT = hasattr(usocket.socket, 'settimeout')
 CONTENT_TYPE_JSON = 'application/json'
 DELAY_BETWEEN_READS = 50
-BUFFER_SIZE = 1024
+BUFFER_SIZE = 128
 
 class Response(object):
     def __init__(self):
@@ -24,7 +26,7 @@ class Response(object):
         self.headers = {}
         self.status = None
         self.socket = None
-        self.content = None
+        self._content = None
 
     # Hands the responsibility for a socket over to this reponse. This needs to happen
     # before any content can be inspected
@@ -32,28 +34,28 @@ class Response(object):
         self.content_so_far = content_so_far
         self.socket = socket
 
-    # This is intended to be called internally to read all content and store it in self.content
-    def consume_content(self):
-        if not self.content:
+    @property
+    def content(self):
+        if not self._content:
             if not self.socket:
                 raise IOError("Invalid response socket state. Has the content been downloaded instead?")
             try:
                 if "Content-Length" not in self.headers:
                     raise Exception("No Content-Length")
                 content_length = int(self.headers["Content-Length"])
-                self.content = self.content_so_far
+                self._content = self.content_so_far
                 del self.content_so_far
-
-                while len(self.content) < content_length:
+                while len(self._content) < content_length:
                     pyb.delay(DELAY_BETWEEN_READS)
-                    self.content += sock.recv(BUFFER_SIZE)
+                    buf = self.socket.recv(BUFFER_SIZE)
+                    self._content += buf
 
             finally:
                 self.close()
+        return self._content;
 
     @property
     def text(self):
-        self.consume_content()
         return str(self.content, self.encoding) if self.content else ''
 
     # If you don't use the content of a Response at all you need to manually close it
@@ -81,9 +83,11 @@ class Response(object):
                 del self.content_so_far
                 while remaining > 0:
                     pyb.delay(DELAY_BETWEEN_READS)
-                    buf = sock.recv(BUFFER_SIZE)
+                    buf = self.socket.recv(BUFFER_SIZE)
                     f.write(buf)
                     remaining -= len(buf)
+                f.flush()
+            os.sync()
 
         finally:
             self.close()
@@ -124,6 +128,7 @@ def open_http_socket(method, url, json=None, timeout=None, headers=None):
     else:
         content = None
 
+    # ToDo: Detect IP addresses and skip the lookup
     ai = usocket.getaddrinfo(host, port)
     addr = ai[0][4]
 
@@ -164,6 +169,7 @@ def request(method, url, json=None, timeout=None, headers=None):
         hbuf = b"";
         remaining = None;
         while True:
+            pyb.delay(DELAY_BETWEEN_READS)
             buf = sock.recv(BUFFER_SIZE)
             if state == 1: # Status
                 nl = buf.find(b"\n")
@@ -193,17 +199,13 @@ def request(method, url, json=None, timeout=None, headers=None):
 
             if state == 3: # Content
                 response.add_socket(sock, buf)
-                break
-
-            pyb.delay(DELAY_BETWEEN_READS)
-
-        return response
+                sock = None # It's not our responsibility to close the socket anymore
+                return response
     finally:
-        sock.close()
+        if sock: sock.close()
 
 def get(url, **kwargs):
     return request('GET', url, **kwargs)
 
 def post(url, **kwargs):
     return request('POST', url, **kwargs)
-
