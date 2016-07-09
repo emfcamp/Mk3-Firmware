@@ -37,9 +37,9 @@ while True:
     
     # wait for vsync
     while(tear.value() == 0):
-        2+2 
+        pass
     while(tear.value()):
-        2+2 
+        pass
     #Do all the drawing at once    
     ugfx.area(cx-71, cy-71, 141, 141, 0)
 	# Hands

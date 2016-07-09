@@ -11,8 +11,8 @@ def display_name():
 	ugfx.circle(180,200,40,ugfx.GREEN)
 
 def button_press():
-	import apps.quick_launch
-	apps.quick_launch.main()
+	import apps.home.quick_launch
+	apps.home.quick_launch.main()
 
 
 	display_name()

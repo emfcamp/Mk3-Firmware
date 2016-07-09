@@ -2,6 +2,7 @@ import ugfx
 import os
 import pyb
 import badge
+import notice_window
 
 stay_here = 0
 joy_updown = 0
@@ -98,18 +99,13 @@ def main():
 				file_name.append((sp[-1])[:-3])
 			else:
 				file_name.append("???")
-			#sp2 = sp[-1].split(".py")
-			#if len(sp2) >= 2:
-			#	file_name.append(sp2[-2])
-			#else:
-			#	file_name.append("")
 		else:
 			file_name.append("???")
 
 	while len(file_list) < 8:
 		file_list.append("")
 		file_name.append("")
-	file_list[7] = "apps/file_loader.py"
+	file_list[7] = "apps/home/file_loader.py"
 	file_name[7] = "View All"
 
 
@@ -201,9 +197,13 @@ def main():
 					win_header.hide()
 					win_quick.hide()
 					win_help.hide()
-					b.disable_interrupts()
-					mod = __import__(torun[:-3])
-					mod.main()
+					b.disable_interrupts()										
+					try:
+						mod = __import__(torun[:-3])
+						if "main" in dir(mod):
+							mod.main()
+					except Exception as e:
+						notice_window.show_notice_window(wi-20,hi-20,str(e))
 					ugfx.area(0,0,ugfx.width(),ugfx.height(),0)
 					stay_here = 0;
 
