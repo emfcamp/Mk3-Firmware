@@ -165,7 +165,6 @@ def request(method, url, json=None, timeout=None, headers=None):
         remaining = None;
         while True:
             buf = sock.recv(BUFFER_SIZE)
-            print(len(buf))
             if state == 1: # Status
                 nl = buf.find(b"\n")
                 if nl > -1:
