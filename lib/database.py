@@ -27,9 +27,10 @@ class Database:
         try:
             with open(filename, "rt") as file:
                 self.data = json.loads(file.read())
-        except OSError:
+        except (OSError, ValueError):
+            print("Database %s doesn't exists or is invalid, creating new" % (filename))
             self.data = {}
-            self.dirt = True
+            self.dirty = True
             self.flush()
 
     def set(self, key, value):
@@ -70,3 +71,15 @@ class Database:
     def __exit__(self, exc_type, exc_value, traceback):
         self.flush()
 
+
+def database_get(key, default_value = None, *args):
+    with Database(*args) as db:
+        return db.get(key, default_value)
+
+def database_set(key, value, *args):
+    with Database(*args) as db:
+        return db.set(key, value)
+
+def database_delete(key, *args):
+    with Database(*args) as db:
+        return db.delete(key)
