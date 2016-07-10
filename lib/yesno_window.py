@@ -13,8 +13,8 @@ def show_yesno_window(yes_text, no_text,question):
 	btnno = ugfx.Button(int(wi/2 + wi/12),int(hi*3/5),int(wi/3),int(hi/5),"B: " + no_text,win)
 	label = ugfx.Label(int(wi/10),int(hi/10),int(wi*4/5),int(hi*2/5),question,win)
 	
-	btnyes.attach_input(ugfx.BTN_A)
-	btnno.attach_input(ugfx.BTN_B)
+	btnyes.attach_input(ugfx.BTN_A,0)
+	btnno.attach_input(ugfx.BTN_B,0)
 	
 	win.show()
 	

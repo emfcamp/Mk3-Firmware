@@ -94,11 +94,14 @@ def main():
 	file_name = []
 	for f in file_list:
 		sp = f.split("/")
-		if len(sp[-1]) > 3:
-			if sp[-1].endswith(".py"):
-				file_name.append((sp[-1])[:-3])
+		if len(sp[-2]) > 3:
+			if sp[-2] == "examples":
+				if sp[-1].endswith(".py"):
+					file_name.append((sp[-1])[:-3])
+				else:
+					file_name.append("???")
 			else:
-				file_name.append("???")
+				file_name.append(sp[-2])
 		else:
 			file_name.append("???")
 
