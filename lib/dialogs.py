@@ -37,6 +37,3 @@ def prompt_text(description, default=""):
 	"""Shows a dialog and keyboard that allows the user to input/change a string"""
 	# ToDo: Actually show dialog
 	return default
-
-ugfx.init()
-print(prompt_text("What's your name?", "foo"))
