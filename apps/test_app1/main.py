@@ -1,20 +1,15 @@
 import ugfx
 import pyb
+import buttons
 
-def main():
-	keepgoing = 1
-	tgl_menu = pyb.Pin("BTN_MENU", pyb.Pin.IN)
-	tgl_menu.init(pyb.Pin.IN, pyb.Pin.PULL_UP)
-	while(keepgoing):
-		ugfx.area(0,0,320,240,ugfx.RED)
-		pyb.delay(60)
-		ugfx.area(0,0,320,240,ugfx.GREEN)
-		pyb.delay(60)
-		ugfx.area(0,0,320,240,ugfx.YELLOW)
-		pyb.delay(60)
-		ugfx.area(0,0,320,240,ugfx.WHITE)
-		pyb.delay(60)
-		ugfx.area(0,0,320,240,ugfx.BLUE)
-		pyb.delay(60)
-		if tgl_menu.value() == 0:
-			keepgoing = 0
+buttons.init()
+
+COLORS = [ugfx.RED, ugfx.GREEN, ugfx.YELLOW, ugfx.WHITE ,ugfx.BLUE]
+i = 0
+
+while not buttons.is_triggered("BTN_MENU"):
+	i = (i + 1) % len(COLORS)
+	ugfx.area(0,0,320,240, COLORS[i])
+	pyb.delay(60)
+
+pyb.hard_reset()

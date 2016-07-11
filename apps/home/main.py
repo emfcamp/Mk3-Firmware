@@ -1,5 +1,6 @@
 import ugfx
 import pyb
+import os
 from database import *
 import buttons
 
@@ -12,16 +13,13 @@ def display_name():
 	ugfx.circle(160,200,40,ugfx.GREEN)
 	ugfx.circle(180,200,40,ugfx.GREEN)
 
-def button_press():
-	import apps.home.quick_launch
-	apps.home.quick_launch.main()
-
 ugfx.init()
 display_name()
 
 buttons.init()
 
-while True:
+while not buttons.is_triggered("BTN_MENU"):
 	pyb.wfi()
-	if buttons.is_triggered("BTN_MENU"):
-		button_press()
+
+# ToDo: Maybe boot should always chdir to the app folder?
+execfile("apps/home/quick_launch.py")

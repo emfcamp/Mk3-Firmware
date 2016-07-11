@@ -32,6 +32,8 @@ timer = pyb.Timer(3)
 timer.init(freq=60)
 timer.callback(lambda t:ugfx.poll())
 
+app_to_load = "home"
+
 def update_options(options, apps, pinned):
 	while options.count():
 		options.remove_item(0)
@@ -73,6 +75,7 @@ try:
 
 		if buttons.is_triggered("BTN_A"):
 			# ToDo: Do something to go to the app
+			app_to_load = "test_app1"
 			break
 
 finally:
@@ -80,3 +83,5 @@ finally:
 		component.destroy()
 
 	timer.deinit()
+
+execfile("apps/%s/main.py" % (app_to_load))
