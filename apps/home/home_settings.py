@@ -35,6 +35,8 @@ kb.attach_input(ugfx.JOY_RIGHT,2)
 kb.attach_input(ugfx.JOY_LEFT,3)
 kb.attach_input(ugfx.JOY_CENTER,4)
 
+tb=ugfx.Textbox(0,0,100,40,10)
+
 tim = pyb.Timer(3)
 tim.init(freq=60)
 tim.callback(lambda t:ugfx.poll())
