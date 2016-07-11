@@ -1,1 +1,1 @@
-apps/snake/main.py
+../apps/snake/main.py
