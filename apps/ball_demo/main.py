@@ -1,11 +1,42 @@
+### Author: Joel Bodenmann aka Tectu <joel@unormal.org>, Andrew Hannam aka inmarket
+### Description: A python port of the UGFX ball demo
+### Category: Examples
+### License: BSD
+
+# Copyright (c) 2012, 2013, Joel Bodenmann aka Tectu <joel@unormal.org>
+# Copyright (c) 2012, 2013, Andrew Hannam aka inmarket
+#
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in the
+#      documentation and/or other materials provided with the distribution.
+#    * Neither the name of the <organization> nor the
+#      names of its contributors may be used to endorse or promote products
+#      derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 import pyb
 import math
 import ugfx
-
-btn_menu = pyb.Pin("BTN_MENU", pyb.Pin.IN)
-btn_menu.init(pyb.Pin.IN, pull=pyb.Pin.PULL_UP)
+import buttons
 
 ugfx.init()
+buttons.init()
 
 BALLCOLOR1 =    ugfx.RED
 BALLCOLOR2 =    ugfx.YELLOW
@@ -37,13 +68,13 @@ maxy = height
 def invsqrt(x):
     return x**-1/2
 
-while True:
+while not buttons.is_triggered("BTN_MENU"):
     # Draw one frame
     ugfx.stream_start(minx, miny, maxx-minx, maxy-miny)
-    for y in range(miny, maxy):
-        h = (bally-y)*ii
-        for x in range(minx, maxx):
-            g=(ballx-x)*ii
+    for x in range(minx, maxx):
+        g = (ballx-x)*ii
+        for y in range(miny, maxy):
+            h = (bally-y)*ii
             f=-.3*g+.954*h
             if g*g < 1-h*h:
                 # The inside of the ball
@@ -117,5 +148,4 @@ while True:
     else:
         dy = dy+.002*height;
 
-    if (btn_menu.value() == 0):
-        break
+pyb.hard_reset()
