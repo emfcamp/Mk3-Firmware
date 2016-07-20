@@ -21,15 +21,15 @@ def prompt_boolean(text, true_text="Yes", false_text="No", width = 213, height =
 		true_text = "A: " + true_text
 		false_text = "B: " + false_text
 
-	button_yes = ugfx.Button(int(width/12), int(height*3/5), int(width/3), int(height/5), true_text, window)
-	button_no = ugfx.Button(int(width/2 + width/12), int(height*3/5), int(width/3), int(height/5), false_text, window) if false_text else None
-	label = ugfx.Label(int(width/10), int(height/10), int(width*4/5), int(height*2/5), text, window)
+	button_yes = ugfx.Button(int(width/12), int(height*3/5), int(width/3), int(height/5), true_text, parent=window)
+	button_no = ugfx.Button(int(width/2 + width/12), int(height*3/5), int(width/3), int(height/5), false_text, parent=window) if false_text else None
+	label = ugfx.Label(int(width/10), int(height/10), int(width*4/5), int(height*2/5), text, parent=window)
 
 	try:
 		buttons.init()
 
-		button_yes.attach_input(ugfx.BTN_A)
-		if button_no: button_no.attach_input(ugfx.BTN_B)
+		button_yes.attach_input(ugfx.BTN_A,0)
+		if button_no: button_no.attach_input(ugfx.BTN_B,0)
 
 		window.show()
 

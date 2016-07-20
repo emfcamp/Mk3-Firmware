@@ -77,14 +77,13 @@ try:
 	fh.close()
 except OSError:
 	print("List of pinned files doesn't exist, creating default")
-	file_list = ["examples/snake.py","examples/party_mode.py"]
+	file_list = ["apps/snake/main.py","examples/party_mode.py"]
 	try:
 		fhw = open("/flash/pinned.txt",'w')
-		fhw.write("examples/snake.py\r\n")
+		fhw.write("apps/snake/main.py\r\n")
 		fhw.write("examples/party_mode.py\r\n")
 		fhw.flush()
 		fhw.close()
-		file_list = ["examples/snake.py","examples/party_mode.py"]
 	except:
 		print("Error creating file")
 os.sync()
@@ -112,7 +111,7 @@ file_name[7] = "View All"
 
 
 ugfx.set_default_font("D*")
-title = ugfx.Label(3,3,wi-10,45,"EMF Camp 2016",win_header)
+title = ugfx.Label(3,3,wi-10,45,"EMF Camp 2016",parent=win_header)
 
 s = ugfx.Style()
 s.set_focus(ugfx.RED)
@@ -120,25 +119,25 @@ s.set_focus(ugfx.RED)
 ugfx.set_default_font("c*")
 ugfx.set_default_style(s)
 
-btn_c1r1 = ugfx.Button(25,5,100,30,file_name[0],win_quick)
-btn_c1r2 = ugfx.Button(25,40,100,30,file_name[1],win_quick)
-btn_c1r3 = ugfx.Button(25,75,100,30,file_name[2],win_quick)
-btn_c1r4 = ugfx.Button(25,110,100,30,file_name[3],win_quick)
+btn_c1r1 = ugfx.Button(25,5,100,30,file_name[0],parent=win_quick)
+btn_c1r2 = ugfx.Button(25,40,100,30,file_name[1],parent=win_quick)
+btn_c1r3 = ugfx.Button(25,75,100,30,file_name[2],parent=win_quick)
+btn_c1r4 = ugfx.Button(25,110,100,30,file_name[3],parent=win_quick)
 
-btn_c2r1 = ugfx.Button(180,5,100,30,file_name[4],win_quick)
-btn_c2r2 = ugfx.Button(180,40,100,30,file_name[5],win_quick)
-btn_c2r3 = ugfx.Button(180,75,100,30,file_name[6],win_quick)
-btn_c2r4 = ugfx.Button(180,110,100,30,file_name[7],win_quick)
+btn_c2r1 = ugfx.Button(180,5,100,30,file_name[4],parent=win_quick)
+btn_c2r2 = ugfx.Button(180,40,100,30,file_name[5],parent=win_quick)
+btn_c2r3 = ugfx.Button(180,75,100,30,file_name[6],parent=win_quick)
+btn_c2r4 = ugfx.Button(180,110,100,30,file_name[7],parent=win_quick)
 
 
-btn_ok = ugfx.Button(10,5,20,20,"A",win_help)
-l_ok = ugfx.Label(40,5,100,20,"Run",win_help)
+btn_ok = ugfx.Button(10,5,20,20,"A",parent=win_help,shape=ugfx.Button.ELLIPSE)
+l_ok = ugfx.Label(40,5,100,20,"Run",parent=win_help)
 
-btn_back = ugfx.Button(100,5,20,20,"B",win_help)
-l_back = ugfx.Label(130,5,100,20,"Back",win_help)
+btn_back = ugfx.Button(100,5,20,20,"B",parent=win_help,shape=ugfx.Button.ELLIPSE)
+l_back = ugfx.Label(130,5,100,20,"Back",parent=win_help)
 
-btn_menu = ugfx.Button(200,5,20,20,"M",win_help)
-l_back = ugfx.Label(230,5,100,20,"Menu",win_help)
+btn_menu = ugfx.Button(200,5,20,20,"M",parent=win_help,shape=ugfx.Button.ROUNDED)
+l_back = ugfx.Label(230,5,100,20,"Menu",parent=win_help)
 
 
 win_header.show()
@@ -169,6 +168,8 @@ _move_arrow(0,0,cursor_loc, win_quick)
 
 app_to_load = "home"
 
+torun = "";
+
 while True:
 	pyb.wfi()
 
@@ -176,6 +177,9 @@ while True:
 		_move_arrow(joy_lr, joy_updown, cursor_loc, win_quick)
 		joy_updown = 0
 		joy_lr = 0
+		
+	if buttons.is_triggered("BTN_B"):
+		break;
 
 	if buttons.is_triggered("BTN_A"):
 
@@ -183,16 +187,13 @@ while True:
 		print(torun)
 		if len(torun) > 3:
 			if torun.endswith(".py"):
-				win_header.hide()
-				win_quick.hide()
-				win_help.hide()
-				b.disable_interrupts()
-				app_to_load = "home"
-				ugfx.area(0,0,ugfx.width(),ugfx.height(),0)
 				break
 
 buttons.disable_all_interrupt()
 
+win_header.hide()
+win_quick.hide()
+win_help.hide()
 btn_c1r1.destroy()
 btn_c1r2.destroy()
 btn_c1r3.destroy()
@@ -212,4 +213,17 @@ win_quick.destroy()
 win_help.destroy()
 title.destroy()
 
-execfile("apps/%s/main.py" % (app_to_load))
+#deinit ugfx here
+
+if len(torun) > 0:
+	#try:
+	mod = __import__(torun[:-3])
+	if "main" in dir(mod):
+		mod.main()
+	#except Exception as e:
+	#	dialogs.notice(str(e), width=wi-20, height=hi-20)
+	ugfx.area(0,0,ugfx.width(),ugfx.height(),0)
+	#deinit ugfx here
+	#could hard reset here too
+
+#	execfile("apps/%s/main.py" % (app_to_load))
