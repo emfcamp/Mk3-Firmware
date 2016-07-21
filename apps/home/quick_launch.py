@@ -3,17 +3,12 @@ import os
 import pyb
 import buttons
 import dialogs
+from database import *
+from filesystem import *
 
-stay_here = 0
 joy_updown = 0
 joy_lr = 0
 
-
-
-def callback_b(line):
-	global stay_here
-	stay_here = 0
-	print("Quitting")
 
 def callback_arrow_up(line):
 	global joy_updown
@@ -63,45 +58,49 @@ win_help = ugfx.Container(0,hi-30,wi,30)
 
 file_list = []
 
-os.sync()
-try:
-	fh = open("/flash/pinned.txt",'r')
-	keepgoing = 7
-	while keepgoing:
-		line = fh.readline()
-		if len(line) > 0:
-			file_list.append(line.strip())
-			keepgoing -= 1;
-		else:
-			keepgoing = 0;
-	fh.close()
-except OSError:
-	print("List of pinned files doesn't exist, creating default")
-	file_list = ["apps/snake/main.py","examples/party_mode.py"]
-	try:
-		fhw = open("/flash/pinned.txt",'w')
-		fhw.write("apps/snake/main.py\r\n")
-		fhw.write("examples/party_mode.py\r\n")
-		fhw.flush()
-		fhw.close()
-	except:
-		print("Error creating file")
-os.sync()
+#os.sync()
+#try:
+#	fh = open("/flash/pinned.txt",'r')
+#	keepgoing = 7
+#	while keepgoing:
+#		line = fh.readline()
+#		if len(line) > 0:
+#			file_list.append(line.strip())
+#			keepgoing -= 1;
+#		else:
+#			keepgoing = 0;
+#	fh.close()
+#except OSError:
+#	print("List of pinned files doesn't exist, creating default")
+#	file_list = ["apps/snake/main.py","examples/party_mode.py"]
+#	try:
+#		fhw = open("/flash/pinned.txt",'w')
+#		fhw.write("apps/snake/main.py\r\n")
+#		fhw.write("examples/party_mode.py\r\n")
+#		fhw.flush()
+#		fhw.close()
+#	except:
+#		print("Error creating file")
+#os.sync()
 
+pinned = database_get("pinned", [])
+
+if len(pinned) == 0:
+	print("List of pinned files doesn't exist, creating default")
+	pinned.append("apps/snake/main.py")
+	pinned.append("examples/party_mode.py")
+	database_set("pinned", pinned)
+	
+file_list = pinned;
 print(file_list)
 file_name = []
 for f in file_list:
-	sp = f.split("/")
-	if len(sp[-2]) > 3:
-		if sp[-2] == "examples":
-			if sp[-1].endswith(".py"):
-				file_name.append((sp[-1])[:-3])
-			else:
-				file_name.append("???")
-		else:
-			file_name.append(sp[-2])
-	else:
+	an = get_app_name(f)
+	if (an == ""):
 		file_name.append("???")
+	else
+		file_name.append(an)
+
 
 while len(file_list) < 8:
 	file_list.append("")
@@ -144,19 +143,10 @@ win_header.show()
 win_quick.show()
 win_help.show()
 
-#tgl_menu = pyb.Pin("BTN_MENU", pyb.Pin.IN)
-#extint1 = pyb.ExtInt(tgl_menu, pyb.ExtInt.IRQ_FALLING, pyb.Pin.PULL_UP, None)
-#tgl_up = pyb.Pin("JOY_UP", pyb.Pin.IN)
-#extint2 = pyb.ExtInt(tgl_up, pyb.ExtInt.IRQ_RISING, pyb.Pin.PULL_DOWN, None)
-#tgl_down = pyb.Pin("JOY_DOWN", pyb.Pin.IN)
-#extint3 = pyb.ExtInt(tgl_down, pyb.ExtInt.IRQ_RISING, pyb.Pin.PULL_DOWN, None)
-#tgl_a = pyb.Pin("BTN_A", pyb.Pin.IN)
-#tgl_a.init(pyb.Pin.IN, pyb.Pin.PULL_UP)
+
 
 #enable_irq()
-
 buttons.init()
-buttons.enable_interrupt("BTN_B", callback_b)
 buttons.enable_interrupt("JOY_UP", callback_arrow_up)
 buttons.enable_interrupt("JOY_DOWN", callback_arrow_down)
 buttons.enable_interrupt("JOY_LEFT", callback_arrow_left)
@@ -180,6 +170,10 @@ while True:
 		
 	if buttons.is_triggered("BTN_B"):
 		break;
+		
+	#if buttons.is_triggered("BTN_MENU"):
+	#	open unpin dialog
+	#	break;
 
 	if buttons.is_triggered("BTN_A"):
 
@@ -216,6 +210,7 @@ title.destroy()
 #deinit ugfx here
 
 if len(torun) > 0:
+	print("Running: " + torun)
 	#try:
 	mod = __import__(torun[:-3])
 	if "main" in dir(mod):

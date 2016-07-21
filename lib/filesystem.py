@@ -4,6 +4,24 @@
 
 import os
 
+def get_app_name(path):
+	"""Gets the app name based on a path"""
+	if not is_file(path):
+		return ""
+		
+	s = path.split("/")
+	if not (len(s) >= 2):
+		return ""
+	
+	if s[0] == "examples":
+		if s[-1].endswith(".py"):
+			return ((s[-1])[:-3])
+		else:
+			return ""
+	else:
+		return s[-2]
+	
+
 def is_dir(path):
     """Checks whether a path exists and is a director"""
     try:
