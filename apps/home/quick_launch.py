@@ -58,31 +58,6 @@ win_help = ugfx.Container(0,hi-30,wi,30)
 
 file_list = []
 
-#os.sync()
-#try:
-#	fh = open("/flash/pinned.txt",'r')
-#	keepgoing = 7
-#	while keepgoing:
-#		line = fh.readline()
-#		if len(line) > 0:
-#			file_list.append(line.strip())
-#			keepgoing -= 1;
-#		else:
-#			keepgoing = 0;
-#	fh.close()
-#except OSError:
-#	print("List of pinned files doesn't exist, creating default")
-#	file_list = ["apps/snake/main.py","examples/party_mode.py"]
-#	try:
-#		fhw = open("/flash/pinned.txt",'w')
-#		fhw.write("apps/snake/main.py\r\n")
-#		fhw.write("examples/party_mode.py\r\n")
-#		fhw.flush()
-#		fhw.close()
-#	except:
-#		print("Error creating file")
-#os.sync()
-
 pinned = database_get("pinned", [])
 
 if len(pinned) == 0:
