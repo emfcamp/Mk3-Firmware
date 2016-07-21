@@ -31,7 +31,7 @@ def get_app_attribute(path, attribute):
 			while True:
 				l = f.readline()
 				if l.startswith("### "):
-					kv = l[4:].split(":")
+					kv = l[4:].split(":",1)
 					if len(kv) >= 2:
 						if (kv[0].strip().lower() == attribute):
 							rv = kv[1].strip()

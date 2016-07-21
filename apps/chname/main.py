@@ -1,8 +1,8 @@
 ### Author: EMF Badge team
-### Description: Snake!
+### Description: Change your name
 ### Category: Settings
 ### License: MIT
-### Appname : Change Name
+### Appname : Change name
 
 import pyb
 from dialogs import *

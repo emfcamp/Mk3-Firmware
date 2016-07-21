@@ -26,8 +26,8 @@ components.append(ugfx.Button(80,win_preview.height()-25,20,20,"B",parent=win_pr
 components.append(ugfx.Label(105,win_preview.height()-25,100,20,"Back",parent=win_preview))
 components.append(ugfx.Button(10,win_preview.height()-50,20,20,"M",parent=win_preview))
 components.append(ugfx.Label(35,win_preview.height()-50,100,20,"Pin/Unpin",parent=win_preview))
-author = ugfx.Label(5,win_preview.height()-78,win_preview.width()-10,20,"by: ",parent=win_preview)
-desc = ugfx.Label(3,3,win_preview.width()-10,win_preview.height()-81,"Cool app/10",parent=win_preview)
+author = ugfx.Label(1,win_preview.height()-78,win_preview.width()-3,20,"by: ",parent=win_preview)
+desc = ugfx.Label(3,1,win_preview.width()-10,win_preview.height()-83,"Cool app/10",parent=win_preview)
 components.append(author)
 components.append(desc)
 
