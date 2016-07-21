@@ -1,3 +1,9 @@
+### Author: EMF Badge team
+### Description: Test app
+### Category: Games
+### License: MIT
+### Appname: Partymode1
+
 import ugfx
 import pyb
 import buttons

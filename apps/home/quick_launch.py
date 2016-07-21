@@ -71,7 +71,9 @@ file_list = pinned;
 print(file_list)
 file_name = []
 for f in file_list:
-	an = get_app_name(f)
+	an = get_app_attribute(f,"Appname")
+	if len(an) == 0:
+		an = get_app_foldername(f)
 	if (an == ""):
 		file_name.append("???")
 	else:

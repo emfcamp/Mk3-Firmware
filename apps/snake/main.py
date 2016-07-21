@@ -2,6 +2,7 @@
 ### Description: Snake!
 ### Category: Games
 ### License: MIT
+### Appname: Snake!
 
 import pyb
 import math

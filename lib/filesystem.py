@@ -4,7 +4,7 @@
 
 import os
 
-def get_app_name(path):
+def get_app_foldername(path):
 	"""Gets the app name based on a path"""
 	if not is_file(path):
 		return ""
@@ -21,6 +21,27 @@ def get_app_name(path):
 	else:
 		return s[-2]
 	
+def get_app_attribute(path, attribute):
+	if not is_file(path):
+		return ""
+	rv = ""
+	attribute = attribute.lower()
+	try:
+		with open(path) as f:
+			while True:
+				l = f.readline()
+				if l.startswith("### "):
+					kv = l[4:].split(":")
+					if len(kv) >= 2:
+						if (kv[0].strip().lower() == attribute):
+							rv = kv[1].strip()
+							break;
+				else:
+					break
+				
+	except OSError as e:
+		return ""
+	return rv
 
 def is_dir(path):
     """Checks whether a path exists and is a director"""

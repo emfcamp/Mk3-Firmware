@@ -35,13 +35,18 @@ timer.callback(lambda t:ugfx.poll())
 app_to_load = ""
 
 def update_options(options, apps, pinned):
+	options.disable_draw()
 	while options.count():
 		options.remove_item(0)
 	for app in apps:
+		att_name = get_app_attribute(app,"Appname")
+		if len(att_name) == 0:
+			att_name = get_app_foldername(app)
 		if app in pinned:
-			options.add_item("*" + get_app_name(app))
+			options.add_item("*" + att_name)
 		else:
-			options.add_item(get_app_name(app))
+			options.add_item(att_name)
+	options.enable_draw()
 
 try:
 	win_header.show()
