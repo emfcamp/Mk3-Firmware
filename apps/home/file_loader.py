@@ -21,11 +21,15 @@ ugfx.set_default_font("c*")
 options = ugfx.List(3,3,win_files.width()-6,win_files.height()-6,parent=win_files)
 components.append(options)
 components.append(ugfx.Button(10,win_preview.height()-25,20,20,"A",parent=win_preview))
-components.append(ugfx.Label(35,win_preview.height()-25,100,20,"Run",parent=win_preview))
-components.append(ugfx.Button(10,win_preview.height()-50,20,20,"B",parent=win_preview))
-components.append(ugfx.Label(35,win_preview.height()-50,100,20,"Back",parent=win_preview))
-components.append(ugfx.Button(10,win_preview.height()-75,20,20,"M",parent=win_preview))
-components.append(ugfx.Label(35,win_preview.height()-75,100,20,"Pin/Unpin",parent=win_preview))
+components.append(ugfx.Label(35,win_preview.height()-25,50,20,"Run",parent=win_preview))
+components.append(ugfx.Button(80,win_preview.height()-25,20,20,"B",parent=win_preview))
+components.append(ugfx.Label(105,win_preview.height()-25,100,20,"Back",parent=win_preview))
+components.append(ugfx.Button(10,win_preview.height()-50,20,20,"M",parent=win_preview))
+components.append(ugfx.Label(35,win_preview.height()-50,100,20,"Pin/Unpin",parent=win_preview))
+author = ugfx.Label(5,win_preview.height()-78,win_preview.width()-10,20,"by: ",parent=win_preview)
+desc = ugfx.Label(3,3,win_preview.width()-10,win_preview.height()-81,"Cool app/10",parent=win_preview)
+components.append(author)
+components.append(desc)
 
 # Timer is needed to redraw everything while the rest is sleeping
 timer = pyb.Timer(3)
@@ -66,8 +70,16 @@ try:
 
 	update_options(options, apps_path, pinned)
 
+	index_prev = -1;
+	
 	while True:
 		pyb.wfi()
+		
+		if index_prev != options.get_selected_index():
+			author.text("by: " + get_app_attribute(apps_path[options.get_selected_index()],"author"))
+			desc.text(get_app_attribute(apps_path[options.get_selected_index()],"description"))
+			index_prev = options.get_selected_index()
+		
 		if buttons.is_triggered("BTN_MENU"):
 			app_path = apps_path[options.get_selected_index()]
 			if app_path in pinned:
