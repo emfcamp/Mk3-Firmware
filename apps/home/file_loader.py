@@ -65,7 +65,7 @@ try:
 		pyb.wfi()
 		if buttons.is_triggered("BTN_MENU"):
 			app_path = apps_path[options.get_selected_index()]
-			if app in pinned:
+			if app_path in pinned:
 				pinned.remove(app_path)
 			else:
 				pinned.append(app_path)

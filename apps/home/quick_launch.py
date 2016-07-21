@@ -58,9 +58,10 @@ win_help = ugfx.Container(0,hi-30,wi,30)
 
 file_list = []
 
-pinned = database_get("pinned", [])
+pinned = database_get("pinned", None)
 
-if len(pinned) == 0:
+if pinned == None:
+	pinned = []
 	print("List of pinned files doesn't exist, creating default")
 	pinned.append("apps/snake/main.py")
 	pinned.append("examples/party_mode.py")
@@ -73,7 +74,7 @@ for f in file_list:
 	an = get_app_name(f)
 	if (an == ""):
 		file_name.append("???")
-	else
+	else:
 		file_name.append(an)
 
 
