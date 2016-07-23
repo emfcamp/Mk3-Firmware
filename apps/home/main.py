@@ -125,8 +125,15 @@ while True:
 	
 	ext_list = get_home_screen_background_apps()
 	ext_import = []
+	per_freq=[];
 	for e in ext_list:
 		ext_import.append(__import__(e[:-3]))
+		try:
+			per_freq.append(ext_import[-1].update_rate)
+		except AttributeError:
+			per_freq.append(120)
+			
+	per_time_since = [0]*len(ext_import)
 	
 	while True:
 		pyb.wfi()
@@ -142,11 +149,16 @@ while True:
 			
 			min_ctr += 1
 			
-			if (min_ctr == 10):
+			if (min_ctr == 30):
 				min_ctr = 0
-				for e in ext_import:
-					if "periodic_home" in dir(e):
-						e.periodic_home()
+				
+				for i in range(0, len(ext_import)):
+					per_time_since[i] += 30
+					if per_time_since[i] >= per_freq[i]:
+						per_time_since[i] = 0				
+						e = ext_import[i]					
+						if "periodic_home" in dir(e):
+							e.periodic_home()
 
 		if buttons.is_triggered("BTN_MENU"):
 			break

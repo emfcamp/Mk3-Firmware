@@ -6,6 +6,8 @@ adc_obj = pyb.ADC(pyb.Pin("ADC_UNREG"))
 ref_obj = pyb.ADC(0)
 temp_obj = pyb.ADC(17)
 
+update_rate = 15
+
 def get_battery_voltage(adc_obj, ref_obj):
 	vin = adc_obj.read()
 	ref_reading = ref_obj.read()
