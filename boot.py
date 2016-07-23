@@ -8,6 +8,6 @@ if "apps" in os.listdir():
 	if "home" in apps:
 		m = "apps/home/main.py"
 	elif "updater" in apps:
-		m = "apps/updater/main.py"
+		m = "apps/widget_store/main.py"
 
 pyb.main(m)
