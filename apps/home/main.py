@@ -18,14 +18,22 @@ def display_name():
 def draw_battery(x,y,back_colour,percent):
 	ugfx.set_default_font("c*")	
 	ugfx.area(x+35,y,40,25,back_colour)
-	ugfx.text(x+35,y,str(int(percent)),back_colour^0xFFFF)	
+	if percent <= 104:
+		ugfx.text(x+35,y,str(int(min(percent,100))),back_colour^0xFFFF)	
 	y += 2
 	ugfx.area(x,y,30,11,back_colour^0xFFFF)
-	ugfx.area(x+30,y+3,3,5,back_colour^0xFFFF)	
-	ugfx.area(x+2,y+2,26,7,back_colour)
-	ugfx.area(x+2,y+2,int(min(percent,100)*26/100),7,back_colour^0xFFFF)
+	ugfx.area(x+30,y+3,3,5,back_colour^0xFFFF)
+	
+	if percent > 104:
+		ugfx.area(x+2,y+2,26,7,ugfx.YELLOW)
+	elif percent > 2:
+		ugfx.area(x+2,y+2,26,7,back_colour)
+		ugfx.area(x+2,y+2,int(min(percent,100)*26/100),7,back_colour^0xFFFF)
+	else:
+		ugfx.area(x+2,y+2,26,7,ugfx.RED)
+	
 
-tick = 0
+tick = 1
 	
 def tick_inc(t):
 	global tick
@@ -40,10 +48,9 @@ def backlight_adjust():
 	else:
 		ugfx.backlight(30)
 
-def get_battery_voltage():
-#	ref = pyb.ADC(0).read()
-	vin = pyb.ADC(4).read()
-	return 2 * vin / 4096 * 3.3
+def get_battery_voltage(adc_obj):
+	vin = adc_obj.read()
+	return 2 * vin / 4096 * 3.3  ##improve using the internal reference to first cal the supply voltage
 
 timerb = pyb.Timer(3)
 timerb.init(freq=1)
@@ -57,7 +64,7 @@ while True:
 	
 	gc.collect()
 	
-	draw_battery(3,3,0xFFFF,49)	
+	adc_obj = pyb.ADC(pyb.Pin("ADC_UNREG"))
 	
 	while True:
 		pyb.wfi()
@@ -66,8 +73,8 @@ while True:
 			tick = 0
 			backlight_adjust()
 			
-			v = get_battery_voltage();
-			draw_battery(3,3,0xFFFF,int(v/4.2*100))
+			v = get_battery_voltage(adc_obj);
+			draw_battery(3,3,0xFFFF,int((v-3.7)/(4.15-3.7)*100))
 
 		if buttons.is_triggered("BTN_MENU"):
 			break
