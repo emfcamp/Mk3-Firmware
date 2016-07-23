@@ -108,5 +108,9 @@ def disable_all_interrupt():
 	for interrupt in _tilda_interrupts:
 		disable_interrupt(interrupt)
 
+def enable_menu_reset():
+	enable_interrupt("BTN_MENU", lambda t:pyb.hard_reset(), on_release = True)
 
+def disable_menu_reset():
+	disable_interrupt("BTN_MENU")
 

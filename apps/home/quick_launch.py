@@ -189,6 +189,7 @@ title.destroy()
 
 if len(torun) > 0:
 	print("Running: " + torun)
+	buttons.enable_menu_reset()
 	#try:
 	mod = __import__(torun[:-3])
 	if "main" in dir(mod):
