@@ -1,5 +1,5 @@
 ### author: emf badge team
-### description: updates and installs apps. To manage your list of apps use https://badge.emf.camp
+### description: updates and installs apps. To manage your list of apps use https://badge.emfcamp.org
 ### license: MIT
 ### depends: wifi, http_client, badge
 

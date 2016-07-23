@@ -1,25 +1,20 @@
-import network
-import pyb
-import usocket
-import machine
-import os
-import json
-import ugfx
+# TiLDA Badge Bootstrap script
+# Automatically downloads the widget store to the badge via wifi
+import network, pyb, usocket, machine, os, json, ugfx
 
 def download(path, target):
-    host = "badge.marekventur.com"
+    host = "api.badge.emfcamp.org"
     ai = usocket.getaddrinfo(host, 80) # ToDo: Change to 443 once we have https
-    sock = usocket.socket()
-    sock.connect(ai[0][4]) # .wrap_socket(sock) # enable HTTPS
-    sock.send('GET /%s HTTP/1.0\r\nHost: %s\r\nConnection: close\r\n\r\n' % (path, host))
+    s = usocket.socket()
+    s.connect(ai[0][4]) # .wrap_socket(s) # enable HTTPS
+    s.send('GET /%s HTTP/1.0\r\nHost: %s\r\nConnection: close\r\n\r\n' % (path, host))
 
-    # write to disk
     with open(target, 'wb') as f:
         state = 1
         hbuf = b"";
         remaining = None;
         while True:
-            buf = sock.recv(1024)
+            buf = s.recv(1024)
             if state == 1: # Status
                 nl = buf.find(b"\n")
                 if nl > -1:
@@ -61,32 +56,27 @@ def download(path, target):
 
             pyb.delay(50)
 
-    sock.close()
+    s.close()
 
 ugfx.init()
-ugfx.area(0, 0, ugfx.width(), ugfx.height(), ugfx.BLACK)
-ugfx.text(0, 0, "Downloading Tilda software", ugfx.RED)
+ugfx.clear(ugfx.BLACK)
+ugfx.text(0, 0, "Downloading TiLDA software", ugfx.RED)
 ugfx.text(0, 30, "Should this not work, try again by", ugfx.WHITE)
 ugfx.text(0, 50, "pressing the reset button at the back", ugfx.WHITE)
 ugfx.text(0, 100, "Please wait...", ugfx.WHITE)
 
 def message(lines):
-    y = 150;
-    ugfx.area(0, y, ugfx.width(), ugfx.height() - y, 0)
+    y = 150
+    ugfx.area(0, y, ugfx.width(), ugfx.height() - y, ugfx.BLACK)
     for line in lines:
         ugfx.text(0, y, line, ugfx.WHITE)
         y += 20
 
-def mkdir(d):
+for d in ["apps", "apps/widget_store", "lib"]:
     try:
         os.mkdir(d)
     except OSError as e:
         print(e)
-
-
-mkdir("apps")
-mkdir("apps/updater")
-mkdir("lib")
 
 w = {}
 try:
@@ -97,27 +87,28 @@ except ValueError as e:
     print(e)
 
 if not ("ssid" in w and "pw" in w):
-    message(["Couldn't find a valid wifi.json :(", "See https://badge.emf.camp", "for more information"])
-    while True: pass
+    message(["Couldn't find a valid wifi.json :(", "More information:", "badge.emfcamp.org/TiLDA_MK3/wifi"])
+    while True: pyb.wfi()
 
 wifi_ssid = w["ssid"]
 wifi_pw = w["pw"]
 
-message(["Connecting to wifi " + wifi_ssid, "Update wifi.json if this is incorrect"])
-nic = network.CC3100()
-nic.connect(wifi_ssid, wifi_pw)
-while not nic.is_connected():
-    nic.update()
+message(["Connecting to '%s'" % (wifi_ssid), "Update wifi.json if this is incorrect", "More information:", "badge.emfcamp.org/TiLDA_MK3/wifi"])
+n = network.CC3100()
+n.connect(wifi_ssid, wifi_pw)
+while not n.is_connected():
+    n.update()
     pyb.delay(100)
 
 try:
-    message(["Downloading updater.py (1/3)"])
-    download("/apps/updater/main.py", "apps/updater/main.py")
-    message(["Downloading http_client.py (2/3)"])
-    download("/lib/http_client.py", "lib/http_client.py")
-    message(["Downloading boot.py (3/3)"])
-    download("/boot.py", "boot.py")
+    libs = ["wifi", "buttons", "http_client", "filesystem", "dialogs", "database"]
+    for i, lib in enumerate(libs):
+        message(["Downloading library: %s (%d/%d)" % (lib, i + 1, len(libs))])
+        download("/firmware/master/lib/%s.py" % (lib), "lib/%s.py" % (lib))
+
+    message(["Downloading widget store"])
+    download("/firmware/master/apps/widget_store/main.py", "apps/widget_store/main.py")
+
 finally:
     os.sync()
 machine.reset()
-
