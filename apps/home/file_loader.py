@@ -9,6 +9,7 @@ from filesystem import *
 width = ugfx.width()
 height = ugfx.height()
 buttons.init()
+buttons.disable_menu_reset()
 
 # Create visual elements
 win_header = ugfx.Container(0,0,width,30)
@@ -105,6 +106,7 @@ finally:
 
 if len(app_to_load) > 0:
 	#try:
+	buttons.enable_menu_reset()
 	mod = __import__(app_to_load[:-3])
 	if "main" in dir(mod):
 		mod.main()

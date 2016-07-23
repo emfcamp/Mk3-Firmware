@@ -58,11 +58,11 @@ def get_battery_voltage(adc_obj, ref_obj):
 	return 2 * vin / 4095 * supply_voltage
 	
 def get_home_screen_background_apps():
-	pinned = database_get("pinned", []);
+	pinned = database_get("pinned", [])
 	out = []
 	for f in pinned:
 		if f.endswith("/main.py"):
-			fe = f.strip("main.py") + "external.py"
+			fe = f[:-7] + "external.py"
 			if is_file(fe):
 				out.append(fe)
 
@@ -142,7 +142,8 @@ while True:
 			
 			min_ctr += 1
 			
-			if (min_ctr == 60):
+			if (min_ctr == 10):
+				min_ctr = 0
 				for e in ext_import:
 					if "periodic_home" in dir(e):
 						e.periodic_home()
