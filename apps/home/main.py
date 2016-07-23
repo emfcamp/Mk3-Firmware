@@ -48,9 +48,11 @@ def backlight_adjust():
 	else:
 		ugfx.backlight(30)
 
-def get_battery_voltage(adc_obj):
+def get_battery_voltage(adc_obj, ref_obj):
 	vin = adc_obj.read()
-	return 2 * vin / 4096 * 3.3  ##improve using the internal reference to first cal the supply voltage
+	ref_reading = ref_obj.read()
+	supply_voltage = 4095/ref_reading*1.21 
+	return 2 * vin / 4095 * supply_voltage
 
 timerb = pyb.Timer(3)
 timerb.init(freq=1)
@@ -65,6 +67,7 @@ while True:
 	gc.collect()
 	
 	adc_obj = pyb.ADC(pyb.Pin("ADC_UNREG"))
+	ref_obj = pyb.ADC(0)
 	
 	while True:
 		pyb.wfi()
@@ -73,8 +76,8 @@ while True:
 			tick = 0
 			backlight_adjust()
 			
-			v = get_battery_voltage(adc_obj);
-			draw_battery(3,3,0xFFFF,int((v-3.7)/(4.15-3.7)*100))
+			v = get_battery_voltage(adc_obj,ref_obj);
+			draw_battery(3,3,0xFFFF,int((v-3.7)/(4.07-3.7)*100))
 
 		if buttons.is_triggered("BTN_MENU"):
 			break
