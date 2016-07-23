@@ -194,6 +194,8 @@ if len(torun) > 0:
 	mod = __import__(torun[:-3])
 	if "main" in dir(mod):
 		mod.main()
+	stm.mem8[0x40002850] = 0x9C
+	pyb.hard_reset()
 	#except Exception as e:
 	#	dialogs.notice(str(e), width=wi-20, height=hi-20)
 	ugfx.area(0,0,ugfx.width(),ugfx.height(),0)

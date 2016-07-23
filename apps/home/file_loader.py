@@ -108,6 +108,8 @@ if len(app_to_load) > 0:
 	mod = __import__(app_to_load[:-3])
 	if "main" in dir(mod):
 		mod.main()
+	stm.mem8[0x40002850] = 0x9C
+	pyb.hard_reset()
 	#except Exception as e:
 	#	dialogs.notice(str(e), width=wi-20, height=hi-20)
 	ugfx.area(0,0,ugfx.width(),ugfx.height(),0)

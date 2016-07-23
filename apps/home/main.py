@@ -2,6 +2,7 @@ import ugfx
 import pyb
 import os
 from database import *
+from filesystem import *
 import buttons
 import gc
 import stm
@@ -55,13 +56,57 @@ def get_battery_voltage(adc_obj, ref_obj):
 	reference_voltage = factory_reading/4095*3
 	supply_voltage = 4095/ref_reading*reference_voltage 
 	return 2 * vin / 4095 * supply_voltage
+	
+def get_home_screen_background_apps():
+	pinned = database_get("pinned", []);
+	out = []
+	for f in pinned:
+		if f.endswith("/main.py"):
+			fe = f.strip("main.py") + "external.py"
+			if is_file(fe):
+				out.append(fe)
 
-timerb = pyb.Timer(3)
-timerb.init(freq=1)
-timerb.callback(tick_inc)
+	return out
+
+
+#needs looking at
+def get_temperature(adc_obj, ref_obj):
+	tval = adc_obj.read()
+	ref_reading = ref_obj.read()
+	factory_reading = stm.mem16[0x1FFF75AA]
+	reference_voltage = factory_reading/4095*3
+	supply_voltage = 4095/ref_reading*reference_voltage 
+	adc30_3v = stm.mem16[0x1FFF75A8]
+	adc110_3v = stm.mem16[0x1FFF75CA]
+	grad = (adc110_3v - adc30_3v)/(110-30)
+	tval_3v = tval/3*supply_voltage
+	diff = (adc30_3v - tval_3v)/grad
+	return 30 - diff
+	
+ugfx.init()
+if not stm.mem8[0x40002850] == 0x9C:
+	splashes = ["splash1.bmp"]
+	for s in splashes:
+		ugfx.display_image(0,0,s)
+		delay = 5000
+		buttons.init()
+		while delay:
+			delay -= 1
+			if buttons.is_triggered("BTN_MENU"):
+				break;
+			if buttons.is_triggered("BTN_A"):
+				break;
+			if buttons.is_triggered("BTN_B"):
+				break;
+			if buttons.is_triggered("JOY_CENTER"):
+				break;
+			pyb.delay(1)
+ugfx.area(0,0,320,240,0)
+stm.mem8[0x40002850] = 0
+	
 
 while True:
-	ugfx.init()
+#	ugfx.init()
 	display_name()
 
 	buttons.init()
@@ -70,6 +115,18 @@ while True:
 	
 	adc_obj = pyb.ADC(pyb.Pin("ADC_UNREG"))
 	ref_obj = pyb.ADC(0)
+	temp_obj = pyb.ADC(17)
+	
+	min_ctr = 0
+	
+	timerb = pyb.Timer(3)
+	timerb.init(freq=1)
+	timerb.callback(tick_inc)
+	
+	ext_list = get_home_screen_background_apps()
+	ext_import = []
+	for e in ext_list:
+		ext_import.append(__import__(e[:-3]))
 	
 	while True:
 		pyb.wfi()
@@ -78,9 +135,17 @@ while True:
 			tick = 0
 			backlight_adjust()
 			
-			v = get_battery_voltage(adc_obj,ref_obj);
-			print(v)
-			draw_battery(3,3,0xFFFF,int((v-3.7)/(4.10-3.7)*100))
+			v = get_battery_voltage(adc_obj,ref_obj)
+			#t = get_temperature(temp_obj,ref_obj)
+			#print(t)
+			draw_battery(3,3,0xFFFF,int((v-3.7)/(4.15-3.7)*100))
+			
+			min_ctr += 1
+			
+			if (min_ctr == 60):
+				for e in ext_import:
+					if "periodic_home" in dir(e):
+						e.periodic_home()
 
 		if buttons.is_triggered("BTN_MENU"):
 			break
