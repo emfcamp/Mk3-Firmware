@@ -51,11 +51,7 @@ else:
 						graph.plot(index, data_y)
 					except ValueError:
 						data_y = 0
-					
 
-	
-	
-	
-	
+
 while True:
 	pyb.wfi()

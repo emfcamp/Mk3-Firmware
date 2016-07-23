@@ -6,15 +6,8 @@ from filesystem import *
 import buttons
 import gc
 import stm
+import apps.home.draw_name
 
-def display_name():
-	ugfx.area(0,0,ugfx.width(),ugfx.height(),0xFFFF)
-	ugfx.set_default_font("D*")
-	ugfx.text(40,90,"My name is...",ugfx.BLUE)
-	ugfx.text(40,120,database_get("display-name", "<not set yet>"),ugfx.BLUE)
-	ugfx.circle(140,200,40,ugfx.GREEN)
-	ugfx.circle(160,200,40,ugfx.GREEN)
-	ugfx.circle(180,200,40,ugfx.GREEN)
 	
 def draw_battery(x,y,back_colour,percent):
 	ugfx.set_default_font("c*")	
@@ -107,11 +100,16 @@ stm.mem8[0x40002850] = 0
 
 while True:
 #	ugfx.init()
-	display_name()
+	
+	win_name = ugfx.Container(0,40,320,200)
+	ugfx.clear()
+	obj_name = apps.home.draw_name.draw(win_name)
 
 	buttons.init()
 	
 	gc.collect()
+	
+	
 	
 	adc_obj = pyb.ADC(pyb.Pin("ADC_UNREG"))
 	ref_obj = pyb.ADC(0)
@@ -122,6 +120,7 @@ while True:
 	timerb = pyb.Timer(3)
 	timerb.init(freq=1)
 	timerb.callback(tick_inc)
+	
 	
 	ext_list = get_home_screen_background_apps()
 	ext_import = []
@@ -163,7 +162,9 @@ while True:
 		if buttons.is_triggered("BTN_MENU"):
 			break
 
-		
+	
+	apps.home.draw_name.draw_destroy(obj_name)
+	win_name.destroy()
 	timerb.deinit()
 	ugfx.backlight(100)
 
