@@ -18,13 +18,13 @@ def display_name():
 def draw_battery(x,y,back_colour,percent):
 	ugfx.set_default_font("c*")	
 	ugfx.area(x+35,y,40,25,back_colour)
-	if percent <= 104:
+	if percent <= 120:
 		ugfx.text(x+35,y,str(int(min(percent,100))),back_colour^0xFFFF)	
 	y += 2
 	ugfx.area(x,y,30,11,back_colour^0xFFFF)
 	ugfx.area(x+30,y+3,3,5,back_colour^0xFFFF)
 	
-	if percent > 104:
+	if percent > 120:
 		ugfx.area(x+2,y+2,26,7,ugfx.YELLOW)
 	elif percent > 2:
 		ugfx.area(x+2,y+2,26,7,back_colour)
@@ -51,7 +51,9 @@ def backlight_adjust():
 def get_battery_voltage(adc_obj, ref_obj):
 	vin = adc_obj.read()
 	ref_reading = ref_obj.read()
-	supply_voltage = 4095/ref_reading*1.21 
+	factory_reading = stm.mem16[0x1FFF75AA]
+	reference_voltage = factory_reading/4095*3
+	supply_voltage = 4095/ref_reading*reference_voltage 
 	return 2 * vin / 4095 * supply_voltage
 
 timerb = pyb.Timer(3)
@@ -77,7 +79,8 @@ while True:
 			backlight_adjust()
 			
 			v = get_battery_voltage(adc_obj,ref_obj);
-			draw_battery(3,3,0xFFFF,int((v-3.7)/(4.07-3.7)*100))
+			print(v)
+			draw_battery(3,3,0xFFFF,int((v-3.7)/(4.10-3.7)*100))
 
 		if buttons.is_triggered("BTN_MENU"):
 			break
