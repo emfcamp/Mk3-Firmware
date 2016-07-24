@@ -47,6 +47,7 @@ def get_battery_voltage(adc_obj, ref_obj):
 	ref_reading = ref_obj.read()
 	factory_reading = stm.mem16[0x1FFF75AA]
 	reference_voltage = factory_reading/4095*3
+#	print (str(reference_voltage) + "  " + str(factory_reading) + " " + str(ref_reading))
 	supply_voltage = 4095/ref_reading*reference_voltage 
 	return 2 * vin / 4095 * supply_voltage
 	
@@ -61,6 +62,8 @@ def get_home_screen_background_apps():
 
 	return out
 
+def low_power():
+	ugfx.backlight(5)
 
 #needs looking at
 def get_temperature(adc_obj, ref_obj):
@@ -114,6 +117,7 @@ while True:
 	adc_obj = pyb.ADC(pyb.Pin("ADC_UNREG"))
 	ref_obj = pyb.ADC(0)
 	temp_obj = pyb.ADC(17)
+
 	
 	min_ctr = 0
 	
@@ -134,19 +138,32 @@ while True:
 			
 	per_time_since = [0]*len(ext_import)
 	
+	backlight_adjust()
+	
+	inactivity = 0
+	
 	while True:
 		pyb.wfi()
 		
 		if tick > 0:
 			tick = 0
-			backlight_adjust()
+			
 			
 			v = get_battery_voltage(adc_obj,ref_obj)
 			#t = get_temperature(temp_obj,ref_obj)
 			#print(t)
-			draw_battery(3,3,0xFFFF,int((v-3.7)/(4.15-3.7)*100))
+			battery_percent = int((v-3.7)/(4.15-3.7)*100)
+			draw_battery(3,3,0xFFFF,battery_percent)
 			
 			min_ctr += 1
+			inactivity += 1
+			
+			if battery_percent > 120:  #if charger plugged in
+				ugfx.backlight(100)
+			elif inactivity > 120:
+				low_power()
+			else:
+				backlight_adjust()
 			
 			if (min_ctr == 30):
 				min_ctr = 0
@@ -161,6 +178,15 @@ while True:
 
 		if buttons.is_triggered("BTN_MENU"):
 			break
+		if buttons.is_triggered("BTN_A"):
+			inactivity = 0
+			tick = 1
+		if buttons.is_triggered("BTN_B"):
+			inactivity = 0
+			tick = 1
+			
+		#if activity:
+		#	inactivity = 0
 
 	
 	apps.home.draw_name.draw_destroy(obj_name)
