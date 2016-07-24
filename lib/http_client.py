@@ -199,7 +199,6 @@ def request(method, url, json=None, timeout=None, headers=None):
 					nl = hbuf.find(b"\n")
 
 			if state == 3: # Content
-				print(response)
 				response.add_socket(sock, buf)
 				sock = None # It's not our responsibility to close the socket anymore
 				return response
@@ -211,13 +210,3 @@ def get(url, **kwargs):
 
 def post(url, **kwargs):
 	return request('POST', url, **kwargs)
-
-import ugfx, dialogs, wifi
-ugfx.init()
-
-with dialogs.WaitingMessage(text=wifi.connection_text(), title="TiLDA Widget Updater") as message:
-	wifi.connect()
-
-with dialogs.WaitingMessage(text="Please wait while we're updating your libs", title="TiLDA Widget Updater") as message:
-	master = get("http://api.badge.emfcamp.org/firmware/master.json").raise_for_status().json()
-	print(master)
