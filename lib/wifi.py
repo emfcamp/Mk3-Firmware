@@ -7,6 +7,14 @@ import os
 import json
 import pyb
 
+_nic = None
+
+def nic():
+    global _nic
+    if not _nic:
+        _nic = nic = network.CC3100()
+    return _nic
+
 def connection_details():
     data = {}
     try:
@@ -24,10 +32,18 @@ def connection_details():
 def ssid():
     return connection_details()["ssid"]
 
-def connect():
+def connect(wait = True):
+    if nic().is_connected:
+        return
     details = connection_details()
-    nic = network.CC3100()
-    nic.connect(details["ssid"], details["pw"])
-    while (not nic.is_connected()):
-        nic.update()
+    nic().connect(details["ssid"], details["pw"])
+    if wait:
+        wait_for_connection()
+
+def wait_for_connection():
+    while not nic().is_connected():
+        nic().update()
         pyb.delay(100)
+
+def connection_text():
+    return "Connecting to wifi '%s'. If this doesn't work, please check your wifi.json. More information: badge.emfcamp.org/TiLDA_MK3/wifi" % (ssid())

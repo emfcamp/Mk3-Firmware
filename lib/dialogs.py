@@ -6,6 +6,8 @@ import ugfx
 import buttons
 import pyb
 
+TILDA_COLOR = ugfx.html_color(0x7c1143);
+
 def notice(text, close_text="Close", width = 213, height = 120):
 	prompt_boolean(text, true_text = close_text, false_text = None, width = width, height = height)
 
@@ -95,7 +97,7 @@ def prompt_option(options, index=0, text = "Please select one of the following:"
 
 	list_y = 30
 	if title:
-		window.text(title, 5, 5, ugfx.BLUE)
+		window.text(title, 5, 5, TILDA_COLOR)
 		window.line(0, 25, ugfx.width() - 10, 25, ugfx.BLACK)
 		window.text(text, 5, 30, ugfx.BLACK)
 		list_y = 50
@@ -140,9 +142,9 @@ class WaitingMessage:
 	def __init__(self, text = "Please Wait...", title="TiLDA"):
 		self.window = ugfx.Container(30, 30, ugfx.width() - 60, ugfx.height() - 60)
 		self.window.show()
-		self.window.text(title, 5, 5, ugfx.BLUE)
+		self.window.text(title, 5, 5, TILDA_COLOR)
 		self.window.line(0, 30, ugfx.width() - 60, 30, ugfx.BLACK)
-		self.label = ugfx.Label(5, 40, ugfx.width(), ugfx.height() - 40, text = text, parent=self.window)
+		self.label = ugfx.Label(5, 40, self.window.width() - 10, ugfx.height() - 40, text = text, parent=self.window)
 
 		# Indicator to show something is going on
 		self.indicator = ugfx.Label(ugfx.width() - 100, 0, 20, 20, text = "...", parent=self.window)

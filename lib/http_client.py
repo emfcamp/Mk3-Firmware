@@ -103,7 +103,7 @@ class Response(object):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.close();
+        self.close()
 
 def open_http_socket(method, url, json=None, timeout=None, headers=None):
     urlparts = url.split('/', 3)
