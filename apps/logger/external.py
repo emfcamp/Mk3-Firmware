@@ -1,12 +1,15 @@
 from filesystem import *
 import pyb
 import stm
+import ugfx
 
 adc_obj = pyb.ADC(pyb.Pin("ADC_UNREG"))
 ref_obj = pyb.ADC(0)
 temp_obj = pyb.ADC(17)
 
 update_rate = 15
+
+i=0
 
 def get_battery_voltage(adc_obj, ref_obj):
 	vin = adc_obj.read()
@@ -16,10 +19,16 @@ def get_battery_voltage(adc_obj, ref_obj):
 	supply_voltage = 4095/ref_reading*reference_voltage 
 	return 2 * vin / 4095 * supply_voltage
 
-def periodic_home():
+def periodic_home(icon):
 	global adc_obj
 	global ref_obj
 	global temp_obj
+	global i
+	icon.show()
+	ugfx.set_default_font("c*")
+	icon.area(0,0,icon.width(),icon.height(),0xFFFF)
+	icon.text(0,0,str(i),0)
+	i+=1
 	
 	bv = get_battery_voltage(adc_obj, ref_obj)
 	
@@ -31,3 +40,5 @@ def periodic_home():
 	
 	with open(logfile, "a") as f:
 		f.write(str(bv) + ",\r\n")
+		
+	return "Logged " + str(bv)

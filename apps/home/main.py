@@ -15,29 +15,33 @@ import stm
 import apps.home.draw_name
 
 	
-def draw_battery(x,y,back_colour,percent):
+def draw_battery(back_colour,percent, win_bv):
 	ugfx.set_default_font("c*")	
-	ugfx.area(x+35,y,40,25,back_colour)
+	x=3
+	y=3
+	win_bv.area(x+35,y,40,24,back_colour)
 	if percent <= 120:
-		ugfx.text(x+35,y,str(int(min(percent,100))),back_colour^0xFFFF)	
+		win_bv.text(x+35,y,str(int(min(percent,100))),back_colour^0xFFFF)	
 	y += 2
-	ugfx.area(x,y,30,11,back_colour^0xFFFF)
-	ugfx.area(x+30,y+3,3,5,back_colour^0xFFFF)
+	win_bv.area(x,y,30,11,back_colour^0xFFFF)
+	win_bv.area(x+30,y+3,3,5,back_colour^0xFFFF)
 	
 	if percent > 120:
-		ugfx.area(x+2,y+2,26,7,ugfx.YELLOW)
+		win_bv.area(x+2,y+2,26,7,ugfx.YELLOW)
 	elif percent > 2:
-		ugfx.area(x+2,y+2,26,7,back_colour)
-		ugfx.area(x+2,y+2,int(min(percent,100)*26/100),7,back_colour^0xFFFF)
+		win_bv.area(x+2,y+2,26,7,back_colour)
+		win_bv.area(x+2,y+2,int(min(percent,100)*26/100),7,back_colour^0xFFFF)
 	else:
-		ugfx.area(x+2,y+2,26,7,ugfx.RED)
+		win_bv.area(x+2,y+2,26,7,ugfx.RED)
 	
 
 tick = 1
+pretick = 0
 	
 def tick_inc(t):
-	global tick
-	tick += 1
+	global pretick
+	pretick += 1
+	ugfx.poll()
 	
 def backlight_adjust():
 	l = pyb.ADC(16).read()
@@ -110,13 +114,22 @@ stm.mem8[0x40002850] = 0
 while True:
 #	ugfx.init()
 	
-	win_name = ugfx.Container(0,40,320,200)
 	ugfx.clear()
+	
+	win_bv = ugfx.Container(0,0,80,25)
+	win_name = ugfx.Container(0,25,320,240-25-60)
+	win_text = ugfx.Container(0,240-60,320,60)
+	
 	obj_name = apps.home.draw_name.draw(win_name)
 
 	buttons.init()
 	
 	gc.collect()
+	ugfx.set_default_font("c*")
+	l_text = ugfx.List(0,0,250,win_text.height(),parent=win_text)
+	
+	win_bv.show()
+	win_text.show()
 	
 	
 	
@@ -125,11 +138,15 @@ while True:
 	temp_obj = pyb.ADC(17)
 
 	
-	min_ctr = 0
+	min_ctr = 28
 	
-	timerb = pyb.Timer(3)
-	timerb.init(freq=1)
-	timerb.callback(tick_inc)
+#	timerb = pyb.Timer(3)
+#	timerb.init(freq=1)
+#	timerb.callback(tick_inc)
+	
+	timer = pyb.Timer(3)
+	timer.init(freq=50)
+	timer.callback(tick_inc) #lambda t:ugfx.poll())
 	
 	
 	ext_list = get_home_screen_background_apps()
@@ -142,7 +159,13 @@ while True:
 		except AttributeError:
 			per_freq.append(120)
 			
-	per_time_since = [0]*len(ext_import)
+	icons = []
+	x = 100
+	for e in ext_list:
+		icons.append(ugfx.Container(x,0,25,25))
+		x += 27
+			
+	per_time_since = [200]*len(ext_import)
 	
 	backlight_adjust()
 	
@@ -151,7 +174,11 @@ while True:
 	while True:
 		pyb.wfi()
 		
-		if tick > 0:
+		if (pretick >= 50):
+			pretick = 0 
+			tick += 1
+		
+		if tick >= 1:
 			tick = 0
 			
 			
@@ -159,7 +186,7 @@ while True:
 			#t = get_temperature(temp_obj,ref_obj)
 			#print(t)
 			battery_percent = int((v-3.7)/(4.15-3.7)*100)
-			draw_battery(3,3,0xFFFF,battery_percent)
+			draw_battery(0xFFFF,battery_percent,win_bv)
 			
 			min_ctr += 1
 			inactivity += 1
@@ -172,15 +199,18 @@ while True:
 				backlight_adjust()
 			
 			if (min_ctr == 30):
-				min_ctr = 0
-				
+				min_ctr = 0				
 				for i in range(0, len(ext_import)):
 					per_time_since[i] += 30
 					if per_time_since[i] >= per_freq[i]:
 						per_time_since[i] = 0				
 						e = ext_import[i]					
 						if "periodic_home" in dir(e):
-							e.periodic_home()
+							text = e.periodic_home(icons[i])
+							if len(text) > 0:								
+								if (l_text.count() > 10):
+									l_text.remove_item(0)
+								l_text.add_item(text)
 
 		if buttons.is_triggered("BTN_MENU"):
 			break
@@ -194,10 +224,16 @@ while True:
 		#if activity:
 		#	inactivity = 0
 
-	
+	for i in icons:
+		i.destroy()
+	win_bv.destroy()
+	win_name.destroy()
+	win_text.destroy()
 	apps.home.draw_name.draw_destroy(obj_name)
 	win_name.destroy()
-	timerb.deinit()
+	l_text.destroy()
+	#timerb.deinit()
+	timer.deinit()
 	ugfx.backlight(100)
 
 	## ToDo: Maybe boot should always chdir to the app folder?
