@@ -1,3 +1,9 @@
+### Author: EMF Badge team
+### Description: Main app
+### Category: Other
+### License: MIT
+### Appname: Home
+### Built-in: hide
 import ugfx
 import pyb
 import os

@@ -3,6 +3,7 @@
 ### Category: Games
 ### License: MIT
 ### Appname: Partymode1
+### Built-in: yes
 
 import ugfx
 import pyb

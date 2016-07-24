@@ -28,7 +28,7 @@ def get_app_attribute(path, attribute):
 	attribute = attribute.lower()
 	try:
 		with open(path) as f:
-			while True:
+			while True:  ## ToDo: set the max lines to loop over to be 20 or so
 				l = f.readline()
 				if l.startswith("### "):
 					kv = l[4:].split(":",1)

@@ -1,3 +1,10 @@
+### Author: EMF Badge team
+### Description: Log stuff to memory
+### Category: Comms
+### License: MIT
+### Appname : Logger
+### Built-in: yes
+
 import ugfx
 from filesystem import *
 import pyb

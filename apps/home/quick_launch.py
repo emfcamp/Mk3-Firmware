@@ -125,10 +125,10 @@ win_help.show()
 
 #enable_irq()
 buttons.init()
-buttons.enable_interrupt("JOY_UP", callback_arrow_up)
-buttons.enable_interrupt("JOY_DOWN", callback_arrow_down)
-buttons.enable_interrupt("JOY_LEFT", callback_arrow_left)
-buttons.enable_interrupt("JOY_RIGHT", callback_arrow_right)
+#buttons.enable_interrupt("JOY_UP", callback_arrow_up)
+#buttons.enable_interrupt("JOY_DOWN", callback_arrow_down)
+#buttons.enable_interrupt("JOY_LEFT", callback_arrow_left)
+#buttons.enable_interrupt("JOY_RIGHT", callback_arrow_right)
 
 cursor_loc = [0, 0]
 
@@ -140,6 +140,15 @@ torun = "";
 
 while True:
 	pyb.wfi()
+	
+	if buttons.is_triggered("JOY_UP"):
+		joy_updown = -1
+	if buttons.is_triggered("JOY_DOWN"):
+		joy_updown = 1
+	if buttons.is_triggered("JOY_RIGHT"):
+		joy_lr = 1
+	if buttons.is_triggered("JOY_LEFT"):
+		joy_lr = -1
 
 	if (joy_updown != 0) or (joy_lr != 0):
 		_move_arrow(joy_lr, joy_updown, cursor_loc, win_quick)
