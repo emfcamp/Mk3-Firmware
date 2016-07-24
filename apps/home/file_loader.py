@@ -51,7 +51,7 @@ catergories = ["Built-in", "Examples", "Settings", "Games", "Comms", "Other", "A
 c_ptr = 0
 
 def update_options(options, apps, pinned, cat):
-	print(cat)
+	options.set_selected_index(0)
 	options.disable_draw()
 	cat = cat.lower()
 	out = []
@@ -64,6 +64,9 @@ def update_options(options, apps, pinned, cat):
 		#handle unspecified
 		if len(app_cat) == 0:
 			app_cat = "other"
+			
+		if app.startswith("examples/"):
+			app_cat = "examples"
 			
 		#handle the 'built-in' category
 		b_in = get_app_attribute(app,"built-in").lower()
@@ -96,9 +99,12 @@ try:
 		for app in os.listdir("apps"):
 			path = "apps/" + app
 			if is_dir(path) and is_file(path + "/main.py"):
-#				apps.append(app)
 				apps_path.append(path + "/main.py")
-				a = get_app_attribute(path + "/main.py", "Category")
+	if is_dir("examples"):
+		for app in os.listdir("examples"):
+			path = "examples/" + app
+			if is_file(path) and path.endswith(".py"):
+				apps_path.append(path)
 
 	displayed_apps = update_options(options, apps_path, pinned, catergories[c_ptr])
 
