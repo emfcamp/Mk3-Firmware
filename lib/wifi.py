@@ -33,7 +33,7 @@ def ssid():
     return connection_details()["ssid"]
 
 def connect(wait = True):
-    if nic().is_connected:
+    if nic().is_connected():
         return
     details = connection_details()
     nic().connect(details["ssid"], details["pw"])

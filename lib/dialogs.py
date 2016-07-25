@@ -97,12 +97,12 @@ def prompt_option(options, index=0, text = "Please select one of the following:"
 
 	list_y = 30
 	if title:
-		window.text(title, 5, 5, TILDA_COLOR)
+		window.text(5, 5, title, TILDA_COLOR)
 		window.line(0, 25, ugfx.width() - 10, 25, ugfx.BLACK)
-		window.text(text, 5, 30, ugfx.BLACK)
+		window.text(5, 30, text, ugfx.BLACK)
 		list_y = 50
 	else:
-		window.text(text, 5, 10, ugfx.BLACK)
+		window.text(5, 10, text, ugfx.BLACK)
 
 	options_list = ugfx.List(5, list_y, ugfx.width() - 25, 180 - list_y, parent = window)
 
@@ -142,7 +142,7 @@ class WaitingMessage:
 	def __init__(self, text = "Please Wait...", title="TiLDA"):
 		self.window = ugfx.Container(30, 30, ugfx.width() - 60, ugfx.height() - 60)
 		self.window.show()
-		self.window.text(title, 5, 5, TILDA_COLOR)
+		self.window.text(5, 5, title, TILDA_COLOR)
 		self.window.line(0, 30, ugfx.width() - 60, 30, ugfx.BLACK)
 		self.label = ugfx.Label(5, 40, self.window.width() - 10, ugfx.height() - 40, text = text, parent=self.window)
 
