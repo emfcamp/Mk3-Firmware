@@ -3,7 +3,7 @@ import pyb
 
 ugfx.clear()
 
-ugfx.set_default_font(ugfx.FONT_TINY)
+ugfx.set_default_font(ugfx.FONT_SMALL)
 ugfx.text(20,30,"Tiny AbCdEfGhiJkLmNoPqRsTuVwXyZ 1\"3$5^7*9) ",0)
 ugfx.set_default_font(ugfx.FONT_TITLE)
 ugfx.text(20,50,"Title AbCdEfGhiJkLmNoPqRsTuVwXyZ 1\"3$5^7*9) ",0)
