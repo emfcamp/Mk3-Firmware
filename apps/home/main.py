@@ -90,6 +90,7 @@ def get_temperature(adc_obj, ref_obj):
 	return 30 - diff
 	
 ugfx.init()
+
 if not stm.mem8[0x40002850] == 0x9C:
 	splashes = ["splash1.bmp"]
 	for s in splashes:
@@ -107,25 +108,30 @@ if not stm.mem8[0x40002850] == 0x9C:
 			if buttons.is_triggered("JOY_CENTER"):
 				break;
 			pyb.delay(1)
-ugfx.area(0,0,320,240,0)
+
+
 stm.mem8[0x40002850] = 0
-	
+sty = ugfx.Style()
+sty.set_enabled([ugfx.WHITE, ugfx.html_color(0x3C0246), ugfx.GREY, ugfx.RED])
+sty.set_background(ugfx.html_color(0x3C0246))
+ugfx.set_default_style(sty)
 
 while True:
 #	ugfx.init()
 	
-	ugfx.clear()
+	ugfx.area(0,0,320,240,ugfx.html_color(0x3C0246))
 	
 	win_bv = ugfx.Container(0,0,80,25)
 	win_name = ugfx.Container(0,25,320,240-25-60)
 	win_text = ugfx.Container(0,240-60,320,60)
+
 	
-	obj_name = apps.home.draw_name.draw(win_name)
+	obj_name = apps.home.draw_name.draw(0,25,win_name)
 
 	buttons.init()
 	
 	gc.collect()
-	ugfx.set_default_font("c*")
+	ugfx.set_default_font(ugfx.FONT_MEDIUM_BOLD)
 	l_text = ugfx.List(0,0,250,win_text.height(),parent=win_text)
 	
 	win_bv.show()
@@ -186,7 +192,7 @@ while True:
 			#t = get_temperature(temp_obj,ref_obj)
 			#print(t)
 			battery_percent = int((v-3.7)/(4.15-3.7)*100)
-			draw_battery(0xFFFF,battery_percent,win_bv)
+			draw_battery(ugfx.html_color(0x3C0246),battery_percent,win_bv)
 			
 			min_ctr += 1
 			inactivity += 1
