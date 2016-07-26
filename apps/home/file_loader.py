@@ -53,7 +53,7 @@ catergories = ["Built-in", "Examples", "Settings", "Games", "Comms", "Other", "A
 c_ptr = 0
 
 def update_options(options, apps, pinned, cat):
-	options.set_selected_index(0)
+#	options.set_selected_index(0)
 	options.disable_draw()
 	cat = cat.lower()
 	out = []

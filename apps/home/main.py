@@ -204,7 +204,7 @@ while True:
 			else:
 				backlight_adjust()
 			
-			if (min_ctr == 30):
+			if (min_ctr >= 30):
 				min_ctr = 0				
 				for i in range(0, len(ext_import)):
 					per_time_since[i] += 30
@@ -217,6 +217,8 @@ while True:
 								if (l_text.count() > 10):
 									l_text.remove_item(0)
 								l_text.add_item(text)
+								if l_text.get_selected_index() >= (l_text.count()-2):
+									l_text.set_selected_index(l_text.count()-1)
 
 		if buttons.is_triggered("BTN_MENU"):
 			break
