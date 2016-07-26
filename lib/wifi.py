@@ -12,7 +12,7 @@ _nic = None
 def nic():
     global _nic
     if not _nic:
-        _nic = nic = network.CC3100()
+        _nic = network.CC3100()
     return _nic
 
 def connection_details():
