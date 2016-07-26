@@ -1,5 +1,5 @@
 # TiLDA Badge Bootstrap script
-# Automatically downloads the widget store to the badge via wifi
+# Automatically downloads the app library to the badge via wifi
 import network, pyb, usocket, machine, os, json, ugfx
 
 def download(path, target):
@@ -72,7 +72,7 @@ def message(lines):
 		ugfx.text(0, y, line, ugfx.WHITE)
 		y += 20
 
-for d in ["apps", "apps/widget_store", "lib"]:
+for d in ["apps", "apps/app_library", "lib"]:
 	try:
 		os.mkdir(d)
 	except OSError as e:
@@ -106,8 +106,8 @@ try:
 		message(["Downloading library: %s (%d/%d)" % (lib, i + 1, len(libs))])
 		download("/firmware/master/lib/%s.py" % (lib), "lib/%s.py" % (lib))
 
-	message(["Downloading widget store"])
-	download("/firmware/master/apps/widget_store/main.py", "apps/widget_store/main.py")
+	message(["Downloading app library"])
+	download("/firmware/master/apps/app_library/main.py", "apps/app_library/main.py")
 
 finally:
 	os.sync()
