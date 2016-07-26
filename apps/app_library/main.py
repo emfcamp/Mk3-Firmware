@@ -48,7 +48,7 @@ def main_menu():
 
 def update():
     clear()
-    with dialogs.WaitingMessage(text=wifi.connection_text(), title="TiLDA App Updater") as message:
+    with dialogs.WaitingMessage(text=wifi.connection_text(), title="TiLDA App Library") as message:
         wifi.connect()
 
         message.text="Downloading full list of library files"
@@ -67,7 +67,6 @@ def update():
         apps = os.listdir("apps")
         for i, foldername in enumerate(apps):
             [username, app] = foldername.split("-", 1) if (foldername.find("-") > -1) else ["emf", foldername]
-            print(app, username)
             message.text = "Checking app %s from author %s (%d/%d)" % (app, username, i + 1, len(apps))
             with http_client.get("http://api.badge.emfcamp.org/api/app/%s/%s" % (username, app)) as response:
                 if response.status == 404:
@@ -95,7 +94,7 @@ def store():
 
     clear()
     if not apps_by_category:
-        with dialogs.WaitingMessage(text=wifi.connection_text(), title="TiLDA App Store") as message:
+        with dialogs.WaitingMessage(text=wifi.connection_text(), title="TiLDA App Library") as message:
             wifi.connect()
 
             message.text="Fetching app library..."
@@ -113,8 +112,7 @@ def store_category(category):
 
     apps_texts = {}
     for app in apps:
-        title = "%s by %s" % (app["name"], app["user"])
-        apps_texts[title] = app
+        apps_texts["%s by %s" % (app["name"], app["user"])] = app
 
     chosen_title = dialogs.prompt_option(apps_texts.keys(), text="Please select an app", select_text="Details / Install", none_text="Back")
 
@@ -127,7 +125,7 @@ def store_category(category):
 def store_details(category, app):
     clear()
     data = None
-    with dialogs.WaitingMessage(text="Fetching app information...", title="TiLDA App Store") as message:
+    with dialogs.WaitingMessage(text="Fetching app information...", title="TiLDA App Library") as message:
         data = http_client.get(app["link"]).raise_for_status().json()
 
     clear()
@@ -139,7 +137,7 @@ def store_details(category, app):
     store_category(category)
 
 def install(link = None, data = None):
-    with dialogs.WaitingMessage(text="Fetching app information...", title="TiLDA App Store") as message:
+    with dialogs.WaitingMessage(text="Fetching app information...", title="TiLDA App Library") as message:
         if link:
             data = http_client.get(link).raise_for_status().json()
 
@@ -160,9 +158,30 @@ def install(link = None, data = None):
             http_client.get(file["link"]).raise_for_status().download_to("apps/%s/%s" % (foldername, file["file"]))
 
 def remove():
-    with dialogs.WaitingMessage(text="Removing", title="TiLDA App Store") as message:
-        pyb.delay(2000)
-    main_menu()
+    clear()
+    apps = []
+    with dialogs.WaitingMessage(text="Scanning your apps folder...", title="TiLDA App Library") as message:
+        for foldername in os.listdir("apps"):
+            app = { "user": "emf", "name": foldername, "foldername": foldername }
+            if foldername.find("-") > -1:
+                [app["user"], app["name"]] = foldername.split("-", 1)
+            app["title"] = "%s by %s" % (app["name"], app["user"])
+            apps.append(app)
 
-store()
+    app = dialogs.prompt_option(apps, title="TiLDA App Library", text="Please select an app to remove", select_text="Remove", none_text="Back")
+
+    if app:
+        clear()
+        folder_path = "apps/" + app["foldername"]
+        with dialogs.WaitingMessage(text="Removing %s\nPlease wait..." % (app["title"]), title="TiLDA App Library") as message:
+            for file in os.listdir(folder_path):
+                print(folder_path + "/" + file)
+                os.remove(folder_path + "/" + file)
+            os.remove(folder_path)
+        remove()
+    else:
+        main_menu()
+
+
+remove()
 pyb.hard_reset() # Bye!
