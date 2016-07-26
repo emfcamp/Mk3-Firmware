@@ -9,11 +9,13 @@ import pyb, json, os, micropython
 micropython.alloc_emergency_exception_buf(100)
 
 m = "bootstrap.py"
-if "apps" in os.listdir():
+if "main.py" in os.listdir():
+    m = "main.py"
+elif "apps" in os.listdir():
 	apps = os.listdir("apps")
 	if "home" in apps:
 		m = "apps/home/main.py"
-	elif "widget_store" in apps:
-		m = "apps/widget_store/main.py"
+	elif "app_library" in apps:
+		m = "apps/app_library/main.py"
 
 pyb.main(m)

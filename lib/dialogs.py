@@ -8,24 +8,27 @@ import pyb
 
 TILDA_COLOR = ugfx.html_color(0x7c1143);
 
-def notice(text, close_text="Close", width = 213, height = 120):
-	prompt_boolean(text, true_text = close_text, false_text = None, width = width, height = height)
+def notice(text, title="TiLDA", close_text="Close", width = 213, height = 120):
+	prompt_boolean(text, title = title, true_text = close_text, false_text = None, width = width, height = height)
 
-def prompt_boolean(text, true_text="Yes", false_text="No", width = 213, height = 120):
+def prompt_boolean(text, title="TiLDA", true_text="Yes", false_text="No", width = 213, height = 120):
 	"""A simple one and two-options dialog
 
 	if 'false_text' is set to None only one button is displayed.
 	If both 'true_text' and 'false_text' are given a boolean is returned
 	"""
-	window = ugfx.Container(int(ugfx.width()/6), int(ugfx.height()/4), width, height)
+	window = ugfx.Container(30, 30, ugfx.width() - 60, ugfx.height() - 60)
+	window.show()
+	window.text(5, 10, title, TILDA_COLOR)
+	window.line(0, 30, ugfx.width() - 60, 30, ugfx.BLACK)
 
 	if false_text:
 		true_text = "A: " + true_text
 		false_text = "B: " + false_text
 
-	button_yes = ugfx.Button(int(width/12), int(height*3/5), int(width/3), int(height/5), true_text, parent=window)
-	button_no = ugfx.Button(int(width/2 + width/12), int(height*3/5), int(width/3), int(height/5), false_text, parent=window) if false_text else None
-	label = ugfx.Label(int(width/10), int(height/10), int(width*4/5), int(height*2/5), text, parent=window)
+	label = ugfx.Label(5, 30, ugfx.width() - 25, 100, text = text, parent=window)
+	button_yes = ugfx.Button(5, window.height() - 40, 120 if false_text else window.width() - 15, 30 , true_text, parent=window)
+	button_no = ugfx.Button(window.width() - 130, window.height() - 40, 120, 30 , false_text, parent=window) if false_text else None
 
 	try:
 		buttons.init()
@@ -97,7 +100,7 @@ def prompt_option(options, index=0, text = "Please select one of the following:"
 
 	list_y = 30
 	if title:
-		window.text(5, 5, title, TILDA_COLOR)
+		window.text(5, 10, title, TILDA_COLOR)
 		window.line(0, 25, ugfx.width() - 10, 25, ugfx.BLACK)
 		window.text(5, 30, text, ugfx.BLACK)
 		list_y = 50
@@ -142,7 +145,7 @@ class WaitingMessage:
 	def __init__(self, text = "Please Wait...", title="TiLDA"):
 		self.window = ugfx.Container(30, 30, ugfx.width() - 60, ugfx.height() - 60)
 		self.window.show()
-		self.window.text(5, 5, title, TILDA_COLOR)
+		self.window.text(5, 10, title, TILDA_COLOR)
 		self.window.line(0, 30, ugfx.width() - 60, 30, ugfx.BLACK)
 		self.label = ugfx.Label(5, 40, self.window.width() - 10, ugfx.height() - 40, text = text, parent=self.window)
 
