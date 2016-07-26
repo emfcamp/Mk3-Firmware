@@ -26,7 +26,7 @@ ugfx.set_default_font("c*")
 ugfx.set_default_style(s)
 
 graph = ugfx.Graph(0,33,wi,hi-33-33,30,30)
-graph.set_style(ugfx.Graph.STYLE_POINT, ugfx.Graph.POINT_NONE, 0, 0)
+graph.appearance(ugfx.Graph.STYLE_POINT, ugfx.Graph.POINT_NONE, 0, 0)
 
 
 scaling = int((hi-33-33-30)/2)
