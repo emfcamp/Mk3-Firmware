@@ -217,8 +217,8 @@ while True:
 								if (l_text.count() > 10):
 									l_text.remove_item(0)
 								l_text.add_item(text)
-								if l_text.get_selected_index() >= (l_text.count()-2):
-									l_text.set_selected_index(l_text.count()-1)
+								if l_text.selected_index() >= (l_text.count()-2):
+									l_text.selected_index(l_text.count()-1)
 
 		if buttons.is_triggered("BTN_MENU"):
 			break

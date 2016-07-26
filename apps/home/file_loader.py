@@ -53,7 +53,7 @@ catergories = ["Built-in", "Examples", "Settings", "Games", "Comms", "Other", "A
 c_ptr = 0
 
 def update_options(options, apps, pinned, cat):
-#	options.set_selected_index(0)
+#	options.selected_index(0)
 	options.disable_draw()
 	cat = cat.lower()
 	out = []
@@ -115,11 +115,11 @@ try:
 	while True:
 		pyb.wfi()
 		
-		if index_prev != options.get_selected_index():
-			if options.get_selected_index() < len(displayed_apps):
-				author.text("by: " + get_app_attribute(displayed_apps[options.get_selected_index()],"author"))
-				desc.text(get_app_attribute(displayed_apps[options.get_selected_index()],"description"))
-			index_prev = options.get_selected_index()
+		if index_prev != options.selected_index():
+			if options.selected_index() < len(displayed_apps):
+				author.text("by: " + get_app_attribute(displayed_apps[options.selected_index()],"author"))
+				desc.text(get_app_attribute(displayed_apps[options.selected_index()],"description"))
+			index_prev = options.selected_index()
 		
 		if buttons.is_triggered("JOY_LEFT"):
 			if c_ptr > 0:
@@ -136,7 +136,7 @@ try:
 				index_prev = -1
 		
 		if buttons.is_triggered("BTN_MENU"):
-			app_path = displayed_apps[options.get_selected_index()]
+			app_path = displayed_apps[options.selected_index()]
 			if app_path in pinned:
 				pinned.remove(app_path)
 			else:
@@ -149,7 +149,7 @@ try:
 
 		if buttons.is_triggered("BTN_A"):
 			# ToDo: Do something to go to the app
-			app_to_load = displayed_apps[options.get_selected_index()] #"test_app1"
+			app_to_load = displayed_apps[options.selected_index()] #"test_app1"
 			break
 
 finally:
