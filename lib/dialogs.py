@@ -114,7 +114,7 @@ def prompt_option(options, index=0, text = "Please select one of the following:"
 			options_list.add_item(option["title"])
 		else:
 			options_list.add_item(option)
-	options_list.set_selected_index(index)
+	options_list.selected_index(index)
 
 	select_text = "A: " + select_text
 	if none_text:
@@ -129,7 +129,7 @@ def prompt_option(options, index=0, text = "Please select one of the following:"
 		while True:
 			pyb.wfi()
 			ugfx.poll()
-			if buttons.is_triggered("BTN_A"): return options[options_list.get_selected_index()]
+			if buttons.is_triggered("BTN_A"): return options[options_list.selected_index()]
 			if button_none and buttons.is_triggered("BTN_B"): return None
 			if button_none and buttons.is_triggered("BTN_MENU"): return None
 
