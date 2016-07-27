@@ -34,7 +34,7 @@ def calculate_hash(filename):
 
 def main_menu():
     clear()
-    option = dialogs.prompt_option(["Update apps and libs", "Browse app library", "Remove app"], none_text="Exit", text="What do you want to do?", title="TiLDA Widget Store")
+    option = dialogs.prompt_option(["Update apps and libs", "Browse app library", "Remove app"], none_text="Exit", text="What do you want to do?", title="TiLDA App Library")
 
     if not option:
         return
@@ -100,7 +100,7 @@ def store():
             message.text="Fetching app library..."
             apps_by_category = http_client.get("http://api.badge.emfcamp.org/api/apps").raise_for_status().json()
 
-    category = dialogs.prompt_option(apps_by_category.keys(), text="Please select a category", select_text="Browse", none_text="Back")
+    category = dialogs.prompt_option(list(apps_by_category.keys()), text="Please select a category", select_text="Browse", none_text="Back")
     if category:
         store_category(category)
     else:
@@ -108,16 +108,15 @@ def store():
 
 def store_category(category):
     clear()
+
     apps = apps_by_category[category]
 
-    apps_texts = {}
     for app in apps:
-        apps_texts["%s by %s" % (app["name"], app["user"])] = app
+        app["title"] = "%s by %s" % (app["name"], app["user"])
 
-    chosen_title = dialogs.prompt_option(apps_texts.keys(), text="Please select an app", select_text="Details / Install", none_text="Back")
+    app = dialogs.prompt_option(apps, text="Please select an app", select_text="Details / Install", none_text="Back")
 
-    if chosen_title:
-        app = apps_texts[chosen_title]
+    if app:
         store_details(category, app)
     else:
         store()
@@ -137,6 +136,12 @@ def store_details(category, app):
     store_category(category)
 
 def install(link = None, data = None):
+    clear()
+
+    if not apps_by_category:
+        with dialogs.WaitingMessage(text=wifi.connection_text(), title="TiLDA App Library") as message:
+            wifi.connect()
+
     with dialogs.WaitingMessage(text="Fetching app information...", title="TiLDA App Library") as message:
         if link:
             data = http_client.get(link).raise_for_status().json()
@@ -182,6 +187,8 @@ def remove():
     else:
         main_menu()
 
-
-remove()
+if ("home" not in os.listdir("apps")) or ("main.py" not in os.listdir("apps/home")):
+    install(link="http://api.badge.emfcamp.org/api/app/emf/home")
+else:
+    store()
 pyb.hard_reset() # Bye!
