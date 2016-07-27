@@ -34,17 +34,17 @@ def calculate_hash(filename):
 
 def main_menu():
     clear()
-    option = dialogs.prompt_option(["Update apps and libs", "Browse app library", "Remove app"], none_text="Exit", text="What do you want to do?", title="TiLDA App Library")
 
-    if not option:
-        return
+    menu_items = [
+        {"title": "Update apps and libs", "function": update},
+        {"title": "Browse app library", "function": store},
+        {"title": "Remove app", "function": remove}
+    ]
 
-    if "Update" in option:
-        update()
-    elif "Browse" in option:
-        store()
-    else:
-        remove()
+    option = dialogs.prompt_option(menu_items, none_text="Exit", text="What do you want to do?", title="TiLDA App Library")
+
+    if option:
+        option["function"]()
 
 def update():
     clear()
@@ -66,7 +66,7 @@ def update():
         message.text="Checking list of local apps"
         apps = os.listdir("apps")
         for i, foldername in enumerate(apps):
-            [username, app] = foldername.split("-", 1) if (foldername.find("-") > -1) else ["emf", foldername]
+            [username, app] = foldername.split("~", 1) if (foldername.find("~") > -1) else ["emf", foldername]
             message.text = "Checking app %s from author %s (%d/%d)" % (app, username, i + 1, len(apps))
             with http_client.get("http://api.badge.emfcamp.org/api/app/%s/%s" % (username, app)) as response:
                 if response.status == 404:
@@ -147,7 +147,10 @@ def install(link = None, data = None):
             data = http_client.get(link).raise_for_status().json()
 
         message.text = "Installing..."
-        foldername = data["user"] + "-" + data["name"]
+        if data["user"] == "emf":
+            foldername = data["name"]
+        else:
+            foldername = data["user"] + "~" + data["name"]
 
         if foldername.lower() not in map(str.lower, os.listdir("apps")):
             os.mkdir("apps/" + foldername)
@@ -168,8 +171,8 @@ def remove():
     with dialogs.WaitingMessage(text="Scanning your apps folder...", title="TiLDA App Library") as message:
         for foldername in os.listdir("apps"):
             app = { "user": "emf", "name": foldername, "foldername": foldername }
-            if foldername.find("-") > -1:
-                [app["user"], app["name"]] = foldername.split("-", 1)
+            if foldername.find("~") > -1:
+                [app["user"], app["name"]] = foldername.split("~", 1)
             app["title"] = "%s by %s" % (app["name"], app["user"])
             apps.append(app)
 
