@@ -109,12 +109,16 @@ if not stm.mem8[0x40002850] == 0x9C:
 				break;
 			pyb.delay(1)
 
-
+ugfx.init()
 stm.mem8[0x40002850] = 0
 sty = ugfx.Style()
 sty.set_enabled([ugfx.WHITE, ugfx.html_color(0x3C0246), ugfx.GREY, ugfx.RED])
 sty.set_background(ugfx.html_color(0x3C0246))
 ugfx.set_default_style(sty)
+
+
+neo=pyb.Neopix(pyb.Pin("PB13"))
+neo.display(0x050505)
 
 while True:
 #	ugfx.init()

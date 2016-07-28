@@ -160,20 +160,23 @@ finally:
 	timer.deinit()
 
 if len(app_to_load) > 0:
-	#try:
-	buttons.enable_menu_reset()
-	
-	print("Loading: " + app_to_load)
-	mod = __import__(app_to_load[:-3])
-	if "main" in dir(mod):
-		mod.main()
+	try:
+		buttons.enable_menu_reset()
+		
+		print("Loading: " + app_to_load)
+		mod = __import__(app_to_load[:-3])
+		if "main" in dir(mod):
+			mod.main()		
+	except Exception as e:
+		s = uio.StringIO()
+		sys.print_exception(e, s)
+		u=pyb.USB_VCP()
+		if u.isconnected():
+			raise(e)
+		else:
+			dialogs.notice(s.getvalue(), width=wi-10, height=hi-10)
 	stm.mem8[0x40002850] = 0x9C
 	pyb.hard_reset()
-	#except Exception as e:
-	#	dialogs.notice(str(e), width=wi-20, height=hi-20)
-	ugfx.area(0,0,ugfx.width(),ugfx.height(),0)
+	
 	#deinit ugfx here
 	#could hard reset here too
-
-#	execfile("apps/%s/main.py" % (app_to_load))
-print("Leaving file loader")

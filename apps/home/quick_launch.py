@@ -5,6 +5,8 @@ import buttons
 import dialogs
 from database import *
 from filesystem import *
+import sys
+import uio
 
 joy_updown = 0
 joy_lr = 0
@@ -199,15 +201,22 @@ title.destroy()
 if len(torun) > 0:
 	print("Running: " + torun)
 	buttons.enable_menu_reset()
-	#try:
-	mod = __import__(torun[:-3])
-	if "main" in dir(mod):
-		mod.main()
+	try:
+		mod = __import__(torun[:-3])
+		if "main" in dir(mod):
+			mod.main()		
+	except Exception as e:
+		s = uio.StringIO()
+		sys.print_exception(e, s)
+		u=pyb.USB_VCP()
+		if u.isconnected():
+			raise(e)
+		else:
+			dialogs.notice(s.getvalue(), width=wi-10, height=hi-10)
 	stm.mem8[0x40002850] = 0x9C
 	pyb.hard_reset()
-	#except Exception as e:
-	#	dialogs.notice(str(e), width=wi-20, height=hi-20)
-	ugfx.area(0,0,ugfx.width(),ugfx.height(),0)
+	#ugfx.area(0,0,ugfx.width(),ugfx.height(),0)	
+	
 	#deinit ugfx here
 	#could hard reset here too
 
