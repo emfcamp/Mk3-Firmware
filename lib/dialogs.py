@@ -113,7 +113,7 @@ def prompt_option(options, index=0, text = "Please select one of the following:"
 		if isinstance(option, dict) and option["title"]:
 			options_list.add_item(option["title"])
 		else:
-			options_list.add_item(option)
+			options_list.add_item(str(option))
 	options_list.selected_index(index)
 
 	select_text = "A: " + select_text
@@ -140,8 +140,6 @@ def prompt_option(options, index=0, text = "Please select one of the following:"
 		button_select.destroy()
 		if button_none: button_none.destroy()
 		ugfx.poll()
-
-	return default_index
 
 class WaitingMessage:
 	"""Shows a dialog with a certain message that can not be dismissed by the user"""

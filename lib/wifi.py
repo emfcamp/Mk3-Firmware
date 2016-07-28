@@ -45,5 +45,8 @@ def wait_for_connection():
         nic().update()
         pyb.delay(100)
 
+def is_connected():
+    return nic().is_connected()
+
 def connection_text():
     return "Connecting to wifi '%s'. If this doesn't work, please check your wifi.json. More information: badge.emfcamp.org/TiLDA_MK3/wifi" % (ssid())
