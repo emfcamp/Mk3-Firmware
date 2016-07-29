@@ -15,14 +15,7 @@ import stm
 import apps.home.draw_name
 import wifi
 
-_nic = None
 
-def nic():
-    global _nic
-    if not _nic:
-        _nic = network.CC3100()
-    return _nic
-	
 def draw_battery(back_colour,percent, win_bv):
 	ugfx.set_default_font("c*")	
 	x=3
@@ -199,7 +192,7 @@ while True:
 	
 	
 	## start connecting to wifi in the background
-	wifi_timeout = 5 #seconds
+	wifi_timeout = 10 #seconds
 	wifi.connect(wait = False)
 	
 	while True:
@@ -211,10 +204,10 @@ while True:
 		
 		#if wifi still needs poking
 		if (wifi_timeout > 0):
-			if nic().is_connected():
+			if wifi.nic().is_connected():
 				wifi_timeout = 0
 			else:
-				nic().update()
+				wifi.nic().update()
 
 		
 		if tick >= 1:
@@ -223,11 +216,11 @@ while True:
 				wifi_timeout -= 1;
 			
 			#if wifi timeout has occured and wifi isnt connected in time
-			if (wifi_timeout == 0) and not (nic().is_connected()):
-				print("Giving up: " + str(wifi_timeout) + "  " + str(nic().is_connected()))
-				nic().disconnect()  #give up
+			if (wifi_timeout == 0) and not (wifi.nic().is_connected()):
+				print("Giving up: " + str(wifi_timeout) + "  " + str(wifi.nic().is_connected()))
+				wifi.nic().disconnect()  #give up
 				
-			draw_wifi(ugfx.html_color(0x3C0246),0, nic().is_connected(),wifi_timeout>0,win_wifi)
+			draw_wifi(ugfx.html_color(0x3C0246),0, wifi.nic().is_connected(),wifi_timeout>0,win_wifi)
 			
 			
 			v = get_battery_voltage(adc_obj,ref_obj)
@@ -289,8 +282,8 @@ while True:
 	ugfx.backlight(100)
 	
 	#if we havnt connected yet then give up since the periodic function wont be poked
-	if  not (nic().is_connected()):
-		nic().disconnect()
+	if  not (wifi.nic().is_connected()):
+		wifi.nic().disconnect()
 		
 	## ToDo: Maybe boot should always chdir to the app folder?
 	execfile("apps/home/quick_launch.py")
