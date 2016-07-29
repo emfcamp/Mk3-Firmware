@@ -13,7 +13,15 @@ import buttons
 import gc
 import stm
 import apps.home.draw_name
+import wifi
 
+_nic = None
+
+def nic():
+    global _nic
+    if not _nic:
+        _nic = network.CC3100()
+    return _nic
 	
 def draw_battery(back_colour,percent, win_bv):
 	ugfx.set_default_font("c*")	
@@ -34,6 +42,14 @@ def draw_battery(back_colour,percent, win_bv):
 	else:
 		win_bv.area(x+2,y+2,26,7,ugfx.RED)
 	
+def draw_wifi(back_colour, rssi, connected, connecting, win_wifi):
+
+	if connected:
+		win_wifi.area(3,3,40,20,ugfx.GREEN)
+	elif connecting:
+		win_wifi.area(3,3,40,20,ugfx.YELLOW)
+	else:
+		win_wifi.area(3,3,40,20,ugfx.RED)
 
 tick = 1
 pretick = 0
@@ -126,6 +142,7 @@ while True:
 	ugfx.area(0,0,320,240,ugfx.html_color(0x3C0246))
 	
 	win_bv = ugfx.Container(0,0,80,25)
+	win_wifi = ugfx.Container(82,0,60,25)
 	win_name = ugfx.Container(0,25,320,240-25-60)
 	win_text = ugfx.Container(0,240-60,320,60)
 
@@ -140,8 +157,7 @@ while True:
 	
 	win_bv.show()
 	win_text.show()
-	
-	
+	win_wifi.show()	
 	
 	adc_obj = pyb.ADC(pyb.Pin("ADC_UNREG"))
 	ref_obj = pyb.ADC(0)
@@ -170,7 +186,7 @@ while True:
 			per_freq.append(120)
 			
 	icons = []
-	x = 100
+	x = 150
 	for e in ext_list:
 		icons.append(ugfx.Container(x,0,25,25))
 		x += 27
@@ -181,6 +197,11 @@ while True:
 	
 	inactivity = 0
 	
+	
+	## start connecting to wifi in the background
+	wifi_timeout = 5 #seconds
+	wifi.connect(wait = False)
+	
 	while True:
 		pyb.wfi()
 		
@@ -188,8 +209,25 @@ while True:
 			pretick = 0 
 			tick += 1
 		
+		#if wifi still needs poking
+		if (wifi_timeout > 0):
+			if nic().is_connected():
+				wifi_timeout = 0
+			else:
+				nic().update()
+
+		
 		if tick >= 1:
 			tick = 0
+			if (wifi_timeout > 0):
+				wifi_timeout -= 1;
+			
+			#if wifi timeout has occured and wifi isnt connected in time
+			if (wifi_timeout == 0) and not (nic().is_connected()):
+				print("Giving up: " + str(wifi_timeout) + "  " + str(nic().is_connected()))
+				nic().disconnect()  #give up
+				
+			draw_wifi(ugfx.html_color(0x3C0246),0, nic().is_connected(),wifi_timeout>0,win_wifi)
 			
 			
 			v = get_battery_voltage(adc_obj,ref_obj)
@@ -208,10 +246,11 @@ while True:
 			else:
 				backlight_adjust()
 			
-			if (min_ctr >= 30):
-				min_ctr = 0				
+			
+			# dont run periodic tasks if wifi is pending
+			if (min_ctr >= 30) and (wifi_timeout == 0):							
 				for i in range(0, len(ext_import)):
-					per_time_since[i] += 30
+					per_time_since[i] += min_ctr
 					if per_time_since[i] >= per_freq[i]:
 						per_time_since[i] = 0				
 						e = ext_import[i]					
@@ -223,6 +262,7 @@ while True:
 								l_text.add_item(text)
 								if l_text.selected_index() >= (l_text.count()-2):
 									l_text.selected_index(l_text.count()-1)
+				min_ctr = 0	
 
 		if buttons.is_triggered("BTN_MENU"):
 			break
@@ -247,7 +287,11 @@ while True:
 	#timerb.deinit()
 	timer.deinit()
 	ugfx.backlight(100)
-
+	
+	#if we havnt connected yet then give up since the periodic function wont be poked
+	if  not (nic().is_connected()):
+		nic().disconnect()
+		
 	## ToDo: Maybe boot should always chdir to the app folder?
 	execfile("apps/home/quick_launch.py")
 	
