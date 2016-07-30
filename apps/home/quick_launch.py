@@ -212,7 +212,15 @@ if len(torun) > 0:
 		if u.isconnected():
 			raise(e)
 		else:
-			dialogs.notice(s.getvalue(), width=wi-10, height=hi-10)
+			ugfx.clear()
+			w=ugfx.Container(0,0,ugfx.width(),ugfx.height())
+			l=ugfx.Label(0,0,ugfx.width(),ugfx.height(),s.getvalue(),parent=w)
+			w.show()
+			while True:
+				pyb.wfi()
+				if (buttons.is_triggered("BTN_B")) or (buttons.is_triggered("BTN_B")) or (buttons.is_triggered("BTN_MENU")):
+					break
+			#dialogs.notice(s.getvalue(), width=wi-10, height=hi-10)
 	stm.mem8[0x40002850] = 0x9C
 	pyb.hard_reset()
 	#ugfx.area(0,0,ugfx.width(),ugfx.height(),0)	

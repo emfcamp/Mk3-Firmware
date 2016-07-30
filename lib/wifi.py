@@ -14,6 +14,10 @@ def nic():
     if not _nic:
         _nic = network.CC3100()
     return _nic
+	
+def create_default_config(ssid = "emf", pw="pass"):
+	with open("wifi.json", "w") as f:
+		f.write("{\"ssid\": \"" + ssid  + "\", \"pw\": \"" + pw + "\"}")
 
 def connection_details():
     data = {}

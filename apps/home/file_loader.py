@@ -174,10 +174,18 @@ if len(app_to_load) > 0:
 		if u.isconnected():
 			raise(e)
 		else:
-			str=s.getvalue().split("\n")
+			ugfx.clear()
+			w=ugfx.Container(0,0,ugfx.width(),ugfx.height())
+			l=ugfx.Label(0,0,ugfx.width(),ugfx.height(),s.getvalue(),parent=w)
+			w.show()
+			while True:
+				pyb.wfi()
+				if (buttons.is_triggered("BTN_B")) or (buttons.is_triggered("BTN_B")) or (buttons.is_triggered("BTN_MENU")):
+					break;
+			#str=s.getvalue().split("\n")
 			#if len(str)>=4:
-			out = "\n".join(str[4:])			
-			dialogs.notice(out, width=wi-10, height=hi-10)
+			#out = "\n".join(str[4:])			
+			#dialogs.notice(out, width=wi-10, height=hi-10)
 	stm.mem8[0x40002850] = 0x9C
 	pyb.hard_reset()
 	

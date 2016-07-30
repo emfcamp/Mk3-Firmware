@@ -197,8 +197,13 @@ while True:
 	
 	
 	## start connecting to wifi in the background
-	wifi_timeout = 10 #seconds
-	wifi.connect(wait = False)
+	wifi_timeout = 60 #seconds
+	wifi_reconnect_timeout = 0
+	try:
+		wifi.connect(wait = False)
+	except OSError:
+		Print("Creating default wifi settings file")
+		wifi.create_default_config()
 	
 	while True:
 		pyb.wfi()
@@ -211,6 +216,8 @@ while True:
 		if (wifi_timeout > 0):
 			if wifi.nic().is_connected():
 				wifi_timeout = 0
+				#wifi is connected, but if becomes disconnected, reconnect after 10sec
+				wifi_reconnect_timeout = 10
 			else:
 				wifi.nic().update()
 
@@ -222,10 +229,22 @@ while True:
 			
 			#if wifi timeout has occured and wifi isnt connected in time
 			if (wifi_timeout == 0) and not (wifi.nic().is_connected()):
-				print("Giving up: " + str(wifi_timeout) + "  " + str(wifi.nic().is_connected()))
+				print("Giving up on Wifi connect")
+				wifi_timeout = -1
 				wifi.nic().disconnect()  #give up
-				
-			draw_wifi(ugfx.html_color(0x3C0246),0, wifi.nic().is_connected(),wifi_timeout>0,win_wifi)
+				wifi_reconnect_timeout = 60 #try again in 60sec
+			
+			wifi_connect = wifi.nic().is_connected()
+			
+			#if not connected, see if we should try again
+			if not wifi_connect:
+				if wifi_reconnect_timeout>0:
+					wifi_reconnect_timeout -= 1
+					if wifi_reconnect_timeout == 0:
+							wifi_timeout = 60 #seconds
+							wifi.connect(wait = False)
+
+			draw_wifi(ugfx.html_color(0x3C0246),0, wifi_connect,wifi_timeout>0,win_wifi)
 			
 			
 			v = get_battery_voltage(adc_obj,ref_obj)
@@ -246,7 +265,7 @@ while True:
 			
 			
 			# dont run periodic tasks if wifi is pending
-			if (min_ctr >= 30) and (wifi_timeout == 0):							
+			if (min_ctr >= 30) and (wifi_timeout <= 0):							
 				for i in range(0, len(ext_import)):
 					per_time_since[i] += min_ctr
 					if per_time_since[i] >= per_freq[i]:
