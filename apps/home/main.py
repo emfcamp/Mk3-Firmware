@@ -14,6 +14,7 @@ import gc
 import stm
 import apps.home.draw_name
 import wifi
+import gc
 
 
 def draw_battery(back_colour,percent, win_bv):
@@ -263,6 +264,8 @@ while True:
 			else:
 				backlight_adjust()
 			
+			print(gc.mem_free())
+			#gc.collect()
 			
 			# dont run periodic tasks if wifi is pending
 			if (min_ctr >= 30) and (wifi_timeout <= 0):							

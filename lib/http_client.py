@@ -106,7 +106,7 @@ class Response(object):
 	def __exit__(self, exc_type, exc_value, traceback):
 		self.close()
 
-def open_http_socket(method, url, json=None, timeout=None, headers=None):
+def open_http_socket(method, url, json=None, timeout=None, headers=None, urlencoded = None):
 	urlparts = url.split('/', 3)
 	proto = urlparts[0]
 	host = urlparts[2]
@@ -126,6 +126,9 @@ def open_http_socket(method, url, json=None, timeout=None, headers=None):
 	if json is not None:
 		content = ujson.dumps(json)
 		content_type = CONTENT_TYPE_JSON
+	elif urlencoded is not None:
+		content = urlencoded
+		content_type = "application/x-www-form-urlencoded"
 	else:
 		content = None
 
@@ -162,8 +165,8 @@ def open_http_socket(method, url, json=None, timeout=None, headers=None):
 	return sock
 
 # Adapted from upip
-def request(method, url, json=None, timeout=None, headers=None):
-	sock = open_http_socket(method, url, json, timeout, headers)
+def request(method, url, json=None, timeout=None, headers=None, urlencoded=None):
+	sock = open_http_socket(method, url, json, timeout, headers, urlencoded)
 	try:
 		response = Response()
 		state = 1
@@ -204,6 +207,7 @@ def request(method, url, json=None, timeout=None, headers=None):
 				return response
 	finally:
 		if sock: sock.close()
+	#	gc.collect()
 
 def get(url, **kwargs):
 	return request('GET', url, **kwargs)

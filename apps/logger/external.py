@@ -2,6 +2,10 @@ from filesystem import *
 import pyb
 import stm
 import ugfx
+import http_client
+import socket
+import network
+import wifi
 
 adc_obj = pyb.ADC(pyb.Pin("ADC_UNREG"))
 ref_obj = pyb.ADC(0)
@@ -40,5 +44,11 @@ def periodic_home(icon):
 	
 	with open(logfile, "a") as f:
 		f.write(str(bv) + ",\r\n")
+		
+		
+	urlparams = "origin=PBADGE0&data=0bX0%5BPBADGE0%5D"
+	r = http_client.post('http://ukhas.net/api/upload', urlencoded=urlparams)
+	
+	#s.send(b'GET / HTTP/1.1\r\nHost: micropython.org\r\n\r\n')
 		
 	return "Logged " + str(bv)
