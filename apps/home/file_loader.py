@@ -39,7 +39,7 @@ components.append(ugfx.Button(10,win_preview.height()-50,20,20,"M",parent=win_pr
 components.append(ugfx.Label(35,win_preview.height()-50,100,20,"Pin/Unpin",parent=win_preview))
 ugfx.set_default_font(ugfx.FONT_SMALL)
 author = ugfx.Label(1,win_preview.height()-78,win_preview.width()-3,20,"by: ",parent=win_preview)
-desc = ugfx.Label(3,1,win_preview.width()-10,win_preview.height()-83,"Cool app/10",parent=win_preview)
+desc = ugfx.Label(3,1,win_preview.width()-10,win_preview.height()-83,"",parent=win_preview,justification=ugfx.Label.LEFTTOP)
 components.append(author)
 components.append(desc)
 
@@ -174,7 +174,10 @@ if len(app_to_load) > 0:
 		if u.isconnected():
 			raise(e)
 		else:
-			dialogs.notice(s.getvalue(), width=wi-10, height=hi-10)
+			str=s.getvalue().split("\n")
+			#if len(str)>=4:
+			out = "\n".join(str[4:])			
+			dialogs.notice(out, width=wi-10, height=hi-10)
 	stm.mem8[0x40002850] = 0x9C
 	pyb.hard_reset()
 	

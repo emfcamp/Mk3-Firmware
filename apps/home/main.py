@@ -36,13 +36,18 @@ def draw_battery(back_colour,percent, win_bv):
 		win_bv.area(x+2,y+2,26,7,ugfx.RED)
 	
 def draw_wifi(back_colour, rssi, connected, connecting, win_wifi):
+	
+	outline = [[0,20],[25,20],[25,0]]
+	#inline =  [[3,17],[17,17],[17,3]]
+	
+	#win_wifi.fill_polygon(0, 0, outline, back_colour^0xFFFF)
 
 	if connected:
-		win_wifi.area(3,3,40,20,ugfx.GREEN)
+		win_wifi.fill_polygon(0, 0, outline, ugfx.GREEN)
 	elif connecting:
-		win_wifi.area(3,3,40,20,ugfx.YELLOW)
+		win_wifi.fill_polygon(0, 0, outline, ugfx.YELLOW)
 	else:
-		win_wifi.area(3,3,40,20,ugfx.RED)
+		win_wifi.fill_polygon(0, 0, outline, ugfx.RED)
 
 tick = 1
 pretick = 0
