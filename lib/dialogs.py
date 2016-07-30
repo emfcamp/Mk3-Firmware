@@ -51,12 +51,17 @@ def prompt_boolean(text, title="TiLDA", true_text="Yes", false_text="No", width 
 		label.destroy()
 
 def prompt_text(description, default="", init_text = "", true_text="OK", false_text="Back", width = 300, height = 200):
-	"""Shows a dialog and keyboard that allows the user to input/change a string"""
+	"""Shows a dialog and keyboard that allows the user to input/change a string
+		Note: ugfx needs to be polled in an interrupt before calling this function
+	"""
 	window = ugfx.Container(int((ugfx.width()-width)/2), int((ugfx.height()-height)/2), width, height)
 
 	if false_text:
-		true_text = "A: " + true_text
+		true_text = "M: " + true_text
 		false_text = "B: " + false_text
+		
+	if buttons.has_interrupt("BTN_MENU"):
+		buttons.disable_interrupt("BTN_MENU")
 
 	kb = ugfx.Keyboard(0, int(height/2), width, int(height/2), parent=window)
 	edit = ugfx.Textbox(5, int(height/2)-30, int(width*4/5)-10, 25, text = init_text, parent=window)
@@ -68,16 +73,17 @@ def prompt_text(description, default="", init_text = "", true_text="OK", false_t
 	try:
 		buttons.init()
 
-		button_yes.attach_input(ugfx.BTN_A,0)
+		button_yes.attach_input(ugfx.BTN_MENU,0)
 		if button_no: button_no.attach_input(ugfx.BTN_B,0)
 
 		window.show()
 
 		while True:
 			pyb.wfi()
-			ugfx.poll()
-			if buttons.is_triggered("BTN_A"): return edit.text()
+#			ugfx.poll()
+			#if buttons.is_triggered("BTN_A"): return edit.text()
 			if buttons.is_triggered("BTN_B"): return default
+			if buttons.is_triggered("BTN_MENU"): return edit.text()
 
 	finally:
 		window.hide()

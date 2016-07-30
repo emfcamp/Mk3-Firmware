@@ -6,6 +6,8 @@ import buttons
 import dialogs
 from database import *
 from filesystem import *
+import uio
+import sys
 
 width = ugfx.width()
 height = ugfx.height()

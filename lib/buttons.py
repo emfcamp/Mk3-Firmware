@@ -63,6 +63,13 @@ def is_triggered(button, interval = 30):
 		_tilda_bounce[button] = pyb.millis() + interval
 		return True
 
+def has_interrupt(button):
+	global _tilda_interrupts
+	pin = _get_pin(button)
+	if button in _tilda_interrupts:
+		return True
+	else:
+		return False
 
 
 def enable_interrupt(button, interrupt, on_press = True, on_release = False):

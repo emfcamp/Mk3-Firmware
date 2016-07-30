@@ -28,11 +28,11 @@ def callback_arrow_left(line):
 	global joy_lr
 	joy_lr = -1
 
-def _move_arrow(x,y,cursor_loc, win_quick):
+def _move_arrow(x,y,cursor_loc, backcolour, win_quick):
 
 	arrow = [[0,0],[20,7],[0,14],[4,7]]
 
-	win_quick.fill_polygon(cursor_loc[0]*150+4, cursor_loc[1]*35+14, arrow ,ugfx.WHITE)
+	win_quick.fill_polygon(cursor_loc[0]*150+4, cursor_loc[1]*35+14, arrow , backcolour)
 
 	cursor_loc[0] += x
 	cursor_loc[1] += y
@@ -118,6 +118,8 @@ l_back = ugfx.Label(130,5,100,20,"Back",parent=win_help)
 btn_menu = ugfx.Button(200,5,20,20,"M",parent=win_help,shape=ugfx.Button.ROUNDED)
 l_back = ugfx.Label(230,5,100,20,"Menu",parent=win_help)
 
+sty = ugfx.Style()
+
 
 win_header.show()
 win_quick.show()
@@ -134,7 +136,7 @@ buttons.init()
 
 cursor_loc = [0, 0]
 
-_move_arrow(0,0,cursor_loc, win_quick)
+_move_arrow(0,0,cursor_loc, sty.background(), win_quick)
 
 app_to_load = "home"
 
@@ -153,7 +155,7 @@ while True:
 		joy_lr = -1
 
 	if (joy_updown != 0) or (joy_lr != 0):
-		_move_arrow(joy_lr, joy_updown, cursor_loc, win_quick)
+		_move_arrow(joy_lr, joy_updown, cursor_loc, sty.background(), win_quick)
 		joy_updown = 0
 		joy_lr = 0
 		
