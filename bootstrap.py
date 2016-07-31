@@ -101,7 +101,7 @@ while not n.is_connected():
 	pyb.delay(100)
 
 try:
-	libs = ["wifi", "buttons", "http_client", "filesystem", "dialogs", "database"]
+	libs = ["wifi", "buttons", "http_client", "filesystem", "dialogs", "database", "app"]
 	for i, lib in enumerate(libs):
 		message(["Downloading library: %s (%d/%d)" % (lib, i + 1, len(libs))])
 		download("/firmware/master/lib/%s.py" % (lib), "lib/%s.py" % (lib))

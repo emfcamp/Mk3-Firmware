@@ -8,6 +8,16 @@ import gc
 import pyb
 import os
 
+"""Usage
+from http_client import *
+
+print(get("http://example.com").raise_for_status().content)
+post("http://mydomain.co.uk/api/post", urlencoded="SOMETHING").raise_for_status().close() # If response is not consumed you need to close manually
+# Or, if you prefer the with syntax:
+with post("http://mydomain.co.uk/api/post", urlencoded="SOMETHING") as response:
+	response.raise_for_error() # No manual close needed
+"""
+
 try:
 	import ussl
 	SUPPORT_SSL = True
