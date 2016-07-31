@@ -41,7 +41,7 @@ def periodic_home(icon):
 	
 	if not is_file(logfile):
 		with open(logfile, "w") as f:
-			f.write("Battery voltage, \r\n")
+			f.write("vbat, \r\n")
 	
 	with open(logfile, "a") as f:
 		f.write(str(bv) + ",\r\n")

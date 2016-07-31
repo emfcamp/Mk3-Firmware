@@ -8,6 +8,7 @@ from database import *
 from filesystem import *
 import uio
 import sys
+import gc
 
 width = ugfx.width()
 height = ugfx.height()
@@ -164,7 +165,7 @@ finally:
 if len(app_to_load) > 0:
 	try:
 		buttons.enable_menu_reset()
-		
+		gc.collect()
 		print("Loading: " + app_to_load)
 		mod = __import__(app_to_load[:-3])
 		if "main" in dir(mod):
@@ -177,6 +178,7 @@ if len(app_to_load) > 0:
 			raise(e)
 		else:
 			ugfx.clear()
+			ugfx.set_default_font(ugfx.FONT_SMALL)
 			w=ugfx.Container(0,0,ugfx.width(),ugfx.height())
 			l=ugfx.Label(0,0,ugfx.width(),ugfx.height(),s.getvalue(),parent=w)
 			w.show()

@@ -7,6 +7,7 @@ from database import *
 from filesystem import *
 import sys
 import uio
+import gc
 
 joy_updown = 0
 joy_lr = 0
@@ -89,13 +90,12 @@ file_list[7] = "apps/home/file_loader.py"
 file_name[7] = "View All"
 
 
-ugfx.set_default_font("D*")
+ugfx.set_default_font(ugfx.FONT_TITLE)
 title = ugfx.Label(3,3,wi-10,45,"EMF Camp 2016",parent=win_header)
 
 s = ugfx.Style()
 s.set_focus(ugfx.RED)
-
-ugfx.set_default_font("c*")
+ugfx.set_default_font(ugfx.FONT_MEDIUM_BOLD)
 ugfx.set_default_style(s)
 
 btn_c1r1 = ugfx.Button(25,5,100,30,file_name[0],parent=win_quick)
@@ -203,6 +203,7 @@ title.destroy()
 if len(torun) > 0:
 	print("Running: " + torun)
 	buttons.enable_menu_reset()
+	gc.collect()
 	try:
 		mod = __import__(torun[:-3])
 		if "main" in dir(mod):
@@ -215,6 +216,7 @@ if len(torun) > 0:
 			raise(e)
 		else:
 			ugfx.clear()
+			ugfx.set_default_font(ugfx.FONT_SMALL)
 			w=ugfx.Container(0,0,ugfx.width(),ugfx.height())
 			l=ugfx.Label(0,0,ugfx.width(),ugfx.height(),s.getvalue(),parent=w)
 			w.show()

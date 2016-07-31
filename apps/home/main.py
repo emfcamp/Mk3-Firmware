@@ -63,6 +63,8 @@ def tick_inc(t):
 	ugfx.poll()
 	
 def backlight_adjust():
+	if ugfx.backlight() == 0:
+		ugfx.power_mode(ugfx.POWER_ON)
 	l = pyb.ADC(16).read()
 	if (l > 90):
 		ugfx.backlight(100)
@@ -93,9 +95,8 @@ def get_home_screen_background_apps():
 
 def low_power():
 	ugfx.backlight(0)
+	ugfx.power_mode(ugfx.POWER_OFF)
 
-def lower_power():
-	ugfx.backlight(0)
 
 #needs looking at
 def get_temperature(adc_obj, ref_obj):
@@ -146,7 +147,7 @@ sty.set_background(ugfx.html_color(0x3C0246))
 ugfx.set_default_style(sty)
 
 sty_tb = ugfx.Style(sty)
-sty_tb.set_enabled([ugfx.WHITE, ugfx.html_color(0xA66FB0), ugfx.GREY, ugfx.RED])
+sty_tb.set_enabled([ugfx.WHITE, ugfx.html_color(0xA66FB0), ugfx.html_color(0x5e5e5e), ugfx.RED])
 sty_tb.set_background(ugfx.html_color(0xA66FB0))
 
 orientation = ugfx.orientation()
@@ -162,11 +163,13 @@ while True:
 	
 	ugfx.area(0,0,320,240,sty_tb.background())
 	
+	ugfx.set_default_font(ugfx.FONT_MEDIUM)
 	win_bv = ugfx.Container(0,0,80,25, style=sty_tb)
 	win_wifi = ugfx.Container(82,0,60,25, style=sty_tb)
 	win_name = ugfx.Container(0,25,320,240-25-60, style=sty)
 	win_text = ugfx.Container(0,240-60,320,60, style=sty_tb)
 
+	windows = [win_bv, win_wifi, win_text]
 	
 	obj_name = apps.home.draw_name.draw(0,25,win_name)
 
@@ -187,14 +190,9 @@ while True:
 	
 	min_ctr = 28
 	
-#	timerb = pyb.Timer(3)
-#	timerb.init(freq=1)
-#	timerb.callback(tick_inc)
-	
 	timer = pyb.Timer(3)
 	timer.init(freq=50)
-	timer.callback(tick_inc) #lambda t:ugfx.poll())
-	
+	timer.callback(tick_inc)	
 	
 	ext_list = get_home_screen_background_apps()
 	ext_import = []
@@ -263,9 +261,8 @@ while True:
 				inactivity = 0
 				ugfx.area(0,0,320,240,sty_tb.background())
 				orientation = ugfx.orientation()
-				win_bv.hide(); win_bv.show()
-				win_text.hide(); win_text.show()
-				win_wifi.hide(); win_wifi.show()
+				for w in windows:
+					w.hide(); w.show()
 				apps.home.draw_name.draw(0,25,win_name)
 
 			
@@ -299,6 +296,8 @@ while True:
 			inactivity += 1
 			
 			if battery_percent > 120:  #if charger plugged in
+				if ugfx.backlight() == 0:
+					ugfx.power_mode(ugfx.POWER_ON)
 				ugfx.backlight(100)
 			elif inactivity > 10:
 				low_power()
@@ -337,19 +336,23 @@ while True:
 
 	for i in icons:
 		i.destroy()
-	win_bv.destroy()
-	win_name.destroy()
-	win_text.destroy()
+	for w in windows:
+		w.destroy()
 	apps.home.draw_name.draw_destroy(obj_name)
 	win_name.destroy()
 	l_text.destroy()
 	#timerb.deinit()
 	timer.deinit()
+	if ugfx.backlight() == 0:
+		ugfx.power_mode(ugfx.POWER_ON)
 	ugfx.backlight(100)
+	ugfx.orientation(180)
 	
 	#if we havnt connected yet then give up since the periodic function wont be poked
-	if  not (wifi.nic().is_connected()):
+	if wifi_timeout >= 0: # not (wifi.nic().is_connected()):
 		wifi.nic().disconnect()
+		
+	gc.collect()
 		
 	## ToDo: Maybe boot should always chdir to the app folder?
 	execfile("apps/home/quick_launch.py")
