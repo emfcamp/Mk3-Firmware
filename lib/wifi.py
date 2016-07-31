@@ -14,7 +14,7 @@ def nic():
     if not _nic:
         _nic = network.CC3100()
     return _nic
-    
+
 def create_default_config(ssid = "emf", pw="pass"):
     with open("wifi.json", "w") as f:
         f.write("{\"ssid\": \"" + ssid  + "\", \"pw\": \"" + pw + "\"}")
@@ -28,7 +28,7 @@ def connection_details():
     except ValueError as e:
         print(e)
 
-    if not ("ssid" in data and "pw" in data):
+    if "ssid" not in data:
         raise OSError("Couldn't find a valid wifi.json. See https://badge.emf.camp for more information")
 
     return data
@@ -39,20 +39,21 @@ def ssid():
 def connect(wait = True, timeout = 10):
     if nic().is_connected():
         return
-    details = connection_details()    
+    details = connection_details()
 
-    if (details["pw"] == ""):
-        if wait:
-            nic().connect(details["ssid"], timeout=timeout)
-            wait_for_connection()
-        else:
-            nic().connect(details["ssid"], timeout=None)
-    else:        
+    if "pw" in details and details["pw"]:
         if wait:
             nic().connect(details["ssid"], details["pw"], timeout=timeout)
             wait_for_connection()
         else:
             nic().connect(details["ssid"], details["pw"], timeout=None)
+    else:
+        if wait:
+            nic().connect(details["ssid"], timeout=timeout)
+            wait_for_connection()
+        else:
+            nic().connect(details["ssid"], timeout=None)
+
 
 def wait_for_connection():
     while not nic().is_connected():

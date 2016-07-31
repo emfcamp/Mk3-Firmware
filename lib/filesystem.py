@@ -2,17 +2,17 @@
 ### Description: Small set of micropython specific filesystem helpers
 ### License: MIT
 
-import os
+import os, hashlib, binascii
 
 def get_app_foldername(path):
 	"""Gets the app name based on a path"""
 	if not is_file(path):
 		return ""
-		
+
 	s = path.split("/")
 	if not (len(s) >= 2):
 		return ""
-	
+
 	if s[0] == "examples":
 		if s[-1].endswith(".py"):
 			return ((s[-1])[:-3])
@@ -20,7 +20,7 @@ def get_app_foldername(path):
 			return ""
 	else:
 		return s[-2]
-	
+
 def get_app_attribute(path, attribute):
 	if not is_file(path):
 		return ""
@@ -38,7 +38,7 @@ def get_app_attribute(path, attribute):
 							break;
 				else:
 					break
-				
+
 	except OSError as e:
 		return ""
 	return rv
@@ -73,3 +73,19 @@ def exists(path):
             return False
         else:
             raise e
+
+def calculate_hash(filename, raise_on_not_found = False):
+    """Calculates the SHA256 hash of a file.
+
+    Unless raise_on_not_found is set returns 'NOTFOUND' if the file can't be found
+    """
+    if not is_file(filename) and not raise_on_not_found:
+        return "NOTFOUND"
+
+    with open(filename, "rb") as file:
+        sha256 = hashlib.sha256()
+        buf = file.read(128)
+        while len(buf) > 0:
+            sha256.update(buf)
+            buf = file.read(128)
+        return str(binascii.hexlify(sha256.digest()), "utf8")
