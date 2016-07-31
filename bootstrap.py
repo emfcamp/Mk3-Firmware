@@ -91,11 +91,13 @@ if not ("ssid" in w and "pw" in w):
 	while True: pyb.wfi()
 
 wifi_ssid = w["ssid"]
-wifi_pw = w["pw"]
 
 message(["Connecting to '%s'" % (wifi_ssid), "Update wifi.json if this is incorrect", "More information:", "badge.emfcamp.org/TiLDA_MK3/wifi"])
 n = network.CC3100()
-n.connect(wifi_ssid, wifi_pw)
+if w["pw"]:
+	n.connect(wifi_ssid, w["pw"], timeout=10)
+else:
+	n.connect(wifi_ssid, timeout=10)
 while not n.is_connected():
 	n.update()
 	pyb.delay(100)
