@@ -1,9 +1,7 @@
 ### Author: EMF Badge team
 ### Description: Allows access to IMU on the TiLDA
 ### License: MIT
-
-from pyb import I2C
-import ustruct
+import pyb, ustruct
 
 IMU_ADDRESS = 0x6A
 IMU_REG_WHO_AM_I = 0x0F
@@ -21,8 +19,8 @@ class IMU:
     def __init__(self):
         self.accuracy = 8
 
-        self.i2c = I2C(3, I2C.MASTER)
-        self.i2c.init(I2C.MASTER)
+        self.i2c = pyb.I2C(3, pyb.I2C.MASTER)
+        self.i2c.init(pyb.I2C.MASTER)
 
         pyb.delay(20)
 
