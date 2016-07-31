@@ -14,6 +14,7 @@ import filesystem
 
 TEMP_FILE = ".temp_download"
 
+ugfx.deinit()
 ugfx.init()
 
 ### HELPER FUNCTIONS ###
