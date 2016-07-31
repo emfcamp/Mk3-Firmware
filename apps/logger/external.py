@@ -6,6 +6,7 @@ import http_client
 import socket
 import network
 import wifi
+import gc
 
 adc_obj = pyb.ADC(pyb.Pin("ADC_UNREG"))
 ref_obj = pyb.ADC(0)
@@ -46,9 +47,13 @@ def periodic_home(icon):
 		f.write(str(bv) + ",\r\n")
 		
 		
-	urlparams = "origin=PBADGE0&data=0bX0%5BPBADGE0%5D"
-	r = http_client.post('http://ukhas.net/api/upload', urlencoded=urlparams)
-	
-	#s.send(b'GET / HTTP/1.1\r\nHost: micropython.org\r\n\r\n')
+	urlparams = "origin=PBADGE0&data=0bV" + str(bv) + "%5BPBADGE0%5D"
+	try:
+		if wifi.nic().is_connected():
+			with http_client.post('http://ukhas.net/api/upload', urlencoded=urlparams) as resp:
+				pass
+	except OSError as e:
+		print("Upload failed " + str(e))
+
 		
 	return "Logged " + str(bv)

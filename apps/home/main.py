@@ -18,6 +18,7 @@ import gc
 
 
 def draw_battery(back_colour,percent, win_bv):
+	percent = max(0,percent)
 	ugfx.set_default_font("c*")	
 	x=3
 	y=3
@@ -88,7 +89,10 @@ def get_home_screen_background_apps():
 	return out
 
 def low_power():
-	ugfx.backlight(5)
+	ugfx.backlight(0)
+
+def lower_power():
+	ugfx.backlight(0)
 
 #needs looking at
 def get_temperature(adc_obj, ref_obj):
@@ -216,7 +220,7 @@ while True:
 		#if wifi still needs poking
 		if (wifi_timeout > 0):
 			if wifi.nic().is_connected():
-				wifi_timeout = 0
+				wifi_timeout = -1
 				#wifi is connected, but if becomes disconnected, reconnect after 10sec
 				wifi_reconnect_timeout = 10
 			else:
@@ -242,8 +246,8 @@ while True:
 				if wifi_reconnect_timeout>0:
 					wifi_reconnect_timeout -= 1
 					if wifi_reconnect_timeout == 0:
-							wifi_timeout = 60 #seconds
-							wifi.connect(wait = False)
+						wifi_timeout = 60 #seconds
+						wifi.connect(wait = False)
 
 			draw_wifi(ugfx.html_color(0x3C0246),0, wifi_connect,wifi_timeout>0,win_wifi)
 			
@@ -259,7 +263,7 @@ while True:
 			
 			if battery_percent > 120:  #if charger plugged in
 				ugfx.backlight(100)
-			elif inactivity > 120:
+			elif inactivity > 10:
 				low_power()
 			else:
 				backlight_adjust()
