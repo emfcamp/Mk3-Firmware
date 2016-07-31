@@ -15,25 +15,28 @@ import stm
 import apps.home.draw_name
 import wifi
 import gc
+from imu import IMU
+import pyb
 
 
 def draw_battery(back_colour,percent, win_bv):
 	percent = max(0,percent)
-	ugfx.set_default_font("c*")	
+	ugfx.set_default_font("c*")
+	main_c = ugfx.WHITE #back_colour^0xFFFF
 	x=3
 	y=3
 	win_bv.area(x+35,y,40,24,back_colour)
 	if percent <= 120:
-		win_bv.text(x+35,y,str(int(min(percent,100))),back_colour^0xFFFF)	
+		win_bv.text(x+35,y,str(int(min(percent,100))),main_c)	
 	y += 2
-	win_bv.area(x,y,30,11,back_colour^0xFFFF)
-	win_bv.area(x+30,y+3,3,5,back_colour^0xFFFF)
+	win_bv.area(x,y,30,11,main_c)
+	win_bv.area(x+30,y+3,3,5,main_c)
 	
 	if percent > 120:
 		win_bv.area(x+2,y+2,26,7,ugfx.YELLOW)
 	elif percent > 2:
 		win_bv.area(x+2,y+2,26,7,back_colour)
-		win_bv.area(x+2,y+2,int(min(percent,100)*26/100),7,back_colour^0xFFFF)
+		win_bv.area(x+2,y+2,int(min(percent,100)*26/100),7,main_c)
 	else:
 		win_bv.area(x+2,y+2,26,7,ugfx.RED)
 	
@@ -45,7 +48,7 @@ def draw_wifi(back_colour, rssi, connected, connecting, win_wifi):
 	#win_wifi.fill_polygon(0, 0, outline, back_colour^0xFFFF)
 
 	if connected:
-		win_wifi.fill_polygon(0, 0, outline, ugfx.GREEN)
+		win_wifi.fill_polygon(0, 0, outline, ugfx.WHITE)
 	elif connecting:
 		win_wifi.fill_polygon(0, 0, outline, ugfx.YELLOW)
 	else:
@@ -109,6 +112,12 @@ def get_temperature(adc_obj, ref_obj):
 	return 30 - diff
 	
 ugfx.init()
+imu=IMU()
+ival = imu.get_acceleration()
+if ival['y'] < 0:
+	ugfx.orientation(0)
+else:
+	ugfx.orientation(180)
 
 if not stm.mem8[0x40002850] == 0x9C:
 	splashes = ["splash1.bmp"]
@@ -128,26 +137,35 @@ if not stm.mem8[0x40002850] == 0x9C:
 				break;
 			pyb.delay(1)
 
-ugfx.init()
+
 stm.mem8[0x40002850] = 0
 sty = ugfx.Style()
+# set_enabled([text_colour, edge_colour, fill_colour, progress_colour])
 sty.set_enabled([ugfx.WHITE, ugfx.html_color(0x3C0246), ugfx.GREY, ugfx.RED])
 sty.set_background(ugfx.html_color(0x3C0246))
 ugfx.set_default_style(sty)
+
+sty_tb = ugfx.Style(sty)
+sty_tb.set_enabled([ugfx.WHITE, ugfx.html_color(0xA66FB0), ugfx.GREY, ugfx.RED])
+sty_tb.set_background(ugfx.html_color(0xA66FB0))
+
+orientation = ugfx.orientation()
 
 
 neo=pyb.Neopix(pyb.Pin("PB13"))
 neo.display(0x050505)
 
+
+
 while True:
 #	ugfx.init()
 	
-	ugfx.area(0,0,320,240,ugfx.html_color(0x3C0246))
+	ugfx.area(0,0,320,240,sty_tb.background())
 	
-	win_bv = ugfx.Container(0,0,80,25)
-	win_wifi = ugfx.Container(82,0,60,25)
-	win_name = ugfx.Container(0,25,320,240-25-60)
-	win_text = ugfx.Container(0,240-60,320,60)
+	win_bv = ugfx.Container(0,0,80,25, style=sty_tb)
+	win_wifi = ugfx.Container(82,0,60,25, style=sty_tb)
+	win_name = ugfx.Container(0,25,320,240-25-60, style=sty)
+	win_text = ugfx.Container(0,240-60,320,60, style=sty_tb)
 
 	
 	obj_name = apps.home.draw_name.draw(0,25,win_name)
@@ -231,6 +249,25 @@ while True:
 			tick = 0
 			if (wifi_timeout > 0):
 				wifi_timeout -= 1;
+				
+				
+			# change screen orientation
+			ival = imu.get_acceleration()
+			if ival['y'] < -0.6:
+				if orientation != 0:
+					ugfx.orientation(0)
+			elif ival['y'] > 0.6:
+				if orientation != 180:
+					ugfx.orientation(180)
+			if orientation != ugfx.orientation():
+				inactivity = 0
+				ugfx.area(0,0,320,240,sty_tb.background())
+				orientation = ugfx.orientation()
+				win_bv.hide(); win_bv.show()
+				win_text.hide(); win_text.show()
+				win_wifi.hide(); win_wifi.show()
+				apps.home.draw_name.draw(0,25,win_name)
+
 			
 			#if wifi timeout has occured and wifi isnt connected in time
 			if (wifi_timeout == 0) and not (wifi.nic().is_connected()):
@@ -249,14 +286,14 @@ while True:
 						wifi_timeout = 60 #seconds
 						wifi.connect(wait = False)
 
-			draw_wifi(ugfx.html_color(0x3C0246),0, wifi_connect,wifi_timeout>0,win_wifi)
+			draw_wifi(sty_tb.background(),0, wifi_connect,wifi_timeout>0,win_wifi)
 			
 			
 			v = get_battery_voltage(adc_obj,ref_obj)
 			#t = get_temperature(temp_obj,ref_obj)
 			#print(t)
 			battery_percent = int((v-3.7)/(4.15-3.7)*100)
-			draw_battery(ugfx.html_color(0x3C0246),battery_percent,win_bv)
+			draw_battery(sty_tb.background(),battery_percent,win_bv)
 			
 			min_ctr += 1
 			inactivity += 1
@@ -267,9 +304,7 @@ while True:
 				low_power()
 			else:
 				backlight_adjust()
-			
-			print(gc.mem_free())
-			#gc.collect()
+
 			
 			# dont run periodic tasks if wifi is pending
 			if (min_ctr >= 30) and (wifi_timeout <= 0):							
