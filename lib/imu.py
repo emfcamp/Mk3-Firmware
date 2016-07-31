@@ -1,11 +1,23 @@
-#########
-## IMU ##
-#########
+### Author: EMF Badge team
+### Description: Allows access to IMU on the TiLDA
+### License: MIT
+
+from pyb import I2C
+import ustruct
+
 IMU_ADDRESS = 0x6A
 IMU_REG_WHO_AM_I = 0x0F
 IMU_REG_ACCEL_DATA = 0X28
 
 class IMU:
+    """Simple IMU interface
+
+    Usage:
+    imu = IMU()
+    while True:
+        print(imu.get_acceleration())
+        pyb.delay(1000);
+    """
     def __init__(self):
         self.accuracy = 8
 
@@ -44,3 +56,5 @@ class IMU:
             'y': self._acceleration_raw_to_float(data, 2),
             'z': self._acceleration_raw_to_float(data, 4)
         }
+
+    # ToDo: Add way to de-init i2c
