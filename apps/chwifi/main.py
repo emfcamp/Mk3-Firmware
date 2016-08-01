@@ -13,40 +13,45 @@ width = ugfx.width()
 height = ugfx.height()
 buttons.init()
 
+cursor_loc = 0
+
+sty = ugfx.Style()
+
+def _move_arrow(x, backcolour, win):
+	global cursor_loc
+	arrow = [[0,0],[20,7],[0,14],[4,7]]
+	win.fill_polygon(4, cursor_loc*25+18, arrow , backcolour)
+	cursor_loc += x
+	if cursor_loc < 0:
+		cursor_loc = 0
+	if cursor_loc > 2:
+		cursor_loc = 2
+	win.fill_polygon(4, cursor_loc*25+18, arrow ,ugfx.RED)
+
 
 # Create visual elements
-win_header = ugfx.Container(0,0,width,30)
-win_main = ugfx.Container(0,33,width,height-33)
+win_header = ugfx.Container(0,0,width,33)
+win_main = ugfx.Container(0,35,width,height-35)
 
 components = [win_header, win_main]
-ugfx.set_default_font("D*")
+ugfx.set_default_font(ugfx.FONT_TITLE)
 components.append(ugfx.Label(3,3,width-10,29,"Wifi Settings",parent=win_header))
-ugfx.set_default_font("c*")
-components.append(ugfx.Label(40,10,75,25,"Name:",parent=win_main))
-components.append(ugfx.Label(40,35,75,25,"Password:",parent=win_main))
-lname = ugfx.Label(115,10,100,25,"BadgeNet",parent=win_main)
-lpwd = ugfx.Label(115,35,100,25,"letmein",parent=win_main)
+ugfx.set_default_font(ugfx.FONT_MEDIUM_BOLD)
+components.append(ugfx.Label(40,10,85,25,"Name:",parent=win_main))
+components.append(ugfx.Label(40,35,85,25,"Password:",parent=win_main))
+ugfx.set_default_font(ugfx.FONT_MEDIUM)
+lname = ugfx.Label(125,10,100,25,"BadgeNet",parent=win_main)
+lpwd = ugfx.Label(125,35,100,25,"letmein",parent=win_main)
 components.append(lname)
 components.append(lpwd)
-ckhide = ugfx.Checkbox(250,35,100,25,"Hide",parent=win_main)
-components.append(ckhide)
+ckdefault = ugfx.Checkbox(40,65,250,25,"EMF camp default",parent=win_main)
+components.append(ckdefault)
 
 
 win_main.show()
 win_header.show()
 
-#options = ugfx.List(3,3,win_files.width()-6,win_files.height()-6,parent=win_files)
-#components.append(options)
-#components.append(ugfx.Button(10,win_preview.height()-25,20,20,"A",parent=win_preview))
-#components.append(ugfx.Label(35,win_preview.height()-25,50,20,"Run",parent=win_preview))
-#components.append(ugfx.Button(80,win_preview.height()-25,20,20,"B",parent=win_preview))
-#components.append(ugfx.Label(105,win_preview.height()-25,100,20,"Back",parent=win_preview))
-#components.append(ugfx.Button(10,win_preview.height()-50,20,20,"M",parent=win_preview))
-#components.append(ugfx.Label(35,win_preview.height()-50,100,20,"Pin/Unpin",parent=win_preview))
-#author = ugfx.Label(1,win_preview.height()-78,win_preview.width()-3,20,"by: ",parent=win_preview)
-#desc = ugfx.Label(3,1,win_preview.width()-10,win_preview.height()-83,"Cool app/10",parent=win_preview)
-#components.append(author)
-#components.append(desc)
+
 
 timer = pyb.Timer(3)
 timer.init(freq=60)
@@ -56,10 +61,29 @@ try:
 	ap = database_get("wifi-ap", "")
 	pwd = database_get("wifi-pwd", "")
 	
+	_move_arrow(0, sty.background(), win_main)
+	
 	while True:
 	
 		if buttons.is_triggered("BTN_B"):
 			break
+			
+		if buttons.is_triggered("BTN_A"):
+			if cursor_loc == 0:
+				ap = prompt_text("Enter the access point name", default=ap, init_text = ap, true_text="OK", false_text="Back", width = 310, height = 220)
+				lname.text(ap)
+			if cursor_loc == 1:
+				pwd = prompt_text("Enter the password", default=pwd, init_text = pwd, true_text="OK", false_text="Back", width = 310, height = 220)
+				lpwd.text(lpwd)
+			
+		if buttons.is_triggered("JOY_UP"):
+			_move_arrow(-1,sty.background(),win_main)
+			ckdefault.detach_input(ugfx.BTN_A)
+				
+		if buttons.is_triggered("JOY_DOWN"):
+			_move_arrow(1,sty.background(),win_main)
+			if cursor_loc == 2:
+				ckdefault.attach_input(ugfx.BTN_A,0)
 
 	#name_new = prompt_text("Enter your name", default=name, init_text = name, true_text="OK", false_text="Back", width = 310, height = 220)
 
