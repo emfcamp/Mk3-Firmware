@@ -17,6 +17,7 @@ import wifi
 import gc
 from imu import IMU
 import pyb
+import onboard
 
 
 def draw_battery(back_colour,percent, win_bv):
@@ -73,15 +74,6 @@ def backlight_adjust():
 	else:
 		ugfx.backlight(30)
 
-def get_battery_voltage(adc_obj, ref_obj):
-	vin = adc_obj.read()
-	ref_reading = ref_obj.read()
-	factory_reading = stm.mem16[0x1FFF75AA]
-	reference_voltage = factory_reading/4095*3
-#	print (str(reference_voltage) + "  " + str(factory_reading) + " " + str(ref_reading))
-	supply_voltage = 4095/ref_reading*reference_voltage 
-	return 2 * vin / 4095 * supply_voltage
-	
 def get_home_screen_background_apps():
 	pinned = database_get("pinned", [])
 	out = []
@@ -97,20 +89,6 @@ def low_power():
 	ugfx.backlight(0)
 	ugfx.power_mode(ugfx.POWER_OFF)
 
-
-#needs looking at
-def get_temperature(adc_obj, ref_obj):
-	tval = adc_obj.read()
-	ref_reading = ref_obj.read()
-	factory_reading = stm.mem16[0x1FFF75AA]
-	reference_voltage = factory_reading/4095*3
-	supply_voltage = 4095/ref_reading*reference_voltage 
-	adc30_3v = stm.mem16[0x1FFF75A8]
-	adc110_3v = stm.mem16[0x1FFF75CA]
-	grad = (adc110_3v - adc30_3v)/(110-30)
-	tval_3v = tval/3*supply_voltage
-	diff = (adc30_3v - tval_3v)/grad
-	return 30 - diff
 	
 ugfx.init()
 imu=IMU()
@@ -122,7 +100,7 @@ else:
 
 
 buttons.init()
-if not stm.mem8[0x40002850] == 0x9C:
+if not onboard.is_splash_hidden():
 	splashes = ["splash1.bmp"]
 	for s in splashes:
 		ugfx.display_image(0,0,s)
@@ -140,7 +118,7 @@ if not stm.mem8[0x40002850] == 0x9C:
 			pyb.delay(1)
 
 
-stm.mem8[0x40002850] = 0
+onboard.hide_splash_on_next_boot(False)
 sty = ugfx.Style()
 # set_enabled([text_colour, edge_colour, fill_colour, progress_colour])
 sty.set_enabled([ugfx.WHITE, ugfx.html_color(0x3C0246), ugfx.GREY, ugfx.RED])
@@ -152,11 +130,6 @@ sty_tb.set_enabled([ugfx.WHITE, ugfx.html_color(0xA66FB0), ugfx.html_color(0x5e5
 sty_tb.set_background(ugfx.html_color(0xA66FB0))
 
 orientation = ugfx.orientation()
-
-
-neo=pyb.Neopix(pyb.Pin("PB13"))
-neo.display(0x050505)
-
 
 
 while True:
@@ -183,11 +156,6 @@ while True:
 	win_bv.show()
 	win_text.show()
 	win_wifi.show()	
-	
-	adc_obj = pyb.ADC(pyb.Pin("ADC_UNREG"))
-	ref_obj = pyb.ADC(0)
-	temp_obj = pyb.ADC(17)
-
 	
 	min_ctr = 28
 	
@@ -224,7 +192,7 @@ while True:
 	try:
 		wifi.connect(wait = False)
 	except OSError:
-		Print("Creating default wifi settings file")
+		print("Creating default wifi settings file")
 		wifi.create_default_config()
 	
 	while True:
@@ -287,10 +255,7 @@ while True:
 			draw_wifi(sty_tb.background(),0, wifi_connect,wifi_timeout>0,win_wifi)
 			
 			
-			v = get_battery_voltage(adc_obj,ref_obj)
-			#t = get_temperature(temp_obj,ref_obj)
-			#print(t)
-			battery_percent = int((v-3.7)/(4.15-3.7)*100)
+			battery_percent = onboard.get_battery_percentage()
 			draw_battery(sty_tb.background(),battery_percent,win_bv)
 			
 			min_ctr += 1

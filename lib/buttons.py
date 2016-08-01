@@ -4,6 +4,7 @@
 
 import pyb
 import stm
+import onboard
 
 CONFIG = {
 	"JOY_UP": pyb.Pin.PULL_DOWN,
@@ -115,13 +116,9 @@ def disable_interrupt(button):
 def disable_all_interrupt():
 	for interrupt in _tilda_interrupts:
 		disable_interrupt(interrupt)
-
-def _semihard_reset():
-	stm.mem8[0x40002850] = 0x9C
-	pyb.hard_reset()
 		
 def enable_menu_reset():
-	enable_interrupt("BTN_MENU", lambda t:_semihard_reset(), on_release = True)
+	enable_interrupt("BTN_MENU", lambda t:onboard.semihard_reset(), on_release = True)
 
 def disable_menu_reset():
 	disable_interrupt("BTN_MENU")

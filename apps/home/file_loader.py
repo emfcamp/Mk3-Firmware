@@ -190,8 +190,7 @@ if len(app_to_load) > 0:
 			#if len(str)>=4:
 			#out = "\n".join(str[4:])			
 			#dialogs.notice(out, width=wi-10, height=hi-10)
-	stm.mem8[0x40002850] = 0x9C
-	pyb.hard_reset()
+	onboard.semihard_reset()
 	
 	#deinit ugfx here
 	#could hard reset here too
