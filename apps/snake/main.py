@@ -12,6 +12,7 @@ import buttons
 
 ugfx.init()
 buttons.init()
+buttons.disable_menu_reset()
 
 def one_round():
     grid_size = 8;
@@ -52,7 +53,7 @@ def one_round():
     ugfx.area(grid_size*(edge_x+1),0,grid_size,grid_size*(edge_y+1),wall_colour)
     ugfx.area(0,grid_size*(edge_y+1),grid_size*(edge_x+2),grid_size,wall_colour)
 
-    keepgoing = 10;
+    keepgoing = 1;
 
     food = [20,20]
     disp_square(food[0],food[1],food_colour)
@@ -64,12 +65,12 @@ def one_round():
     #for i in range(0,len(body_x)):
     #   disp_body_straight(body_x[i],body_y[i],orient,body_colour)
 
-    while True:
-        if buttons.is_pressed("JOY_LEFT"):
+    while keepgoing:
+        if buttons.is_pressed("JOY_RIGHT"):
             dir_x = 1;
             dir_y = 0;
             orient = 270
-        elif buttons.is_pressed("JOY_RIGHT"):
+        elif buttons.is_pressed("JOY_LEFT"):
             dir_x = -1;
             dir_y = 0;
             orient = 90
@@ -87,7 +88,7 @@ def one_round():
 
         for i in range(0,len(body_x)-1):
             if (body_x[i] == body_x[-1]) and (body_y[i] == body_y[-1]):
-                break
+                keepgoing = 0
 
         if not((body_x[-1] == food[0]) and (body_y[-1] == food[1])):
             x_del = body_x.pop(0)
@@ -107,8 +108,9 @@ def one_round():
 
         pyb.delay(100)
     return score
-
-while True:
+	
+playing = 1
+while playing:
     score = one_round()
     ugfx.area(0,0,ugfx.width(),ugfx.height(),0)
     ugfx.text(30, 30, "GAME OVER Score: %d" % (score), 0xFFFF)
@@ -120,7 +122,7 @@ while True:
             break
 
         if buttons.is_triggered("BTN_MENU"):
-            pyb.hard_reset()
+            playing = 0 #pyb.hard_reset()
 
 
 
