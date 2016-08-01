@@ -4,6 +4,7 @@
 ### License: MIT
 ### Appname: Home
 ### Built-in: hide
+
 import ugfx
 import pyb
 import os
@@ -18,6 +19,7 @@ import gc
 from imu import IMU
 import pyb
 import onboard
+import dialogs
 
 
 def draw_battery(back_colour,percent, win_bv):
@@ -119,13 +121,10 @@ if not onboard.is_splash_hidden():
 
 
 onboard.hide_splash_on_next_boot(False)
-sty = ugfx.Style()
-# set_enabled([text_colour, edge_colour, fill_colour, progress_colour])
-sty.set_enabled([ugfx.WHITE, ugfx.html_color(0x3C0246), ugfx.GREY, ugfx.RED])
-sty.set_background(ugfx.html_color(0x3C0246))
-ugfx.set_default_style(sty)
 
-sty_tb = ugfx.Style(sty)
+ugfx.set_default_style(dialogs.default_style_badge)
+
+sty_tb = ugfx.Style(dialogs.default_style_badge)
 sty_tb.set_enabled([ugfx.WHITE, ugfx.html_color(0xA66FB0), ugfx.html_color(0x5e5e5e), ugfx.RED])
 sty_tb.set_background(ugfx.html_color(0xA66FB0))
 
@@ -140,7 +139,7 @@ while True:
 	ugfx.set_default_font(ugfx.FONT_MEDIUM)
 	win_bv = ugfx.Container(0,0,80,25, style=sty_tb)
 	win_wifi = ugfx.Container(82,0,60,25, style=sty_tb)
-	win_name = ugfx.Container(0,25,320,240-25-60, style=sty)
+	win_name = ugfx.Container(0,25,320,240-25-60, style=dialogs.default_style_badge)
 	win_text = ugfx.Container(0,240-60,320,60, style=sty_tb)
 
 	windows = [win_bv, win_wifi, win_text]

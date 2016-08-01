@@ -9,6 +9,7 @@ from filesystem import *
 import uio
 import sys
 import gc
+import onboard
 
 width = ugfx.width()
 height = ugfx.height()
@@ -24,8 +25,8 @@ ugfx.set_default_font(ugfx.FONT_TITLE)
 components.append(ugfx.Label(3,3,width-10,29,"Choose App",parent=win_header))
 ugfx.set_default_font(ugfx.FONT_MEDIUM)
 options = ugfx.List(0,30,win_files.width(),win_files.height()-30,parent=win_files)
-btnr = ugfx.Button(5,3,20,20,"<",parent=win_files)
-btnl = ugfx.Button(win_files.width()-7-20,3,20,20,">",parent=win_files)
+btnl = ugfx.Button(5,3,20,20,"<",parent=win_files)
+btnr = ugfx.Button(win_files.width()-7-20,3,20,20,">",parent=win_files)
 btnr.attach_input(ugfx.JOY_RIGHT,0)
 btnl.attach_input(ugfx.JOY_LEFT,0)
 components.append(options)

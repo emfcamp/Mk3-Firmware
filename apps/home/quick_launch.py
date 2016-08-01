@@ -9,6 +9,7 @@ import sys
 import uio
 import gc
 import onboard
+import dialogs
 
 joy_updown = 0
 joy_lr = 0
@@ -53,7 +54,8 @@ if pinned == None:
 	pinned = []
 	print("List of pinned files doesn't exist, creating default")
 	pinned.append("apps/snake/main.py")
-	pinned.append("examples/party_mode.py")
+	pinned.append("apps/messages/main.py")
+	pinned.append("apps/logger/main.py")
 	database_set("pinned", pinned)
 	
 file_list = pinned;
@@ -79,10 +81,9 @@ file_name[7] = "View All"
 ugfx.set_default_font(ugfx.FONT_TITLE)
 title = ugfx.Label(3,3,wi-10,45,"EMF Camp 2016",parent=win_header)
 
-s = ugfx.Style()
-s.set_focus(ugfx.RED)
+
 ugfx.set_default_font(ugfx.FONT_MEDIUM_BOLD)
-ugfx.set_default_style(s)
+
 
 btn_c1r1 = ugfx.Button(25,5,100,30,file_name[0],parent=win_quick)
 btn_c1r2 = ugfx.Button(25,40,100,30,file_name[1],parent=win_quick)
@@ -104,8 +105,8 @@ l_back = ugfx.Label(130,5,100,20,"Back",parent=win_help)
 btn_menu = ugfx.Button(200,5,20,20,"M",parent=win_help,shape=ugfx.Button.ROUNDED)
 l_back = ugfx.Label(230,5,100,20,"Menu",parent=win_help)
 
-sty = ugfx.Style()
 
+sty = dialogs.default_style_badge
 
 win_header.show()
 win_quick.show()
@@ -120,6 +121,15 @@ _move_arrow(0,0,cursor_loc, sty.background(), win_quick)
 app_to_load = "home"
 
 torun = "";
+
+firstrun = database_get("quicklaunch_firstrun", 0)
+if 1: #not firstrun:
+
+	dialogs.notice("""This screen displays the most commonly used apps.
+Apps pinned here can also interact with the name screen.
+To view all apps, pin and un-pin, select 'View All'
+	""", title="TiLDA - Quick Launch", close_text="Close", width = 213, height = 120)
+database_set("quicklaunch_firstrun", 1)
 
 while True:
 	pyb.wfi()
