@@ -120,12 +120,13 @@ if ival['y'] < 0:
 else:
 	ugfx.orientation(180)
 
+
+buttons.init()
 if not stm.mem8[0x40002850] == 0x9C:
 	splashes = ["splash1.bmp"]
 	for s in splashes:
 		ugfx.display_image(0,0,s)
-		delay = 5000
-		buttons.init()
+		delay = 5000		
 		while delay:
 			delay -= 1
 			if buttons.is_triggered("BTN_MENU"):

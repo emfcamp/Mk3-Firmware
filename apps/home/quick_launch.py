@@ -13,21 +13,6 @@ joy_updown = 0
 joy_lr = 0
 
 
-def callback_arrow_up(line):
-	global joy_updown
-	joy_updown = 1
-
-def callback_arrow_down(line):
-	global joy_updown
-	joy_updown = -1
-
-def callback_arrow_right(line):
-	global joy_lr
-	joy_lr = 1
-
-def callback_arrow_left(line):
-	global joy_lr
-	joy_lr = -1
 
 def _move_arrow(x,y,cursor_loc, backcolour, win_quick):
 
@@ -126,14 +111,7 @@ win_quick.show()
 win_help.show()
 
 
-
-#enable_irq()
 buttons.init()
-#buttons.enable_interrupt("JOY_UP", callback_arrow_up)
-#buttons.enable_interrupt("JOY_DOWN", callback_arrow_down)
-#buttons.enable_interrupt("JOY_LEFT", callback_arrow_left)
-#buttons.enable_interrupt("JOY_RIGHT", callback_arrow_right)
-
 cursor_loc = [0, 0]
 
 _move_arrow(0,0,cursor_loc, sty.background(), win_quick)
@@ -167,7 +145,6 @@ while True:
 	#	break;
 
 	if buttons.is_triggered("BTN_A"):
-
 		torun = file_list[cursor_loc[0]*4 + cursor_loc[1]]
 		print(torun)
 		if len(torun) > 3:

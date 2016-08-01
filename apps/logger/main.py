@@ -7,8 +7,20 @@
 
 import ugfx
 from filesystem import *
+from database import *
 import pyb
 import math
+import buttons
+
+def wait_for_exit():
+	global chk_upload
+	buttons.init()
+	while True:
+		pyb.wfi()
+		if buttons.is_triggered("BTN_B"):
+			break;
+	
+	database_set("stats_upload", chk_upload.checked())
 
 wi = ugfx.width()
 hi = ugfx.height()
@@ -32,18 +44,27 @@ scale_m = [75,   1,  1]
 scale_c = [-255, 0,  0]
 colour =  [ugfx.RED, ugfx.GREEN, ugfx.BLUE]
 
+buttons.disable_menu_reset()
+timer = pyb.Timer(3)
+timer.init(freq=10)
+timer.callback(lambda t:ugfx.poll())
 
 ugfx.set_default_font(ugfx.FONT_TITLE)
 title = ugfx.Label(3,3,wi-10,45,"Log Viewer",parent=win_header)
+ugfx.set_default_font(ugfx.FONT_SMALL)
+chk_upload = ugfx.Checkbox(190,3,130,20,"M: Enable uplink",parent=win_header)
+chk_upload.attach_input(ugfx.BTN_MENU,0)
+if database_get("stats_upload", 0):
+	chk_upload.checked(1)
 win_header.show()
 win_legend.show()
 
 ugfx.set_default_font(ugfx.FONT_MEDIUM)
 ugfx.set_default_style(s)
 
-graph = ugfx.Graph(0,33,wi,hi-33-33,30,30)
+graph = ugfx.Graph(0,33,wi,hi-33-33,3,3)
 graph.appearance(ugfx.Graph.STYLE_POINT, ugfx.Graph.POINT_NONE, 0, 0)
-wi_g = wi - 30
+wi_g = wi - 3
 
 scaling = int((hi-33-33-30)/2)
 
@@ -52,7 +73,8 @@ names = []
 seek = -1
 if not is_file("log.txt"):
 	ugfx.text(20,100,"Log file not found",0)
-	pyb.wfi()
+	wait_for_exit()
+	pyb.hard_reset()
 
 
 #open the file and see how long it is
@@ -67,6 +89,7 @@ with open("log.txt","r") as f:
 cl = 0
 x_index = 0
 graph.show()
+names=[n.strip() for n in names]
 
 xscale = int(max(math.floor(wi/lines),1))
 
@@ -87,10 +110,11 @@ with open("log.txt","r") as f:
 	for n in names:
 		if n in toplot:
 			f.seek(seek)
-			graph.appearance(ugfx.Graph.STYLE_LINE, ugfx.Graph.LINE_SOLID, 1, colour[ toplot.index(n) ])			
+			graph.appearance(ugfx.Graph.STYLE_LINE, ugfx.Graph.LINE_SOLID, 3, colour[ toplot.index(n) ])			
 			x_index = 0
 			m = scale_m[ toplot.index(n) ]
 			c = scale_c[ toplot.index(n) ]
+			new_series = 1
 			while True:
 				l=f.readline()
 				if len(l) == 0:
@@ -99,7 +123,8 @@ with open("log.txt","r") as f:
 				if len(s) > col:
 					try:
 						data_y = int((float(s[col])*m)+c)
-						graph.plot(x_index, data_y)
+						graph.plot(x_index, data_y, new_series)
+						new_series = 0
 					except ValueError:
 						pass
 				x_index += xscale
@@ -109,8 +134,7 @@ with open("log.txt","r") as f:
 x = 0
 for p in toplot:
 	ugfx.Label(x+13,0,50,25,p,parent=win_legend)
-	win_legend.line(x,13,x+10,13,colour[ toplot.index(p) ])
+	win_legend.thickline(x,13,x+10,13,3,1,colour[ toplot.index(p) ])
 	x += 75
-						
-while True:
-	pyb.wfi()
+				
+wait_for_exit()
