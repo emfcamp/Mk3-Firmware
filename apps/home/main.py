@@ -315,7 +315,7 @@ while True:
 						e = ext_import[i]					
 						if "periodic_home" in dir(e):
 							text = e.periodic_home(icons[i])
-							if len(text) > 0:								
+							if not (text == None) and len(text) > 0:								
 								if (l_text.count() > 10):
 									l_text.remove_item(0)
 								l_text.add_item(text)
