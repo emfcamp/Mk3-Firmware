@@ -6,26 +6,41 @@ import ugfx
 import buttons
 import pyb
 
+default_style_badge = ugfx.Style()
+default_style_badge.set_focus(ugfx.RED)
+default_style_badge.set_enabled([ugfx.WHITE, ugfx.html_color(0x3C0246), ugfx.GREY, ugfx.RED])
+default_style_badge.set_background(ugfx.html_color(0x3C0246))
+
+default_style_dialog = ugfx.Style()
+default_style_dialog.set_enabled([ugfx.BLACK, ugfx.html_color(0xA66FB0), ugfx.html_color(0x5e5e5e), ugfx.RED])
+default_style_dialog.set_background(ugfx.html_color(0xFFFFFF))
+
+
 TILDA_COLOR = ugfx.html_color(0x7c1143);
 
-def notice(text, title="TiLDA", close_text="Close", width = 213, height = 120):
-	prompt_boolean(text, title = title, true_text = close_text, false_text = None, width = width, height = height)
+def notice(text, title="TiLDA", close_text="Close", width = 213, height = 120, font=ugfx.FONT_SMALL, style=None):
+	prompt_boolean(text, title = title, true_text = close_text, false_text = None, width = width, height = height, font=font, style=style)
 
-def prompt_boolean(text, title="TiLDA", true_text="Yes", false_text="No", width = 213, height = 120):
+def prompt_boolean(text, title="TiLDA", true_text="Yes", false_text="No", width = 213, height = 120, font=ugfx.FONT_SMALL, style=None):
 	"""A simple one and two-options dialog
 
 	if 'false_text' is set to None only one button is displayed.
 	If both 'true_text' and 'false_text' are given a boolean is returned
 	"""
-	window = ugfx.Container(30, 30, ugfx.width() - 60, ugfx.height() - 60)
+	global default_style_dialog
+	if style == None:
+		style = default_style_dialog
+	window = ugfx.Container(30, 30, ugfx.width() - 60, ugfx.height() - 60, style=style)
 	window.show()
+	ugfx.set_default_font(font)
 	window.text(5, 10, title, TILDA_COLOR)
 	window.line(0, 30, ugfx.width() - 60, 30, ugfx.BLACK)
 
 	if false_text:
 		true_text = "A: " + true_text
 		false_text = "B: " + false_text
-
+	
+	ugfx.set_default_font(ugfx.FONT_SMALL)
 	label = ugfx.Label(5, 30, ugfx.width() - 25, 100, text = text, parent=window)
 	button_yes = ugfx.Button(5, window.height() - 40, 120 if false_text else window.width() - 15, 30 , true_text, parent=window)
 	button_no = ugfx.Button(window.width() - 130, window.height() - 40, 120, 30 , false_text, parent=window) if false_text else None
