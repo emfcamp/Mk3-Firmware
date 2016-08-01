@@ -15,7 +15,8 @@ def get_temperature():
 	diff = (adc30_3v - tval_3v)/grad
 	return 30 - diff
 
-def get_battery_voltage():
+
+def get_unreg_voltage():
 	global adc_obj, ref_obj
 	vin = adc_obj.read()
 	ref_reading = ref_obj.read()
@@ -24,13 +25,28 @@ def get_battery_voltage():
 	supply_voltage = 4095/ref_reading*reference_voltage
 	return 2 * vin / 4095 * supply_voltage
 
+def get_battery_voltage():
+	global vbat_obj, ref_obj
+	vin = vbat_obj.read()
+	ref_reading = ref_obj.read()
+	factory_reading = stm.mem16[0x1FFF75AA]
+	reference_voltage = factory_reading/4095*3
+	supply_voltage = 4095/ref_reading*reference_voltage
+	return 6 * vin / 4095 * supply_voltage
+
 def get_battery_percentage():
-	v = get_battery_voltage()
+	v = get_unreg_voltage()
 	return int( (v-3.7) / (4.15-3.7) * 100)
+	
+def get_light():
+	global light_obj
+	return light_obj.read()
 
 adc_obj = pyb.ADC(pyb.Pin("ADC_UNREG"))
 ref_obj = pyb.ADC(0)
 temp_obj = pyb.ADC(17)
+vbat_obj = pyb.ADC(18)
+light_obj = pyb.ADC(16)
 
 def hide_splash_on_next_boot(hide=True):
 	if hide:
