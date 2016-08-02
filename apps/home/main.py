@@ -51,11 +51,9 @@ def draw_wifi(back_colour, rssi, connected, connecting, win_wifi):
 	x = max(1,x)
 	y = x*4
 	x = x*5
-	print("x: " + str(x) + "  y: " + str(y))
 
 	outline      = [[0,20],[25,20],[25,0]]
 	outline_rssi = [[0,20],[x,20],[x,20-y]]
-	#inline =  [[3,17],[17,17],[17,3]]
 
 	#win_wifi.fill_polygon(0, 0, outline, back_colour^0xFFFF)
 
@@ -279,11 +277,17 @@ while True:
 
 			inactivity += 1
 
+			# turn off after some period
+			# takes longer to turn off in the 'used' position
+			if ugfx.orientation() == 180:
+				inactivity_limit = 120
+			else:
+				inactivity_limit = 30
 			if battery_percent > 120:  #if charger plugged in
 				if ugfx.backlight() == 0:
 					ugfx.power_mode(ugfx.POWER_ON)
 				ugfx.backlight(100)
-			elif inactivity > 10:
+			elif inactivity > inactivity_limit:
 				low_power()
 			else:
 				backlight_adjust()
