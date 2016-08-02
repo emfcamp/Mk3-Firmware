@@ -104,7 +104,7 @@ if not onboard.is_splash_hidden():
 	splashes = ["splash1.bmp"]
 	for s in splashes:
 		ugfx.display_image(0,0,s)
-		delay = 5000
+		delay = 2000
 		while delay:
 			delay -= 1
 			if buttons.is_triggered("BTN_MENU"):
