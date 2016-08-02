@@ -40,8 +40,8 @@ win_legend = ugfx.Container(0,hi-30,wi,30,style=s)
 
 toplot = ['vbat','vunreg','light','rssi']
 # scale  to fit on the y scale (range 0->150)
-scale_m = [75,   75,   0.2,  1]
-scale_c = [-255, -255, 0,    0]
+scale_m = [75,   75,   0.4,  1]
+scale_c = [-255, -255, 0,    100]
 colour =  [ugfx.RED, ugfx.ORANGE, ugfx.YELLOW, ugfx.BLUE]
 
 buttons.disable_menu_reset()

@@ -11,7 +11,7 @@ import gc
 import onboard
 
 needs_wifi = True
-period = 1 * 1000
+period = 45 * 1000
 needs_icon = True
 
 i = 0
@@ -27,6 +27,7 @@ def tick(icon):
 	bv = onboard.get_battery_voltage()
 	uv = onboard.get_unreg_voltage()
 	li = onboard.get_light()
+	rssi = wifi.nic().get_rssi()
 
 	logfile = "log.txt"
 
@@ -42,10 +43,14 @@ def tick(icon):
 	try:
 		if not is_file(logfile):
 			with open(logfile, "w") as f:
-				f.write("vbat, vunreg, light \r\n")
+				f.write("vbat, vunreg, light, rssi \r\n")
 
 		with open(logfile, "a") as f:
-			f.write(str(bv) + ", " + str(uv) + ", " + str(li) + "\r\n")
+			if rssi == 0:
+				rssis = ""
+			else:
+				rssis = str(rssi)
+			f.write(str(bv) + ", " + str(uv) + ", " + str(li) + ", " + rssis + "\r\n")
 	except OSError as e:
 		print("Logging failed: " + str(e))
 		return "Logging failed"
