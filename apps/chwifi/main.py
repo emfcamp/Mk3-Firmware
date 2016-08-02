@@ -57,10 +57,17 @@ timer = pyb.Timer(3)
 timer.init(freq=60)
 timer.callback(lambda t:ugfx.poll())
 
+ap = ""
+pwd = ""
 try:
-	ap = database_get("wifi-ap", "")
-	pwd = database_get("wifi-pwd", "")
-	
+	de = wifi.connection_details()
+	ap = de["ssid"]
+	pwd = de["pw"]
+except:
+	pass
+
+try:
+		
 	_move_arrow(0, sty.background(), win_main)
 	
 	while True:
@@ -74,7 +81,8 @@ try:
 				lname.text(ap)
 			if cursor_loc == 1:
 				pwd = prompt_text("Enter the password", default=pwd, init_text = pwd, true_text="OK", false_text="Back", width = 310, height = 220)
-				lpwd.text(lpwd)
+				lpwd.text(pwd)
+			_move_arrow(0, sty.background(), win_main)
 			
 		if buttons.is_triggered("JOY_UP"):
 			_move_arrow(-1,sty.background(),win_main)
