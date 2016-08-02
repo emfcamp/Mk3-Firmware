@@ -129,16 +129,18 @@ try:
 		if buttons.is_triggered("JOY_LEFT"):
 			if c_ptr > 0:
 				c_ptr -= 1
+				btnl.set_focus()
 				l_cat.text(catergories[c_ptr])
 				displayed_apps = update_options(options, apps_path, pinned, catergories[c_ptr])
-				index_prev = -1
+				index_prev = -1				
 		
 		if buttons.is_triggered("JOY_RIGHT"):
 			if c_ptr < len(catergories)-1:
 				c_ptr += 1
+				btnr.set_focus()
 				l_cat.text(catergories[c_ptr])
 				displayed_apps = update_options(options, apps_path, pinned, catergories[c_ptr])
-				index_prev = -1
+				index_prev = -1				
 		
 		if buttons.is_triggered("BTN_MENU"):
 			app_path = displayed_apps[options.selected_index()]

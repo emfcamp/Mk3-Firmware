@@ -58,13 +58,6 @@ def download(path, target):
 
 	s.close()
 
-ugfx.init()
-ugfx.clear(ugfx.BLACK)
-ugfx.text(0, 0, "Downloading TiLDA software", ugfx.RED)
-ugfx.text(0, 30, "Should this not work, try again by", ugfx.WHITE)
-ugfx.text(0, 50, "pressing the reset button at the back", ugfx.WHITE)
-ugfx.text(0, 100, "Please wait...", ugfx.WHITE)
-
 def message(lines):
 	y = 150
 	ugfx.area(0, y, ugfx.width(), ugfx.height() - y, ugfx.BLACK)
@@ -72,11 +65,12 @@ def message(lines):
 		ugfx.text(0, y, line, ugfx.WHITE)
 		y += 20
 
-for d in ["apps", "apps/app_library", "lib"]:
-	try:
-		os.mkdir(d)
-	except OSError as e:
-		print(e)
+ugfx.init()
+ugfx.clear(ugfx.BLACK)
+ugfx.text(0, 0, "Downloading TiLDA software", ugfx.RED)
+ugfx.text(0, 30, "Should this not work, try again by", ugfx.WHITE)
+ugfx.text(0, 50, "pressing the reset button at the back", ugfx.WHITE)
+ugfx.text(0, 100, "Please wait...", ugfx.WHITE)
 
 w = {}
 try:
@@ -90,20 +84,21 @@ if not ("ssid" in w and "pw" in w):
 	message(["Couldn't find a valid wifi.json :(", "More information:", "badge.emfcamp.org/TiLDA_MK3/wifi"])
 	while True: pyb.wfi()
 
-wifi_ssid = w["ssid"]
-
-message(["Connecting to '%s'" % (wifi_ssid), "Update wifi.json if this is incorrect", "More information:", "badge.emfcamp.org/TiLDA_MK3/wifi"])
+message(["Connecting to '%s'" % (w["ssid"]), "Update wifi.json if this is incorrect", "More information:", "badge.emfcamp.org/TiLDA_MK3/wifi"])
 n = network.CC3100()
-if w["pw"]:
-	n.connect(wifi_ssid, w["pw"], timeout=10)
+if ("pw" in w) and w["pw"]:
+	n.connect(w["ssid"], w["pw"], timeout=10)
 else:
-	n.connect(wifi_ssid, timeout=10)
-while not n.is_connected():
-	n.update()
-	pyb.delay(100)
+	n.connect(w["ssid"], timeout=10)
+
+for d in ["apps", "apps/app_library", "lib"]:
+	try:
+		os.mkdir(d)
+	except OSError as e:
+		print(e)
 
 try:
-	libs = ["wifi", "buttons", "http_client", "filesystem", "dialogs", "database", "app"]
+	libs = ["wifi", "buttons", "http_client", "filesystem", "dialogs", "database", "app", "onboard"]
 	for i, lib in enumerate(libs):
 		message(["Downloading library: %s (%d/%d)" % (lib, i + 1, len(libs))])
 		download("/firmware/master/lib/%s.py" % (lib), "lib/%s.py" % (lib))
