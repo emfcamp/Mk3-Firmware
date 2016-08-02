@@ -12,7 +12,6 @@ import buttons
 
 ugfx.init()
 buttons.init()
-buttons.disable_menu_reset()
 
 def one_round():
     grid_size = 8;
@@ -108,7 +107,7 @@ def one_round():
 
         pyb.delay(100)
     return score
-	
+
 playing = 1
 while playing:
     score = one_round()
@@ -120,9 +119,3 @@ while playing:
         pyb.wfi()
         if buttons.is_triggered("BTN_A"):
             break
-
-        if buttons.is_triggered("BTN_MENU"):
-            playing = 0 #pyb.hard_reset()
-
-
-
