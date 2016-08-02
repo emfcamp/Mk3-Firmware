@@ -46,13 +46,22 @@ def draw_battery(back_colour,percent, win_bv):
 
 def draw_wifi(back_colour, rssi, connected, connecting, win_wifi):
 
-	outline = [[0,20],[25,20],[25,0]]
+	x = int((rssi+100)/14)
+	x = min(5,x)
+	x = max(1,x)
+	y = x*4
+	x = x*5
+	print("x: " + str(x) + "  y: " + str(y))
+
+	outline      = [[0,20],[25,20],[25,0]]
+	outline_rssi = [[0,20],[x,20],[x,20-y]]
 	#inline =  [[3,17],[17,17],[17,3]]
 
 	#win_wifi.fill_polygon(0, 0, outline, back_colour^0xFFFF)
 
 	if connected:
-		win_wifi.fill_polygon(0, 0, outline, ugfx.WHITE)
+		win_wifi.fill_polygon(0, 0, outline, ugfx.html_color(0xC4C4C4))
+		win_wifi.fill_polygon(0, 0, outline_rssi, ugfx.WHITE)
 	elif connecting:
 		win_wifi.fill_polygon(0, 0, outline, ugfx.YELLOW)
 	else:
@@ -188,6 +197,7 @@ while True:
 	backlight_adjust()
 
 	inactivity = 0
+	last_rssi = 0
 
 	## start connecting to wifi in the background
 	wifi_timeout = 60 #seconds
@@ -255,7 +265,13 @@ while True:
 						wifi_timeout = 60 #seconds
 						wifi.connect(wait = False)
 
-			draw_wifi(sty_tb.background(),0, wifi_connect,wifi_timeout>0,win_wifi)
+			# display the wifi logo
+			rssi = wifi.nic().get_rssi()
+			if rssi == 0:
+				rssi = last_rssi
+			else:
+				last_rssi = rssi
+			draw_wifi(sty_tb.background(),rssi, wifi_connect,wifi_timeout>0,win_wifi)
 
 
 			battery_percent = onboard.get_battery_percentage()
@@ -290,12 +306,13 @@ while True:
 					if hook_feeback.selected_index() >= (hook_feeback.count()-2):
 						hook_feeback.selected_index(hook_feeback.count()-1)
 
-		if buttons.is_triggered("BTN_MENU"):
+		if buttons.is_pressed("BTN_MENU"):
+			pyb.delay(20)
 			break
-		if buttons.is_triggered("BTN_A"):
+		if buttons.is_pressed("BTN_A"):
 			inactivity = 0
 			tick = True
-		if buttons.is_triggered("BTN_B"):
+		if buttons.is_pressed("BTN_B"):
 			inactivity = 0
 			tick = True
 
