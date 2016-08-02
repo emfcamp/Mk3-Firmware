@@ -46,7 +46,7 @@ def periodic_home(icon):
 
 
 	if database_get("stats_upload", 0):
-		urlparams = "origin=PBADGE0&data=0bV" + str(bv) + "%5BPBADGE0%5D"
+		urlparams = "origin=PBADGE0&data=0bV" + str(uv) + "%5BPBADGE0%5D"
 		try:
 			if wifi.nic().is_connected():
 				with http_client.post('http://ukhas.net/api/upload', urlencoded=urlparams) as resp:
