@@ -3,64 +3,78 @@
 ### License: MIT
 
 import pyb, onboard
+import simplebuttons
 
-CONFIG = {
-	"JOY_UP": pyb.Pin.PULL_DOWN,
-	"JOY_DOWN": pyb.Pin.PULL_DOWN,
-	"JOY_RIGHT": pyb.Pin.PULL_DOWN,
-	"JOY_LEFT": pyb.Pin.PULL_DOWN,
-	"JOY_CENTER": pyb.Pin.PULL_DOWN,
-	"BTN_MENU": pyb.Pin.PULL_UP,
-	"BTN_A": pyb.Pin.PULL_UP,
-	"BTN_B": pyb.Pin.PULL_UP
+CONFIG = simplebuttons.CONFIG
+
+_button_state = {
+	"JOY_UP": {"pressed":0, "released":1},
+	"JOY_DOWN": {"pressed":0, "released":1},
+	"JOY_RIGHT": {"pressed":0, "released":1},
+	"JOY_LEFT": {"pressed":0, "released":1},
+	"JOY_CENTER":  {"pressed":0, "released":1},
+	"BTN_MENU": {"pressed":0, "released":1},
+	"BTN_A":  {"pressed":0, "released":1},
+	"BTN_B": {"pressed":0, "released":1}
 }
 
-_tilda_pins = {}
-_tilda_interrupts = {}
-_tilda_bounce = {}
+_button_reverse = {
+	15 : "BTN_A",
+	11 : "BTN_B",
+	3  : "BTN_MENU",
+	0  : "JOY_CENTER",
+	8  : "JOY_UP",
+	10 : "JOY_RIGHT",
+	6  : "JOY_LEFT",
+	9  : "JOY_DOWN"
+}
+
+_tilda_pins = simplebuttons._tilda_pins
+_tilda_interrupts = None
 
 def _get_pin(button):
-	if button not in _tilda_pins:
-		raise ValueError("Please call button.init() first before using any other button functions")
-	return _tilda_pins[button]
+	return simplebuttons._get_pin(button)
+
+def _button_state_change(line):
+	global _button_reverse, _button_state, _tilda_interrupts
+	if simplebuttons.is_pressed(_button_reverse[line]):
+		_button_state[_button_reverse[line]]["pressed"] = pyb.millis()
+		try:
+			if _tilda_interrupts[_button_reverse[line]][1]:
+				_tilda_interrupts[_button_reverse[line]][0](line)
+		except:
+			pass
+	else:
+		_button_state[_button_reverse[line]]["released"] = pyb.millis()
+		try:
+			if _tilda_interrupts[_button_reverse[line]][2]:
+				_tilda_interrupts[_button_reverse[line]][0](line)
+		except:
+			pass
 
 def init(buttons = CONFIG.keys()):
 	"""Inits all pins used by the TiLDA badge"""
-	global _tilda_pins
+	global _tilda_pins, _tilda_interrupts
+
+	if _tilda_interrupts is None:
+		_tilda_interrupts = {}
+
 	for button in buttons:
 		_tilda_pins[button] = pyb.Pin(button, pyb.Pin.IN)
 		_tilda_pins[button].init(pyb.Pin.IN, CONFIG[button])
+		if not simplebuttons.has_interrupt(button):
+			simplebuttons.enable_interrupt(button, _button_state_change, True, True)
 
 def is_pressed(button):
-	pin = _get_pin(button)
-	if pin.pull() == pyb.Pin.PULL_DOWN:
-		return pin.value() > 0
-	else:
-		return pin.value() == 0
+	if (_button_state[button]["pressed"] > _button_state[button]["released"]):
+		return True
+	return False
 
 def is_triggered(button, interval = 30):
-	"""Use this function if you want buttons as a trigger for something in a loop
-
-	It blocks for a while before returning a True and ignores trailing edge highs
-	for a certain time to filter out bounce on both edges
-	"""
-	global _tilda_bounce
-	if is_pressed(button):
-		if button in _tilda_bounce:
-			if pyb.millis() > _tilda_bounce[button]:
-				del _tilda_bounce[button]
-			else:
-				return False # The button might have bounced back to high
-
-		# Wait for a while to avoid bounces to low
-		pyb.delay(interval)
-
-		# Wait until button is released again
-		while is_pressed(button):
-			pyb.wfi()
-
-		_tilda_bounce[button] = pyb.millis() + interval
+	# if the button is currently being pressed, and was pressed sometime in the past 30 milliseconds
+	if (is_pressed(button) and (_button_state[button]["pressed"] + interval) > pyb.millis()):
 		return True
+	return False
 
 def has_interrupt(button):
 	global _tilda_interrupts
@@ -70,54 +84,26 @@ def has_interrupt(button):
 	else:
 		return False
 
-
-def enable_interrupt(button, interrupt, on_press = True, on_release = False):
-	"""Attaches an interrupt to a button
-
-	on_press defines whether it should be called when the button is pressed
-	on_release defines whether it should be called when the button is releaseed
-
-	The callback function must accept exactly 1 argument, which is the line that
-	triggered the interrupt.
-	"""
+def enable_interrupt(button, callback, on_press = True, on_release = False):
 	global _tilda_interrupts
-	pin = _get_pin(button)
-	if button in _tilda_interrupts:
-		raise ValueError("This button already has an interrupt")
 
-	if not (on_press or on_release):
-		return
-
-	mode = None;
-	if on_press and on_release:
-		mode = pyb.ExtInt.IRQ_RISING_FALLING
+	if has_interrupt(button):
+		raise ValueError("The button %s already has an interrupt" % button)
 	else:
-		if pin.pull() == pyb.Pin.PULL_DOWN:
-			mode = pyb.ExtInt.IRQ_RISING if on_press else pyb.ExtInt.IRQ_FALLING
-		else:
-			mode = pyb.ExtInt.IRQ_FALLING if on_press else pyb.ExtInt.IRQ_RISING
-
-	_tilda_interrupts[button] = {
-		"interrupt": pyb.ExtInt(pin, mode, pin.pull(), interrupt),
-		"mode": mode,
-		"pin": pin
-	}
+		_tilda_interrupts[button] = (callback, on_press, on_release)
 
 def disable_interrupt(button):
 	global _tilda_interrupts
-	if button in _tilda_interrupts:
-		interrupt = _tilda_interrupts[button]
-		pyb.ExtInt(interrupt["pin"], interrupt["mode"], interrupt["pin"].pull(), None)
-		del _tilda_interrupts[button]
-		init([button])
+
+	if has_interrupt(button):
+		del(_tilda_interrupts[button])
 
 def disable_all_interrupt():
-	for interrupt in _tilda_interrupts:
-		disable_interrupt(interrupt)
+	global _tilda_interrupts
+	_tilda_interrupts = {}
 
 def enable_menu_reset():
 	enable_interrupt("BTN_MENU", lambda t:onboard.semihard_reset(), on_release = True)
 
 def disable_menu_reset():
 	disable_interrupt("BTN_MENU")
-
