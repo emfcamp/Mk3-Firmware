@@ -2,9 +2,7 @@
 ### Description: Convenience methods for dealing with the TiLDA buttons
 ### License: MIT
 
-import pyb
-import stm
-import onboard
+import pyb, onboard
 
 CONFIG = {
 	"JOY_UP": pyb.Pin.PULL_DOWN,
@@ -116,7 +114,7 @@ def disable_interrupt(button):
 def disable_all_interrupt():
 	for interrupt in _tilda_interrupts:
 		disable_interrupt(interrupt)
-		
+
 def enable_menu_reset():
 	enable_interrupt("BTN_MENU", lambda t:onboard.semihard_reset(), on_release = True)
 

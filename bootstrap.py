@@ -98,7 +98,7 @@ for d in ["apps", "apps/app_library", "lib"]:
 		print(e)
 
 try:
-	libs = ["wifi", "buttons", "http_client", "filesystem", "dialogs", "database", "app"]
+	libs = ["wifi", "buttons", "http_client", "filesystem", "dialogs", "database", "app", "onboard"]
 	for i, lib in enumerate(libs):
 		message(["Downloading library: %s (%d/%d)" % (lib, i + 1, len(libs))])
 		download("/firmware/master/lib/%s.py" % (lib), "lib/%s.py" % (lib))
