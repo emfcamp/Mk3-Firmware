@@ -83,7 +83,7 @@ def prompt_text(description, default="", init_text = "", true_text="OK", false_t
 	button_yes = ugfx.Button(int(width*4/5), int(height/2)-30, int(width*1/5)-3, 25 , true_text, parent=window)
 	button_no = ugfx.Button(int(width*4/5), int(height/2)-30-30, int(width/5)-3, 25 , false_text, parent=window) if false_text else None
 	label = ugfx.Label(int(width/10), int(height/10), int(width*4/5), int(height*2/5)-60, description, parent=window)
-
+	
 
 	try:
 		buttons.init()
@@ -92,7 +92,7 @@ def prompt_text(description, default="", init_text = "", true_text="OK", false_t
 		if button_no: button_no.attach_input(ugfx.BTN_B,0)
 
 		window.show()
-
+		edit.set_focus()
 		while True:
 			pyb.wfi()
 #			ugfx.poll()
