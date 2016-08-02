@@ -30,11 +30,11 @@ def draw_battery(back_colour,percent, win_bv):
 	y=3
 	win_bv.area(x+35,y,40,24,back_colour)
 	if percent <= 120:
-		win_bv.text(x+35,y,str(int(min(percent,100))),main_c)	
+		win_bv.text(x+35,y,str(int(min(percent,100))),main_c)
 	y += 2
 	win_bv.area(x,y,30,11,main_c)
 	win_bv.area(x+30,y+3,3,5,main_c)
-	
+
 	if percent > 120:
 		win_bv.area(x+2,y+2,26,7,ugfx.YELLOW)
 	elif percent > 2:
@@ -42,12 +42,12 @@ def draw_battery(back_colour,percent, win_bv):
 		win_bv.area(x+2,y+2,int(min(percent,100)*26/100),7,main_c)
 	else:
 		win_bv.area(x+2,y+2,26,7,ugfx.RED)
-	
+
 def draw_wifi(back_colour, rssi, connected, connecting, win_wifi):
-	
+
 	outline = [[0,20],[25,20],[25,0]]
 	#inline =  [[3,17],[17,17],[17,3]]
-	
+
 	#win_wifi.fill_polygon(0, 0, outline, back_colour^0xFFFF)
 
 	if connected:
@@ -57,14 +57,12 @@ def draw_wifi(back_colour, rssi, connected, connecting, win_wifi):
 	else:
 		win_wifi.fill_polygon(0, 0, outline, ugfx.RED)
 
-tick = 1
-pretick = 0
-	
+next_tick = 0
+tick = True
+
 def tick_inc(t):
-	global pretick
-	pretick += 1
 	ugfx.poll()
-	
+
 def backlight_adjust():
 	if ugfx.backlight() == 0:
 		ugfx.power_mode(ugfx.POWER_ON)
@@ -91,7 +89,7 @@ def low_power():
 	ugfx.backlight(0)
 	ugfx.power_mode(ugfx.POWER_OFF)
 
-	
+
 ugfx.init()
 imu=IMU()
 ival = imu.get_acceleration()
@@ -106,7 +104,7 @@ if not onboard.is_splash_hidden():
 	splashes = ["splash1.bmp"]
 	for s in splashes:
 		ugfx.display_image(0,0,s)
-		delay = 5000		
+		delay = 5000
 		while delay:
 			delay -= 1
 			if buttons.is_triggered("BTN_MENU"):
@@ -133,9 +131,9 @@ orientation = ugfx.orientation()
 
 while True:
 #	ugfx.init()
-	
+
 	ugfx.area(0,0,320,240,sty_tb.background())
-	
+
 	ugfx.set_default_font(ugfx.FONT_MEDIUM)
 	win_bv = ugfx.Container(0,0,80,25, style=sty_tb)
 	win_wifi = ugfx.Container(82,0,60,25, style=sty_tb)
@@ -143,48 +141,55 @@ while True:
 	win_text = ugfx.Container(0,240-60,320,60, style=sty_tb)
 
 	windows = [win_bv, win_wifi, win_text]
-	
+
 	obj_name = apps.home.draw_name.draw(0,25,win_name)
 
 	buttons.init()
-	
+
 	gc.collect()
 	ugfx.set_default_font(ugfx.FONT_MEDIUM_BOLD)
 	l_text = ugfx.List(0,0,250,win_text.height(),parent=win_text)
-	
+
 	win_bv.show()
 	win_text.show()
-	win_wifi.show()	
-	
+	win_wifi.show()
+
 	min_ctr = 28
-	
+
 	timer = pyb.Timer(3)
 	timer.init(freq=50)
-	timer.callback(tick_inc)	
-	
+	timer.callback(tick_inc)
+
 	ext_list = get_home_screen_background_apps()
 	ext_import = []
 	per_freq=[];
+	fast_tick_items=[];
 	for e in ext_list:
-		ext_import.append(__import__(e[:-3]))
-		try:
-			per_freq.append(ext_import[-1].update_rate)
-		except AttributeError:
-			per_freq.append(120)
-			
+		ext_object = __import__(e[:-3])
+		print(dir(ext_object))
+		if (hasattr(ext_object, 'update_rate')):
+			ext_import.append(ext_object)
+			per_freq.append(ext_object.update_rate)
+		elif (hasattr(ext_object, 'fast_tick_rate')):
+			fast_tick_items.append(ext_object)
+		else:
+			raise Exception("Background tasks must have a tick rate!")
+
+	print(fast_tick_items, ext_import)
+
 	icons = []
 	x = 150
-	for e in ext_list:
+	for e in ext_import:
 		icons.append(ugfx.Container(x,0,25,25))
 		x += 27
-			
+
 	per_time_since = [200]*len(ext_import)
-	
+
 	backlight_adjust()
-	
+
 	inactivity = 0
-	
-	
+
+
 	## start connecting to wifi in the background
 	wifi_timeout = 60 #seconds
 	wifi_reconnect_timeout = 0
@@ -193,14 +198,14 @@ while True:
 	except OSError:
 		print("Creating default wifi settings file")
 		wifi.create_default_config()
-	
+
 	while True:
 		pyb.wfi()
-		
-		if (pretick >= 50):
-			pretick = 0 
-			tick += 1
-		
+
+		if (next_tick <= pyb.millis()):
+			tick = True
+			next_tick = pyb.millis() + 1000
+
 		#if wifi still needs poking
 		if (wifi_timeout > 0):
 			if wifi.nic().is_connected():
@@ -210,13 +215,13 @@ while True:
 			else:
 				wifi.nic().update()
 
-		
-		if tick >= 1:
-			tick = 0
+
+		if tick:
+			tick = False
+
 			if (wifi_timeout > 0):
 				wifi_timeout -= 1;
-				
-				
+
 			# change screen orientation
 			ival = imu.get_acceleration()
 			if ival['y'] < -0.6:
@@ -233,16 +238,16 @@ while True:
 					w.hide(); w.show()
 				apps.home.draw_name.draw(0,25,win_name)
 
-			
+
 			#if wifi timeout has occured and wifi isnt connected in time
 			if (wifi_timeout == 0) and not (wifi.nic().is_connected()):
 				print("Giving up on Wifi connect")
 				wifi_timeout = -1
 				wifi.nic().disconnect()  #give up
 				wifi_reconnect_timeout = 60 #try again in 60sec
-			
+
 			wifi_connect = wifi.nic().is_connected()
-			
+
 			#if not connected, see if we should try again
 			if not wifi_connect:
 				if wifi_reconnect_timeout>0:
@@ -252,14 +257,14 @@ while True:
 						wifi.connect(wait = False)
 
 			draw_wifi(sty_tb.background(),0, wifi_connect,wifi_timeout>0,win_wifi)
-			
-			
+
+
 			battery_percent = onboard.get_battery_percentage()
 			draw_battery(sty_tb.background(),battery_percent,win_bv)
-			
+
 			min_ctr += 1
 			inactivity += 1
-			
+
 			if battery_percent > 120:  #if charger plugged in
 				if ugfx.backlight() == 0:
 					ugfx.power_mode(ugfx.POWER_ON)
@@ -269,33 +274,38 @@ while True:
 			else:
 				backlight_adjust()
 
-			
+
 			# dont run periodic tasks if wifi is pending
-			if (min_ctr >= 30) and (wifi_timeout <= 0):							
+			if (min_ctr >= 30) and (wifi_timeout <= 0):
 				for i in range(0, len(ext_import)):
 					per_time_since[i] += min_ctr
 					if per_time_since[i] >= per_freq[i]:
-						per_time_since[i] = 0				
-						e = ext_import[i]					
+						per_time_since[i] = 0
+						e = ext_import[i]
 						if "periodic_home" in dir(e):
 							text = e.periodic_home(icons[i])
-							if not (text == None) and len(text) > 0:								
+							if not (text == None) and len(text) > 0:
 								if (l_text.count() > 10):
 									l_text.remove_item(0)
 								l_text.add_item(text)
 								if l_text.selected_index() >= (l_text.count()-2):
 									l_text.selected_index(l_text.count()-1)
-				min_ctr = 0	
+				min_ctr = 0
+
+		for item in fast_tick_items:
+	 		if not hasattr(item, 'next_tick') or item.next_tick < pyb.millis():
+	 			item.next_tick = pyb.millis() + item.fast_tick_rate
+				item.fast_tick()
 
 		if buttons.is_triggered("BTN_MENU"):
 			break
 		if buttons.is_triggered("BTN_A"):
 			inactivity = 0
-			tick = 1
+			tick = True
 		if buttons.is_triggered("BTN_B"):
 			inactivity = 0
-			tick = 1
-			
+			tick = True
+
 		#if activity:
 		#	inactivity = 0
 
@@ -312,13 +322,12 @@ while True:
 		ugfx.power_mode(ugfx.POWER_ON)
 	ugfx.backlight(100)
 	ugfx.orientation(180)
-	
+
 	#if we havnt connected yet then give up since the periodic function wont be poked
 	if wifi_timeout >= 0: # not (wifi.nic().is_connected()):
 		wifi.nic().disconnect()
-		
+
 	gc.collect()
-		
+
 	## ToDo: Maybe boot should always chdir to the app folder?
 	execfile("apps/home/quick_launch.py")
-	

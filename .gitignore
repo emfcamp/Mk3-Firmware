@@ -32,3 +32,6 @@
 *.dSYM/
 
 .DS_Store
+
+config.json
+wifi.json
