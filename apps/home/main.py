@@ -20,6 +20,7 @@ from imu import IMU
 import pyb
 import onboard
 import dialogs
+from app import *
 
 
 def draw_battery(back_colour,percent, win_bv):
@@ -74,16 +75,9 @@ def backlight_adjust():
 	else:
 		ugfx.backlight(30)
 
-def get_home_screen_background_apps():
-	pinned = database_get("pinned", [])
-	out = []
-	for f in pinned:
-		if f.endswith("/main.py"):
-			fe = f[:-7] + "external.py"
-			if is_file(fe):
-				out.append(fe)
-
-	return out
+# Finds all locally installed apps that have an external.py
+def get_external_hook_paths():
+	return ["%s/external" % app.folder_path for app in get_local_apps() if is_file("%s/external.py" % app.folder_path)]
 
 def low_power():
 	ugfx.backlight(0)
@@ -148,7 +142,7 @@ while True:
 
 	gc.collect()
 	ugfx.set_default_font(ugfx.FONT_MEDIUM_BOLD)
-	l_text = ugfx.List(0,0,250,win_text.height(),parent=win_text)
+	hook_feeback = ugfx.List(0, 0, win_text.width(), win_text.height(), parent=win_text)
 
 	win_bv.show()
 	win_text.show()
@@ -160,35 +154,40 @@ while True:
 	timer.init(freq=50)
 	timer.callback(tick_inc)
 
-	ext_list = get_home_screen_background_apps()
-	ext_import = []
-	per_freq=[];
-	fast_tick_items=[];
-	for e in ext_list:
-		ext_object = __import__(e[:-3])
-		print(dir(ext_object))
-		if (hasattr(ext_object, 'update_rate')):
-			ext_import.append(ext_object)
-			per_freq.append(ext_object.update_rate)
-		elif (hasattr(ext_object, 'fast_tick_rate')):
-			fast_tick_items.append(ext_object)
-		else:
-			raise Exception("Background tasks must have a tick rate!")
+	# Create external hooks so other apps can run code in the context of
+	# the home screen.
+	# To do so apps need to be pinned and have an external.py with a tick()
+	# function.
+	# The tick period will default to 60 sec, unless you define something
+	# else via a "period" variable in the module context (use milliseconds)
+	# If you set a variable "needs_wifi" in the module context tick() will
+	# only be called if wifi is available
+	# If you set a variable "needs_wifi" in the module context tick() will
+	# be called with a reference to a 25x25 pixel ugfx container that you
+	# can modify
+	external_hooks = []
+	icon_x = 150
+	for path in get_external_hook_paths():
+		module = __import__(path)
+		if not hasattr(module, "tick"):
+			raise Exception("%s must have a tick function" % path)
 
-	print(fast_tick_items, ext_import)
+		hook = {
+			"tick": module.tick,
+			"needs_wifi": hasattr(module, "needs_wifi"),
+			"period": module.period if hasattr(module, "period") else 60 * 1000,
+			"next_tick_at": 0
+		}
 
-	icons = []
-	x = 150
-	for e in ext_import:
-		icons.append(ugfx.Container(x,0,25,25))
-		x += 27
+		if hasattr(module, "needs_icon"):
+			hook["icon"] = ugfx.Container(icon_x, 0, 25, 25)
+			icon_x += 27
 
-	per_time_since = [200]*len(ext_import)
+		external_hooks.append(hook)
 
 	backlight_adjust()
 
 	inactivity = 0
-
 
 	## start connecting to wifi in the background
 	wifi_timeout = 60 #seconds
@@ -262,7 +261,6 @@ while True:
 			battery_percent = onboard.get_battery_percentage()
 			draw_battery(sty_tb.background(),battery_percent,win_bv)
 
-			min_ctr += 1
 			inactivity += 1
 
 			if battery_percent > 120:  #if charger plugged in
@@ -274,28 +272,23 @@ while True:
 			else:
 				backlight_adjust()
 
+		for hook in external_hooks:
+			if hook["needs_wifi"] and not wifi.nic().is_connected():
+				continue;
 
-			# dont run periodic tasks if wifi is pending
-			if (min_ctr >= 30) and (wifi_timeout <= 0):
-				for i in range(0, len(ext_import)):
-					per_time_since[i] += min_ctr
-					if per_time_since[i] >= per_freq[i]:
-						per_time_since[i] = 0
-						e = ext_import[i]
-						if "periodic_home" in dir(e):
-							text = e.periodic_home(icons[i])
-							if not (text == None) and len(text) > 0:
-								if (l_text.count() > 10):
-									l_text.remove_item(0)
-								l_text.add_item(text)
-								if l_text.selected_index() >= (l_text.count()-2):
-									l_text.selected_index(l_text.count()-1)
-				min_ctr = 0
-
-		for item in fast_tick_items:
-	 		if not hasattr(item, 'next_tick') or item.next_tick < pyb.millis():
-	 			item.next_tick = pyb.millis() + item.fast_tick_rate
-				item.fast_tick()
+			if hook["next_tick_at"] < pyb.millis():
+				text = None
+				if "icon" in hook:
+					text = hook["tick"](hook["icon"])
+				else:
+					text = hook["tick"]()
+				hook["next_tick_at"] = pyb.millis() + hook["period"]
+				if text:
+					if hook_feeback.count() > 10:
+						hook_feeback.remove_item(0)
+					hook_feeback.add_item(text)
+					if hook_feeback.selected_index() >= (hook_feeback.count()-2):
+						hook_feeback.selected_index(hook_feeback.count()-1)
 
 		if buttons.is_triggered("BTN_MENU"):
 			break
@@ -306,16 +299,15 @@ while True:
 			inactivity = 0
 			tick = True
 
-		#if activity:
-		#	inactivity = 0
 
-	for i in icons:
-		i.destroy()
+	for hook in external_hooks:
+		if "icon" in hook:
+			hook["icon"].destroy()
 	for w in windows:
 		w.destroy()
 	apps.home.draw_name.draw_destroy(obj_name)
 	win_name.destroy()
-	l_text.destroy()
+	hook_feeback.destroy()
 	#timerb.deinit()
 	timer.deinit()
 	if ugfx.backlight() == 0:
