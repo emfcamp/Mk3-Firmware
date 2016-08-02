@@ -94,7 +94,7 @@ btn_c2r1 = ugfx.Button(180,5,100,30,file_name[4],parent=win_quick)
 btn_c2r2 = ugfx.Button(180,40,100,30,file_name[5],parent=win_quick)
 btn_c2r3 = ugfx.Button(180,75,100,30,file_name[6],parent=win_quick)
 btn_c2r4 = ugfx.Button(180,110,100,30,file_name[7],parent=win_quick)
-
+btns = [ [btn_c1r1,btn_c1r2,btn_c1r3,btn_c1r4],[btn_c2r1,btn_c2r2,btn_c2r3,btn_c2r4]  ]
 
 btn_ok = ugfx.Button(10,5,20,20,"A",parent=win_help,shape=ugfx.Button.ELLIPSE)
 l_ok = ugfx.Label(40,5,100,20,"Run",parent=win_help)
@@ -123,7 +123,7 @@ app_to_load = "home"
 torun = "";
 
 firstrun = database_get("quicklaunch_firstrun", 0)
-if 1: #not firstrun:
+if not firstrun:
 
 	dialogs.notice("""This screen displays the most commonly used apps.
 Apps pinned here can also interact with the name screen.
@@ -145,6 +145,7 @@ while True:
 
 	if (joy_updown != 0) or (joy_lr != 0):
 		_move_arrow(joy_lr, joy_updown, cursor_loc, sty.background(), win_quick)
+		btns[cursor_loc[0]][cursor_loc[1]].set_focus()
 		joy_updown = 0
 		joy_lr = 0
 		
