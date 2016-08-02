@@ -57,7 +57,7 @@ if pinned == None:
 	pinned.append("apps/messages/main.py")
 	pinned.append("apps/logger/main.py")
 	database_set("pinned", pinned)
-	
+
 file_list = pinned;
 print(file_list)
 file_name = []
@@ -133,7 +133,7 @@ database_set("quicklaunch_firstrun", 1)
 
 while True:
 	pyb.wfi()
-	
+
 	if buttons.is_triggered("JOY_UP"):
 		joy_updown = -1
 	if buttons.is_triggered("JOY_DOWN"):
@@ -144,14 +144,15 @@ while True:
 		joy_lr = -1
 
 	if (joy_updown != 0) or (joy_lr != 0):
+		pyb.delay(50) # to stop the button being pressed a billion times
 		_move_arrow(joy_lr, joy_updown, cursor_loc, sty.background(), win_quick)
 		btns[cursor_loc[0]][cursor_loc[1]].set_focus()
 		joy_updown = 0
 		joy_lr = 0
-		
+
 	if buttons.is_triggered("BTN_B"):
 		break;
-		
+
 	#if buttons.is_triggered("BTN_MENU"):
 	#	open unpin dialog
 	#	break;
@@ -196,7 +197,7 @@ if len(torun) > 0:
 	try:
 		mod = __import__(torun[:-3])
 		if "main" in dir(mod):
-			mod.main()		
+			mod.main()
 	except Exception as e:
 		s = uio.StringIO()
 		sys.print_exception(e, s)
@@ -215,8 +216,8 @@ if len(torun) > 0:
 					break
 			#dialogs.notice(s.getvalue(), width=wi-10, height=hi-10)
 	onboard.semihard_reset()
-	#ugfx.area(0,0,ugfx.width(),ugfx.height(),0)	
-	
+	#ugfx.area(0,0,ugfx.width(),ugfx.height(),0)
+
 	#deinit ugfx here
 	#could hard reset here too
 
