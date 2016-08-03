@@ -175,22 +175,30 @@ while True:
 	external_hooks = []
 	icon_x = 150
 	for path in get_external_hook_paths():
-		module = __import__(path)
-		if not hasattr(module, "tick"):
-			raise Exception("%s must have a tick function" % path)
+		try:
+			module = __import__(path)
+			if not hasattr(module, "tick"):
+				raise Exception("%s must have a tick function" % path)
 
-		hook = {
-			"tick": module.tick,
-			"needs_wifi": hasattr(module, "needs_wifi"),
-			"period": module.period if hasattr(module, "period") else 60 * 1000,
-			"next_tick_at": 0
-		}
+			hook = {
+				"name": path[5:-9],
+				"tick": module.tick,
+				"needs_wifi": hasattr(module, "needs_wifi"),
+				"period": module.period if hasattr(module, "period") else 60 * 1000,
+				"next_tick_at": 0
+			}
 
-		if hasattr(module, "needs_icon"):
-			hook["icon"] = ugfx.Container(icon_x, 0, 25, 25)
-			icon_x += 27
+			if hasattr(module, "needs_icon"):
+				hook["icon"] = ugfx.Container(icon_x, 0, 25, 25)
+				icon_x += 27
 
-		external_hooks.append(hook)
+			external_hooks.append(hook)
+		except Exception as err: # Since we dont know what exception we're looking for, we cant do much
+			print ("%s while parsing background task %s.  This task will not run! " % (type(err).__name__, path[5:-9]), end="")
+			if hasattr(err, "message"):
+				print ("Error message was %s. " % err.message, end="")
+			print ("")
+			continue # If the module fails to load or dies during the setup, skip it
 
 	backlight_adjust()
 
@@ -293,22 +301,30 @@ while True:
 				backlight_adjust()
 
 		for hook in external_hooks:
-			if hook["needs_wifi"] and not wifi.nic().is_connected():
-				continue;
+			try:
+				if hook["needs_wifi"] and not wifi.nic().is_connected():
+					continue;
 
-			if hook["next_tick_at"] < pyb.millis():
-				text = None
-				if "icon" in hook:
-					text = hook["tick"](hook["icon"])
-				else:
-					text = hook["tick"]()
-				hook["next_tick_at"] = pyb.millis() + hook["period"]
-				if text:
-					if hook_feeback.count() > 10:
-						hook_feeback.remove_item(0)
-					hook_feeback.add_item(text)
-					if hook_feeback.selected_index() >= (hook_feeback.count()-2):
-						hook_feeback.selected_index(hook_feeback.count()-1)
+				if hook["next_tick_at"] < pyb.millis():
+					text = None
+					if "icon" in hook:
+						text = hook["tick"](hook["icon"])
+					else:
+						text = hook["tick"]()
+					hook["next_tick_at"] = pyb.millis() + hook["period"]
+					if text:
+						if hook_feeback.count() > 10:
+							hook_feeback.remove_item(0)
+						hook_feeback.add_item(text)
+						if hook_feeback.selected_index() >= (hook_feeback.count()-2):
+							hook_feeback.selected_index(hook_feeback.count()-1)
+			except Exception as err:  # if anything in the hook fails to work, we need to skip it
+				print ("%s in %s background task. Not running again until next reboot! " % (type(err).__name__, hook['name']), end="")
+				if hasattr(err, "message"):
+					print ("Error message was %s. " % err.message, end="")
+				external_hooks.remove(hook)
+				print ("")
+				continue
 
 		if buttons.is_pressed("BTN_MENU"):
 			pyb.delay(20)
