@@ -48,7 +48,7 @@ class Response(object):
 	def content(self):
 		if not self._content:
 			if not self.socket:
-				raise IOError("Invalid response socket state. Has the content been downloaded instead?")
+				raise OSError("Invalid response socket state. Has the content been downloaded instead?")
 			try:
 				if "Content-Length" not in self.headers:
 					raise Exception("No Content-Length")
@@ -81,7 +81,7 @@ class Response(object):
 	# having to load all content into memory
 	def download_to(self, target):
 		if not self.socket:
-			raise IOError("Invalid response socket state. Has the content already been consumed?")
+			raise OSError("Invalid response socket state. Has the content already been consumed?")
 		try:
 			if "Content-Length" not in self.headers:
 				raise Exception("No Content-Length")

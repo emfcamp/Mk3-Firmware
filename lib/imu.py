@@ -29,7 +29,7 @@ class IMU:
             pyb.delay(10)
             count += 1
             if count > 100:
-                raise IOError("Can't connect to IMU")
+                raise OSError("Can't connect to IMU")
 
         self.self_check()
 
@@ -41,7 +41,7 @@ class IMU:
 
     def self_check(self):
         if self.i2c.mem_read(1, IMU_ADDRESS, IMU_REG_WHO_AM_I)[0] != 0x69:
-            raise IOError("IMU self check failed")
+            raise OSError("IMU self check failed")
 
     def _acceleration_raw_to_float(self, data, offset):
         input = ustruct.unpack_from("h", data, offset)[0];
