@@ -49,15 +49,8 @@ components.append(lpwd)
 ckdefault = ugfx.Checkbox(40,65,250,25,"EMF camp default",parent=win_main)
 components.append(ckdefault)
 
-
 win_main.show()
 win_header.show()
-
-
-
-timer = pyb.Timer(3)
-timer.init(freq=60)
-timer.callback(lambda t:ugfx.poll())
 
 ap = ""
 pwd = ""
@@ -79,11 +72,15 @@ try:
 
 		if buttons.is_triggered("BTN_A"):
 			if cursor_loc == 0:
-				ap = prompt_text("Enter the access point name", default=ap, init_text = ap, true_text="OK", false_text="Back", width = 310, height = 220)
-				lname.text(ap)
+				new_ap = prompt_text("Enter the access point name", init_text = ap, width = 310, height = 220)
+				if new_ap:
+					ap = new_ap
+					lname.text(ap)
 			if cursor_loc == 1:
-				pwd = prompt_text("Enter the password", default=pwd, init_text = pwd, true_text="OK", false_text="Back", width = 310, height = 220)
-				lpwd.text(pwd)
+				new_pwd = prompt_text("Enter the password", init_text = pwd, width = 310, height = 220)
+				if new_pwd:
+					pwd = new_pwd
+					lpwd.text(pwd)
 			_move_arrow(0, sty.background(), win_main)
 
 		if buttons.is_triggered("JOY_UP"):
@@ -95,12 +92,7 @@ try:
 			if cursor_loc == 2:
 				ckdefault.attach_input(ugfx.BTN_A,0)
 
-	#name_new = prompt_text("Enter your name", default=name, init_text = name, true_text="OK", false_text="Back", width = 310, height = 220)
-
-	#database_set("display-name", name_new)
 
 finally:
-	timer.deinit()
-
 	for component in components:
 		component.destroy()

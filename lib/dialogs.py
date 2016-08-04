@@ -40,7 +40,7 @@ def prompt_boolean(text, title="TiLDA", true_text="Yes", false_text="No", width 
 	if false_text:
 		true_text = "A: " + true_text
 		false_text = "B: " + false_text
-	
+
 	ugfx.set_default_font(font)
 	label = ugfx.Label(5, 30, ugfx.width() - 25, 100, text = text, parent=window)
 	ugfx.set_default_font(ugfx.FONT_MEDIUM_BOLD)
@@ -67,20 +67,18 @@ def prompt_boolean(text, title="TiLDA", true_text="Yes", false_text="No", width 
 		if button_no: button_no.destroy()
 		label.destroy()
 
-def prompt_text(description, default="", init_text = "", true_text="OK", false_text="Back", width = 300, height = 200, font=ugfx.FONT_MEDIUM_BOLD, style=None):
+def prompt_text(description, init_text = "", true_text="OK", false_text="Back", width = 300, height = 200, font=ugfx.FONT_MEDIUM_BOLD, style=default_style_badge):
 	"""Shows a dialog and keyboard that allows the user to input/change a string
-		Note: ugfx needs to be polled in an interrupt before calling this function
+
+	Returns None if user aborts with button B
 	"""
-	
-	if style == None:
-		style = default_style_badge
-	
+
 	window = ugfx.Container(int((ugfx.width()-width)/2), int((ugfx.height()-height)/2), width, height, style=style)
 
 	if false_text:
 		true_text = "M: " + true_text
 		false_text = "B: " + false_text
-		
+
 	if buttons.has_interrupt("BTN_MENU"):
 		buttons.disable_interrupt("BTN_MENU")
 
@@ -92,7 +90,6 @@ def prompt_text(description, default="", init_text = "", true_text="OK", false_t
 	button_no = ugfx.Button(int(width*4/5), int(height/2)-30-30, int(width/5)-3, 25 , false_text, parent=window) if false_text else None
 	ugfx.set_default_font(font)
 	label = ugfx.Label(int(width/10), int(height/10), int(width*4/5), int(height*2/5)-60, description, parent=window)
-	
 
 	try:
 		buttons.init()
@@ -104,9 +101,9 @@ def prompt_text(description, default="", init_text = "", true_text="OK", false_t
 		edit.set_focus()
 		while True:
 			pyb.wfi()
-#			ugfx.poll()
+			ugfx.poll()
 			#if buttons.is_triggered("BTN_A"): return edit.text()
-			if buttons.is_triggered("BTN_B"): return default
+			if buttons.is_triggered("BTN_B"): return None
 			if buttons.is_triggered("BTN_MENU"): return edit.text()
 
 	finally:
