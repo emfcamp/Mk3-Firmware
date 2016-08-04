@@ -18,13 +18,6 @@ with post("http://mydomain.co.uk/api/post", urlencoded="SOMETHING") as response:
 	response.raise_for_error() # No manual close needed
 """
 
-try:
-	import ussl
-	SUPPORT_SSL = True
-except ImportError:
-	ussl = None
-	SUPPORT_SSL = False
-
 SUPPORT_TIMEOUT = hasattr(usocket.socket, 'settimeout')
 CONTENT_TYPE_JSON = 'application/json'
 DELAY_BETWEEN_READS = 50
