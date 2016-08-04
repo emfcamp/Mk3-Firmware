@@ -12,7 +12,7 @@ default_style_badge.set_enabled([ugfx.WHITE, ugfx.html_color(0x3C0246), ugfx.GRE
 default_style_badge.set_background(ugfx.html_color(0x3C0246))
 
 default_style_dialog = ugfx.Style()
-default_style_dialog.set_enabled([ugfx.BLACK, ugfx.html_color(0xA66FB0), ugfx.html_color(0x5e5e5e), ugfx.RED])
+default_style_dialog.set_enabled([ugfx.BLACK, ugfx.html_color(0xA66FB0), ugfx.html_color(0xdedede), ugfx.RED])
 default_style_dialog.set_background(ugfx.html_color(0xFFFFFF))
 
 
@@ -30,6 +30,7 @@ def prompt_boolean(text, title="TiLDA", true_text="Yes", false_text="No", width 
 	global default_style_dialog
 	if style == None:
 		style = default_style_dialog
+	ugfx.set_default_font(ugfx.FONT_MEDIUM_BOLD)
 	window = ugfx.Container(30, 30, ugfx.width() - 60, ugfx.height() - 60, style=style)
 	window.show()
 	ugfx.set_default_font(font)
@@ -40,8 +41,9 @@ def prompt_boolean(text, title="TiLDA", true_text="Yes", false_text="No", width 
 		true_text = "A: " + true_text
 		false_text = "B: " + false_text
 	
-	ugfx.set_default_font(ugfx.FONT_SMALL)
+	ugfx.set_default_font(font)
 	label = ugfx.Label(5, 30, ugfx.width() - 25, 100, text = text, parent=window)
+	ugfx.set_default_font(ugfx.FONT_MEDIUM_BOLD)
 	button_yes = ugfx.Button(5, window.height() - 40, 120 if false_text else window.width() - 15, 30 , true_text, parent=window)
 	button_no = ugfx.Button(window.width() - 130, window.height() - 40, 120, 30 , false_text, parent=window) if false_text else None
 
@@ -65,11 +67,15 @@ def prompt_boolean(text, title="TiLDA", true_text="Yes", false_text="No", width 
 		if button_no: button_no.destroy()
 		label.destroy()
 
-def prompt_text(description, default="", init_text = "", true_text="OK", false_text="Back", width = 300, height = 200):
+def prompt_text(description, default="", init_text = "", true_text="OK", false_text="Back", width = 300, height = 200, font=ugfx.FONT_MEDIUM_BOLD, style=None):
 	"""Shows a dialog and keyboard that allows the user to input/change a string
 		Note: ugfx needs to be polled in an interrupt before calling this function
 	"""
-	window = ugfx.Container(int((ugfx.width()-width)/2), int((ugfx.height()-height)/2), width, height)
+	
+	if style == None:
+		style = default_style_badge
+	
+	window = ugfx.Container(int((ugfx.width()-width)/2), int((ugfx.height()-height)/2), width, height, style=style)
 
 	if false_text:
 		true_text = "M: " + true_text
@@ -78,10 +84,13 @@ def prompt_text(description, default="", init_text = "", true_text="OK", false_t
 	if buttons.has_interrupt("BTN_MENU"):
 		buttons.disable_interrupt("BTN_MENU")
 
+	ugfx.set_default_font(ugfx.FONT_MEDIUM)
 	kb = ugfx.Keyboard(0, int(height/2), width, int(height/2), parent=window)
 	edit = ugfx.Textbox(5, int(height/2)-30, int(width*4/5)-10, 25, text = init_text, parent=window)
+	ugfx.set_default_font(ugfx.FONT_SMALL)
 	button_yes = ugfx.Button(int(width*4/5), int(height/2)-30, int(width*1/5)-3, 25 , true_text, parent=window)
 	button_no = ugfx.Button(int(width*4/5), int(height/2)-30-30, int(width/5)-3, 25 , false_text, parent=window) if false_text else None
+	ugfx.set_default_font(font)
 	label = ugfx.Label(int(width/10), int(height/10), int(width*4/5), int(height*2/5)-60, description, parent=window)
 	
 
