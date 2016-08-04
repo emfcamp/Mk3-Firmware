@@ -29,7 +29,7 @@ win_help = ugfx.Container(0,hi-30,wi,30)
 
 file_list = []
 
-pinned = database_get("pinned", None)[:7]
+pinned = database_get("pinned", ["app_library", "sponsors"])[:7]
 
 if pinned == None:
 	pinned = []

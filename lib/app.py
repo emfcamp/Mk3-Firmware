@@ -55,10 +55,14 @@ class App:
 
 	@property
 	def title(self):
+		return self.get_attribute("appname") or self.name
+
+	@property
+	def user_and_title(self):
 		if self.user == EMF_USER:
 			return self.name
 		else:
-			return "%s by %s" % (self.name, self.user)
+			return "%s by %s" % (self.title, self.user)
 
 	def matches_category(self, category):
 		"""returns True if provided category matches the category of this app"""
@@ -100,7 +104,7 @@ class App:
 		return self.api_information
 
 	def __str__(self):
-		return self.title
+		return self.user_and_title
 
 	def __repr__(self):
 		return "<App %s>" % (self.folder_name)
