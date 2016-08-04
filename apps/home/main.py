@@ -93,6 +93,9 @@ def low_power():
 
 ugfx.init()
 imu=IMU()
+neo = pyb.Neopix(pyb.Pin("PB13"))
+neo.display(0x04040404)
+ledg = pyb.LED(2)
 ival = imu.get_acceleration()
 if ival['y'] < 0:
 	ugfx.orientation(0)
@@ -128,6 +131,16 @@ sty_tb.set_enabled([ugfx.WHITE, ugfx.html_color(0xA66FB0), ugfx.html_color(0x5e5
 sty_tb.set_background(ugfx.html_color(0xA66FB0))
 
 orientation = ugfx.orientation()
+
+firstrun = database_get("home_firstrun", 0)
+if not firstrun:
+
+	dialogs.notice("""Welcome to EMF camp
+Press menu to see all the available apps and download more.
+
+This badge occasionally sends anonymous usage data, which can be turned off from the 'BARMS Logger' app. See the badge wiki for more info. 
+	""", title="Welcome to EMF camp", close_text="Close", width = 320, height = 240)
+database_set("home_firstrun", 1)
 
 
 while True:
@@ -231,7 +244,9 @@ while True:
 
 		if tick:
 			tick = False
-
+	
+			ledg.on()
+			
 			if (wifi_timeout > 0):
 				wifi_timeout -= 1;
 
@@ -251,7 +266,7 @@ while True:
 					w.hide(); w.show()
 				apps.home.draw_name.draw(0,25,win_name)
 
-
+			
 			#if wifi timeout has occured and wifi isnt connected in time
 			if (wifi_timeout == 0) and not (wifi.nic().is_connected()):
 				print("Giving up on Wifi connect")
@@ -268,6 +283,8 @@ while True:
 					if wifi_reconnect_timeout == 0:
 						wifi_timeout = 60 #seconds
 						wifi.connect(wait = False)
+						
+			ledg.on()
 
 			# display the wifi logo
 			rssi = wifi.nic().get_rssi()
@@ -275,12 +292,13 @@ while True:
 				rssi = last_rssi
 			else:
 				last_rssi = rssi
-			draw_wifi(sty_tb.background(),rssi, wifi_connect,wifi_timeout>0,win_wifi)
 
+
+			draw_wifi(sty_tb.background(),rssi, wifi_connect,wifi_timeout>0,win_wifi)
 
 			battery_percent = onboard.get_battery_percentage()
 			draw_battery(sty_tb.background(),battery_percent,win_bv)
-
+			
 			inactivity += 1
 
 			# turn off after some period
@@ -298,6 +316,8 @@ while True:
 			else:
 				backlight_adjust()
 
+			ledg.off()
+			
 		for hook in external_hooks:
 			try:
 				if hook["needs_wifi"] and not wifi.nic().is_connected():
