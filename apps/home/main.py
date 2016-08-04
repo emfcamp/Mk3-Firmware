@@ -21,7 +21,7 @@ import pyb
 import onboard
 import dialogs
 from app import *
-
+import sys
 
 def draw_battery(back_colour,percent, win_bv):
 	percent = max(0,percent)
@@ -193,11 +193,9 @@ while True:
 				icon_x += 27
 
 			external_hooks.append(hook)
-		except Exception as err: # Since we dont know what exception we're looking for, we cant do much
-			print ("%s while parsing background task %s.  This task will not run! " % (type(err).__name__, path[5:-9]), end="")
-			if hasattr(err, "message"):
-				print ("Error message was %s. " % err.message, end="")
-			print ("")
+		except Exception as e: # Since we dont know what exception we're looking for, we cant do much
+			print ("%s while parsing background task %s.  This task will not run! " % (type(e).__name__, path[5:-9]))
+			sys.print_exception(e)
 			continue # If the module fails to load or dies during the setup, skip it
 
 	backlight_adjust()
@@ -318,12 +316,10 @@ while True:
 						hook_feeback.add_item(text)
 						if hook_feeback.selected_index() >= (hook_feeback.count()-2):
 							hook_feeback.selected_index(hook_feeback.count()-1)
-			except Exception as err:  # if anything in the hook fails to work, we need to skip it
-				print ("%s in %s background task. Not running again until next reboot! " % (type(err).__name__, hook['name']), end="")
-				if hasattr(err, "message"):
-					print ("Error message was %s. " % err.message, end="")
+			except Exception as e:  # if anything in the hook fails to work, we need to skip it
+				print ("%s in %s background task. Not running again until next reboot! " % (type(e).__name__, hook['name']))
+				sys.print_exception(e)
 				external_hooks.remove(hook)
-				print ("")
 				continue
 
 		if buttons.is_pressed("BTN_MENU"):
