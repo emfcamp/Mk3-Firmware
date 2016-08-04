@@ -10,6 +10,10 @@ import uio
 import sys
 import gc
 import onboard
+from app import *
+
+ugfx.init()
+buttons.init()
 
 width = ugfx.width()
 height = ugfx.height()
@@ -47,49 +51,30 @@ desc = ugfx.Label(3,1,win_preview.width()-10,win_preview.height()-83,"",parent=w
 components.append(author)
 components.append(desc)
 
-# Timer is needed to redraw everything while the rest is sleeping
-timer = pyb.Timer(3)
-timer.init(freq=60)
-timer.callback(lambda t:ugfx.poll())
+app_to_load = None
 
-app_to_load = ""
-
-catergories = ["Built-in", "Examples", "Settings", "Games", "Comms", "Other", "All"]
+pinned = database_get("pinned_apps", [])
+catergories = get_local_app_categories()
 c_ptr = 0
 
-def update_options(options, apps, pinned, cat):
-#	options.selected_index(0)
+def update_options(category):
 	options.disable_draw()
-	cat = cat.lower()
+	apps = get_local_apps(category)
 	out = []
 	while options.count():
 		options.remove_item(0)
+
 	for app in apps:
-		att_name = get_app_attribute(app,"Appname")
-		app_cat = get_app_attribute(app,"Category").lower()
-		
-		#handle unspecified
-		if len(app_cat) == 0:
-			app_cat = "other"
-			
-		if app.startswith("examples/"):
-			app_cat = "examples"
-			
-		#handle the 'built-in' category
-		b_in = get_app_attribute(app,"built-in").lower()
-		
-		#see if we should show this app
-		if (app_cat == cat) | (cat == "all") | ((b_in == "yes") & (cat == "built-in")):
-			if not b_in == "hide":	#enables the hiding of the home screen to stop it calling itself
-				if len(att_name) == 0:
-					att_name = get_app_foldername(app)
-				if app in pinned:
-					options.add_item("*" + att_name)
-				else:
-					options.add_item(att_name)
-				out.append(app)
-		
-		
+		if app.get_attribute("built-in") == "hide":
+			continue # No need to show the home app
+
+		if app.folder_name in pinned:
+			options.add_item("*%s" % app.title)
+		else:
+			options.add_item(app.title)
+		out.append(app)
+
+	options.selected_index(0)
 	options.enable_draw()
 	return out
 
@@ -98,7 +83,7 @@ try:
 	win_files.show()
 	win_preview.show()
 
-	pinned = database_get("pinned", [])
+	pinned = database_get("pinned_apps", [])
 #	apps = []
 	apps_path = []
 
@@ -113,66 +98,64 @@ try:
 			if is_file(path) and path.endswith(".py"):
 				apps_path.append(path)
 
-	displayed_apps = update_options(options, apps_path, pinned, catergories[c_ptr])
+	displayed_apps = update_options(catergories[c_ptr])
 
 	index_prev = -1;
-	
+
 	while True:
 		pyb.wfi()
-		
+		ugfx.poll()
+
 		if index_prev != options.selected_index():
 			if options.selected_index() < len(displayed_apps):
-				author.text("by: " + get_app_attribute(displayed_apps[options.selected_index()],"author"))
-				desc.text(get_app_attribute(displayed_apps[options.selected_index()],"description"))
+				author.text("by: %s" % displayed_apps[options.selected_index()].user)
+				desc.text(displayed_apps[options.selected_index()].description)
 			index_prev = options.selected_index()
-		
+
 		if buttons.is_triggered("JOY_LEFT"):
 			if c_ptr > 0:
 				c_ptr -= 1
 				btnl.set_focus()
 				l_cat.text(catergories[c_ptr])
-				displayed_apps = update_options(options, apps_path, pinned, catergories[c_ptr])
-				index_prev = -1				
-		
+				displayed_apps = update_options(catergories[c_ptr])
+				index_prev = -1
+
 		if buttons.is_triggered("JOY_RIGHT"):
 			if c_ptr < len(catergories)-1:
 				c_ptr += 1
 				btnr.set_focus()
 				l_cat.text(catergories[c_ptr])
-				displayed_apps = update_options(options, apps_path, pinned, catergories[c_ptr])
-				index_prev = -1				
-		
+				displayed_apps = update_options(catergories[c_ptr])
+				index_prev = -1
+
 		if buttons.is_triggered("BTN_MENU"):
-			app_path = displayed_apps[options.selected_index()]
-			if app_path in pinned:
-				pinned.remove(app_path)
+			app = displayed_apps[options.selected_index()]
+			if app.folder_name in pinned:
+				pinned.remove(app.folder_name)
 			else:
-				pinned.append(app_path)
-			update_options(options, apps_path, pinned, catergories[c_ptr])
-			database_set("pinned", pinned)
+				pinned.append(app.folder_name)
+			update_options(catergories[c_ptr])
+			database_set("pinned_apps", pinned)
 
 		if buttons.is_triggered("BTN_B"):
 			break
 
 		if buttons.is_triggered("BTN_A"):
-			# ToDo: Do something to go to the app
-			app_to_load = displayed_apps[options.selected_index()] #"test_app1"
+			app_to_load = displayed_apps[options.selected_index()]
 			break
 
 finally:
 	for component in components:
 		component.destroy()
 
-	timer.deinit()
-
-if len(app_to_load) > 0:
+if app_to_load:
 	try:
 		buttons.enable_menu_reset()
 		gc.collect()
-		print("Loading: " + app_to_load)
-		mod = __import__(app_to_load[:-3])
+		print("Loading: %s" % app_to_load)
+		mod = __import__(app_to_load.main_path[:-3])
 		if "main" in dir(mod):
-			mod.main()		
+			mod.main()
 	except Exception as e:
 		s = uio.StringIO()
 		sys.print_exception(e, s)
@@ -191,9 +174,9 @@ if len(app_to_load) > 0:
 					break;
 			#str=s.getvalue().split("\n")
 			#if len(str)>=4:
-			#out = "\n".join(str[4:])			
+			#out = "\n".join(str[4:])
 			#dialogs.notice(out, width=wi-10, height=hi-10)
 	onboard.semihard_reset()
-	
+
 	#deinit ugfx here
 	#could hard reset here too

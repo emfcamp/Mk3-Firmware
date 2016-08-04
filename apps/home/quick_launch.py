@@ -33,7 +33,7 @@ with Database() as db:
 	pinned = [App(a) for a in db.get("pinned_apps", DEFAULT_APPS)]
 	pinned = [app for app in pinned if app.loadable] # Filter out deleted apps
 	pinned = pinned[:7] # Limit to 7
-	db.set("pinned", [app.folder_name for app in pinned])
+	db.set("pinned_apps", [app.folder_name for app in pinned])
 
 ugfx.set_default_font(ugfx.FONT_TITLE)
 title = ugfx.Label(3,3,wi-10,45,"EMF Camp 2016",parent=win_header)
@@ -108,7 +108,9 @@ while True:
 
 	if buttons.is_triggered("BTN_A"):
 		index = cursor["x"] + cursor["y"] * 2
-		print(index, pinned, index < len(pinned))
+		if index == 7:
+			torun = "file_loader"
+			break
 		if index < len(pinned):
 			torun = pinned[index]
 			break
@@ -138,7 +140,7 @@ if torun:
 	buttons.enable_menu_reset()
 	gc.collect()
 	try:
-		mod = __import__(torun.main_path[:-3])
+		mod = __import__("apps/home/file_loader" if torun == "file_loader" else torun.main_path[:-3])
 		if "main" in dir(mod):
 			mod.main()
 	except Exception as e:
