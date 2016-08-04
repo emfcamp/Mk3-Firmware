@@ -152,6 +152,7 @@ if app_to_load:
 	try:
 		buttons.enable_menu_reset()
 		gc.collect()
+		pyb.info()
 		print("Loading: %s" % app_to_load)
 		mod = __import__(app_to_load.main_path[:-3])
 		if "main" in dir(mod):
