@@ -130,11 +130,12 @@ def open_http_socket(method, url, json=None, timeout=None, headers=None, urlenco
 	else:
 		sock = usocket.socket()
 
-	if timeout is not None:
-		assert SUPPORT_TIMEOUT, 'Socket does not support timeout'
-		sock.settimeout(timeout)
 	sock.connect(addr)
+	if proto == 'https:':
+		sock.settimeout(0) # Actually make timeouts working properly with ssl
+
 	sock.send('%s /%s HTTP/1.0\r\nHost: %s\r\n' % (method, urlpath, host))
+
 	if headers is not None:
 		for header in headers.items():
 			sock.send('%s: %s\r\n' % header)
@@ -155,8 +156,8 @@ def request(method, url, json=None, timeout=None, headers=None, urlencoded=None)
 	try:
 		response = Response()
 		state = 1
-		hbuf = b"";
-		remaining = None;
+		hbuf = b""
+		remaining = None
 		while True:
 			pyb.delay(DELAY_BETWEEN_READS)
 			buf = sock.recv(BUFFER_SIZE)
@@ -196,6 +197,7 @@ def request(method, url, json=None, timeout=None, headers=None, urlencoded=None)
 
 def get(url, **kwargs):
 	return request('GET', url, **kwargs)
+
 
 ### END lib/http_client.py ###
 
@@ -244,7 +246,7 @@ else:
 
 success = False
 failure_counter = 0
-URL = "http://api.badge.emfcamp.org/firmware"
+URL = "https://api.badge.emfcamp.org/firmware"
 
 while not success:
 	for d in ["apps", "apps/app_library", "lib"]:

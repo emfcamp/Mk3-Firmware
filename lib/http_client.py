@@ -145,11 +145,9 @@ def open_http_socket(method, url, json=None, timeout=None, headers=None, urlenco
 	else:
 		sock = usocket.socket()
 
-	if timeout is not None:
-		assert SUPPORT_TIMEOUT, 'Socket does not support timeout'
-		sock.settimeout(timeout)
-
 	sock.connect(addr)
+	if proto == 'https:':
+		sock.settimeout(0) # Actually make timeouts working properly with ssl
 
 	sock.send('%s /%s HTTP/1.0\r\nHost: %s\r\n' % (method, urlpath, host))
 
@@ -173,8 +171,8 @@ def request(method, url, json=None, timeout=None, headers=None, urlencoded=None)
 	try:
 		response = Response()
 		state = 1
-		hbuf = b"";
-		remaining = None;
+		hbuf = b""
+		remaining = None
 		while True:
 			pyb.delay(DELAY_BETWEEN_READS)
 			buf = sock.recv(BUFFER_SIZE)
