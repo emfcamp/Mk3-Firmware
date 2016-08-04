@@ -246,7 +246,7 @@ else:
 
 success = False
 failure_counter = 0
-URL = "https://api.badge.emfcamp.org/firmware"
+URL = "http://api.badge.emfcamp.org/firmware"
 
 while not success:
 	for d in ["apps", "apps/app_library", "lib"]:
