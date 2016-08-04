@@ -138,7 +138,7 @@ if not firstrun:
 	dialogs.notice("""Welcome to EMF camp
 Press menu to see all the available apps and download more.
 
-This badge occasionally sends anonymous usage data, which can be turned off from the 'BARMS Logger' app. See the badge wiki for more info. 
+This badge occasionally sends anonymous usage data, which can be turned off from the 'BARMS Logger' app. See the badge wiki for more info.
 	""", title="Welcome to EMF camp", close_text="Close", width = 320, height = 240)
 database_set("home_firstrun", 1)
 
@@ -176,8 +176,7 @@ while True:
 
 	# Create external hooks so other apps can run code in the context of
 	# the home screen.
-	# To do so apps need to be pinned and have an external.py with a tick()
-	# function.
+	# To do so an app needs to have an external.py with a tick() function.
 	# The tick period will default to 60 sec, unless you define something
 	# else via a "period" variable in the module context (use milliseconds)
 	# If you set a variable "needs_wifi" in the module context tick() will
@@ -244,9 +243,9 @@ while True:
 
 		if tick:
 			tick = False
-	
+
 			ledg.on()
-			
+
 			if (wifi_timeout > 0):
 				wifi_timeout -= 1;
 
@@ -266,7 +265,7 @@ while True:
 					w.hide(); w.show()
 				apps.home.draw_name.draw(0,25,win_name)
 
-			
+
 			#if wifi timeout has occured and wifi isnt connected in time
 			if (wifi_timeout == 0) and not (wifi.nic().is_connected()):
 				print("Giving up on Wifi connect")
@@ -283,7 +282,7 @@ while True:
 					if wifi_reconnect_timeout == 0:
 						wifi_timeout = 60 #seconds
 						wifi.connect(wait = False)
-						
+
 			ledg.on()
 
 			# display the wifi logo
@@ -298,7 +297,7 @@ while True:
 
 			battery_percent = onboard.get_battery_percentage()
 			draw_battery(sty_tb.background(),battery_percent,win_bv)
-			
+
 			inactivity += 1
 
 			# turn off after some period
@@ -317,7 +316,7 @@ while True:
 				backlight_adjust()
 
 			ledg.off()
-			
+
 		for hook in external_hooks:
 			try:
 				if hook["needs_wifi"] and not wifi.nic().is_connected():
