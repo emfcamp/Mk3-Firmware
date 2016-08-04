@@ -53,6 +53,13 @@ class App:
 	def category(self):
 		return self.get_attribute("Category", CATEGORY_NOT_SET).lower()
 
+	@property
+	def title(self):
+		if self.user == EMF_USER:
+			return self.name
+		else:
+			return "%s by %s" % (self.name, self.user)
+
 	def matches_category(self, category):
 		"""returns True if provided category matches the category of this app"""
 		category = category.lower()
@@ -93,7 +100,7 @@ class App:
 		return self.api_information
 
 	def __str__(self):
-		return "%s by %s" % (self.name, self.user)
+		return self.title
 
 	def __repr__(self):
 		return "<App %s>" % (self.folder_name)
