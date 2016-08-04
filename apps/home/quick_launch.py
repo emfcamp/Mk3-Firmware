@@ -10,6 +10,7 @@ import uio
 import gc
 import onboard
 import dialogs
+from app import *
 
 joy_updown = 0
 joy_lr = 0
@@ -27,36 +28,12 @@ win_header = ugfx.Container(0,0,wi,30)
 win_quick = ugfx.Container(0,33,wi,hi-33-33)
 win_help = ugfx.Container(0,hi-30,wi,30)
 
-file_list = []
-
-pinned = database_get("pinned", ["app_library", "sponsors"])[:7]
-
-if pinned == None:
-	pinned = []
-	print("List of pinned files doesn't exist, creating default")
-	pinned.append("apps/snake/main.py")
-	pinned.append("apps/messages/main.py")
-	pinned.append("apps/logger/main.py")
-	database_set("pinned", pinned)
-
-file_list = pinned;
-print(file_list)
-file_name = []
-for f in file_list:
-	an = get_app_attribute(f,"Appname")
-	if len(an) == 0:
-		an = get_app_foldername(f)
-	if (an == ""):
-		file_name.append("???")
-	else:
-		file_name.append(an)
-
-while len(file_list) < 8:
-	file_list.append("")
-	file_name.append("")
-file_list[7] = "apps/home/file_loader.py"
-file_name[7] = "View All"
-
+DEFAULT_APPS = ["app_library", "sponsors", "changename"]
+with Database() as db:
+	pinned = [App(a) for a in db.get("pinned_apps", DEFAULT_APPS)]
+	pinned = [app for app in pinned if app.loadable] # Filter out deleted apps
+	pinned = pinned[:7] # Limit to 7
+	db.set("pinned", [app.folder_name for app in pinned])
 
 ugfx.set_default_font(ugfx.FONT_TITLE)
 title = ugfx.Label(3,3,wi-10,45,"EMF Camp 2016",parent=win_header)
@@ -64,10 +41,13 @@ title = ugfx.Label(3,3,wi-10,45,"EMF Camp 2016",parent=win_header)
 ugfx.set_default_font(ugfx.FONT_MEDIUM_BOLD)
 
 pinned_buttons = []
-for i, text in enumerate(file_name):
+for i in range(0, 8):
 	x = i % 2
 	y = i // 2
-	pinned_buttons.append(ugfx.Button(35 + 155 * x, 5 + 40 * y, 120, 35, text, parent=win_quick))
+	button_title = "View all" if i == 7 else "???"
+	if i < len(pinned):
+		button_title = pinned[i].title
+	pinned_buttons.append(ugfx.Button(35 + 155 * x, 5 + 40 * y, 120, 35, button_title, parent=win_quick))
 
 btn_ok = ugfx.Button(10,5,20,20,"A",parent=win_help,shape=ugfx.Button.ELLIPSE)
 l_ok = ugfx.Label(40,5,100,20,"Run",parent=win_help)
@@ -91,7 +71,7 @@ _draw_cursor(0, 0, sty.background(), win_quick)
 
 app_to_load = "home"
 
-torun = "";
+torun = None;
 
 firstrun = database_get("quicklaunch_firstrun", 0)
 if not firstrun:
@@ -127,11 +107,11 @@ while True:
 	#	break;
 
 	if buttons.is_triggered("BTN_A"):
-		torun = file_list[cursor["x"] + cursor["y"] * 2]
-		print(torun)
-		if len(torun) > 3:
-			if torun.endswith(".py"):
-				break
+		index = cursor["x"] + cursor["y"] * 2
+		print(index, pinned, index < len(pinned))
+		if index < len(pinned):
+			torun = pinned[index]
+			break
 
 buttons.disable_all_interrupt()
 
@@ -153,12 +133,12 @@ title.destroy()
 
 #deinit ugfx here
 
-if len(torun) > 0:
-	print("Running: " + torun)
+if torun:
+	print("Running: %s" % torun)
 	buttons.enable_menu_reset()
 	gc.collect()
 	try:
-		mod = __import__(torun[:-3])
+		mod = __import__(torun.main_path[:-3])
 		if "main" in dir(mod):
 			mod.main()
 	except Exception as e:
