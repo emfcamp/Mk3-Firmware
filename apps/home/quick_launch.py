@@ -9,14 +9,14 @@ import sys
 import uio
 import gc
 import onboard
-import dialogs
 from app import *
 
 joy_updown = 0
 joy_lr = 0
 
 ugfx.init()
-ugfx.clear(ugfx.html_color(0xA66FB0))
+ugfx.set_default_style(dialogs.default_style_badge)
+ugfx.clear(ugfx.html_color(dialogs.default_style_badge.background()))
 
 def _draw_cursor (x, y, color, win_quick):
 	win_quick.fill_polygon(10 + x * 155, 15 + y * 40, [[0,0],[20,7],[0,14],[4,7]], color)
@@ -67,7 +67,7 @@ win_help.show()
 buttons.init()
 cursor = {"x": 0, "y": 0}
 last_cursor = cursor.copy()
-_draw_cursor(0, 0, sty.background(), win_quick)
+_draw_cursor(0, 0, ugfx.RED, win_quick)
 
 app_to_load = "home"
 
@@ -95,8 +95,8 @@ while True:
 		cursor["x"] = 0
 
 	if cursor["x"] != last_cursor["x"] or cursor["y"] != last_cursor["y"]: # Has the cursor moved?
-		_draw_cursor(last_cursor["x"], last_cursor["y"], ugfx.WHITE, win_quick)
-		_draw_cursor(cursor["x"], cursor["y"], sty.background(), win_quick)
+		_draw_cursor(last_cursor["x"], last_cursor["y"], dialogs.default_style_badge.background(), win_quick)
+		_draw_cursor(cursor["x"], cursor["y"], ugfx.RED, win_quick)
 		last_cursor = cursor.copy()
 
 	if buttons.is_triggered("BTN_B"):
