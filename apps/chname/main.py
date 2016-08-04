@@ -4,19 +4,16 @@
 ### License: MIT
 ### Appname : Change name
 
-import pyb
-from dialogs import *
+import dialogs
 from database import *
+import buttons
+import ugfx
 
-timer = pyb.Timer(3)
-timer.init(freq=60)
-timer.callback(lambda t:ugfx.poll())
+ugfx.init()
+buttons.init()
 
-name = database_get("display-name", "")
-
-name_new = prompt_text("Enter your name", default=name, init_text = name, true_text="OK", false_text="Back", width = 310, height = 220)
-
-database_set("display-name", name_new)
-
-
-timer.deinit()
+with Database() as db:
+    name = db.get("display-name", "")
+    name_new = dialogs.prompt_text("Enter your name", init_text=name, width = 310, height = 220)
+    if name_new:
+        db.set("display-name", name_new)
