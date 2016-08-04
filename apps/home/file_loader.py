@@ -151,6 +151,7 @@ finally:
 if app_to_load:
 	try:
 		buttons.enable_menu_reset()
+		empty_local_app_cache()
 		gc.collect()
 		pyb.info()
 		print("Loading: %s" % app_to_load)

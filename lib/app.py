@@ -167,3 +167,9 @@ def get_local_app_categories(uncached=False):
 				_category_cache.append(app.category)
 
 	return _category_cache
+
+def empty_local_app_cache():
+	"""If you're tight on memory you can clean up the local cache"""
+	global _public_apps_cache, _category_cache
+	_public_apps_cache = None
+	_category_cache = None

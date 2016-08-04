@@ -137,6 +137,7 @@ title.destroy()
 
 if torun:
 	print("Running: %s" % torun)
+	empty_local_app_cache()
 	buttons.enable_menu_reset()
 	gc.collect()
 	pyb.info()
