@@ -12,6 +12,9 @@ import pyb
 import math
 import buttons
 
+ugfx.init()
+buttons.init()
+
 def wait_for_exit():
 	global chk_upload
 	buttons.init()
@@ -19,7 +22,7 @@ def wait_for_exit():
 		pyb.wfi()
 		if buttons.is_triggered("BTN_B"):
 			break;
-	
+
 	database_set("stats_upload", chk_upload.checked())
 
 wi = ugfx.width()
@@ -109,7 +112,7 @@ for z in zoom:
 	lines_z.append(lines-(z*wi_g))
 seeks = [0, 0, 0, 0, 0]
 
-with open("log.txt","r") as f:		
+with open("log.txt","r") as f:
 	#now we know how long the file is, look for the index of the start of the plotting area
 	l=f.readline()  #ignore the title
 	ra = range(1,len(zoom))
@@ -124,10 +127,10 @@ with open("log.txt","r") as f:
 		if (cl >= lines-wi_g):
 			seeks[0] = seek
 			break
-		cl += 1	
+		cl += 1
 
 
-		
+
 def plot(start,file_step,xscale):
 	global names
 	global toplot
@@ -142,7 +145,7 @@ def plot(start,file_step,xscale):
 		for n in names:
 			if n in toplot:
 				f.seek(seek)
-				graph.appearance(ugfx.Graph.STYLE_LINE, ugfx.Graph.LINE_SOLID, 3, colour[ toplot.index(n) ])			
+				graph.appearance(ugfx.Graph.STYLE_LINE, ugfx.Graph.LINE_SOLID, 3, colour[ toplot.index(n) ])
 				x_index = 0
 				m = scale_m[ toplot.index(n) ]
 				c = scale_c[ toplot.index(n) ]
@@ -174,7 +177,7 @@ for p in toplot:
 	win_legend.thickline(x,13,x+10,13,colour[ i ],3,1,)
 	i += 1
 	x += 75
-	
+
 plot(seeks[0],zoom[0],xscale)
 
 plot_index = 0
@@ -188,7 +191,7 @@ while True:
 		inc = 1
 	if buttons.is_triggered("BTN_B"):
 		break;
-		
+
 	if not inc == 0:
 		inc += plot_index
 		if inc < 0:
@@ -210,6 +213,6 @@ while True:
 				l_cat.text("1/" + str(zoom[plot_index])+"x")
 			plot(seeks[plot_index],zoom[plot_index],1)
 
-			
-database_set("stats_upload", chk_upload.checked())		
+
+database_set("stats_upload", chk_upload.checked())
 
