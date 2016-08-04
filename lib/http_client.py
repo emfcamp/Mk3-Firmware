@@ -146,7 +146,11 @@ def open_http_socket(method, url, json=None, timeout=None, headers=None, urlenco
 	ai = usocket.getaddrinfo(host, port)
 	addr = ai[0][4]
 
-	sock = usocket.socket()
+	sock = None
+	if proto == 'https:':
+		sock = usocket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.SEC_SOCKET)
+	else:
+		sock = usocket.socket()
 
 	if timeout is not None:
 		assert SUPPORT_TIMEOUT, 'Socket does not support timeout'
@@ -154,9 +158,7 @@ def open_http_socket(method, url, json=None, timeout=None, headers=None, urlenco
 
 	sock.connect(addr)
 
-	if proto == 'https:':
-		assert SUPPORT_SSL, 'HTTPS not supported: could not find ussl'
-		sock = ussl.wrap_socket(sock)
+
 
 	sock.send('%s /%s HTTP/1.0\r\nHost: %s\r\n' % (method, urlpath, host))
 

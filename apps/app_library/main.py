@@ -86,12 +86,12 @@ def update():
 
     with dialogs.WaitingMessage(text="Downloading full list of library files", title="TiLDA App Library") as message:
         message.text="Downloading full list of library files"
-        master = http_client.get("http://api.badge.emfcamp.org/firmware/master.json").raise_for_status().json()
+        master = http_client.get("https://api.badge.emfcamp.org/firmware/master.json").raise_for_status().json()
         libs_to_update = []
         for lib, expected_hash in master["lib"].items():
             if expected_hash != filesystem.calculate_hash("lib/" + lib):
                 libs_to_update.append({
-                    "url": "http://api.badge.emfcamp.org/firmware/master/lib/" + lib,
+                    "url": "https://api.badge.emfcamp.org/firmware/master/lib/" + lib,
                     "target": "lib/" + lib,
                     "expected_hash": expected_hash,
                     "title": lib
