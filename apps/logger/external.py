@@ -46,7 +46,10 @@ def tick(icon):
 		json={"vbat" : bv, "vunreg" : uv, "light" : li}
 	else:
 		rssis = str(highest_rssi) + "," + str(nearestbssid)
-		json={"vbat" : bv, "vunreg" : uv, "light" : li, "rssi" : str(highest_rssi), "bssid" : str(nearestbssid)}
+		r1 = stm.mem32[0x1FFF7590]
+		r1 |= (stm.mem32[0x1FFF7594]<<32)
+		r1 |= (stm.mem32[0x1FFF7598]<<64)
+		json={"vbat" : bv, "vunreg" : uv, "light" : li, "rssi" : str(highest_rssi), "bssid" : str(nearestbssid), "uuid":"%x" % r1}
 
 	if database_get("stats_upload", 0):
 		#urlparams = "origin=PBADGE0&data=0bV" + str(uv) + "%5BPBADGE0%5D"
@@ -55,8 +58,8 @@ def tick(icon):
 			if wifi.nic().is_connected():
 				#with http_client.post('http://ukhas.net/api/upload', urlencoded=urlparams) as resp:
 				with http_client.post('http://api.badge.emfcamp.org/api/barms', json=json) as resp:
-					print(resp.text)
-					#pass
+					#print(resp.text)
+					pass
 		except OSError as e:
 			print("Upload failed " + str(e))
 
