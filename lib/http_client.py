@@ -141,7 +141,7 @@ def open_http_socket(method, url, json=None, timeout=None, headers=None, urlenco
 
 	sock = None
 	if proto == 'https:':
-		sock = usocket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.SEC_SOCKET)
+		sock = usocket.socket(usocket.AF_INET, usocket.SOCK_STREAM, usocket.SEC_SOCKET)
 	else:
 		sock = usocket.socket()
 
@@ -150,8 +150,6 @@ def open_http_socket(method, url, json=None, timeout=None, headers=None, urlenco
 		sock.settimeout(timeout)
 
 	sock.connect(addr)
-
-
 
 	sock.send('%s /%s HTTP/1.0\r\nHost: %s\r\n' % (method, urlpath, host))
 
