@@ -8,7 +8,9 @@ import pyb
 import buttons
 from dialogs import *
 from database import *
+import ugfx
 
+ugfx.init()
 width = ugfx.width()
 height = ugfx.height()
 buttons.init()
@@ -67,14 +69,14 @@ except:
 	pass
 
 try:
-		
+
 	_move_arrow(0, sty.background(), win_main)
-	
+
 	while True:
-	
+
 		if buttons.is_triggered("BTN_B"):
 			break
-			
+
 		if buttons.is_triggered("BTN_A"):
 			if cursor_loc == 0:
 				ap = prompt_text("Enter the access point name", default=ap, init_text = ap, true_text="OK", false_text="Back", width = 310, height = 220)
@@ -83,11 +85,11 @@ try:
 				pwd = prompt_text("Enter the password", default=pwd, init_text = pwd, true_text="OK", false_text="Back", width = 310, height = 220)
 				lpwd.text(pwd)
 			_move_arrow(0, sty.background(), win_main)
-			
+
 		if buttons.is_triggered("JOY_UP"):
 			_move_arrow(-1,sty.background(),win_main)
 			ckdefault.detach_input(ugfx.BTN_A)
-				
+
 		if buttons.is_triggered("JOY_DOWN"):
 			_move_arrow(1,sty.background(),win_main)
 			if cursor_loc == 2:
