@@ -174,7 +174,7 @@ def remove():
 if App("home").loadable:
     main_menu()
 else:
-    for app_name in ["home"]: # ToDo: Add more Apps that should be bootstrapped
+    for app_name in ["home", "sponsors"]:
         install(App(app_name))
 
 pyb.hard_reset() # Bye!
