@@ -45,12 +45,17 @@ def download_app(app, message_dialog):
     for file in app.files:
         file_path = "%s/%s" % (app.folder_path, file["file"])
         if file["hash"] != filesystem.calculate_hash(file_path):
-            files_to_update.append({
+            data = {
                 "url": file["link"],
                 "target": file_path,
                 "expected_hash": file["hash"],
                 "title": app.folder_name + "/" + file["file"]
-            })
+            }
+
+            if file["file"] == "main.py": # Make sure the main.py is the last file we load
+                files_to_update.append(data)
+            else:
+                files_to_update.insert(0, data)
 
     download_list(files_to_update, message_dialog)
 
