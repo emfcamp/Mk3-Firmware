@@ -174,7 +174,7 @@ def remove():
 if App("home").loadable:
     main_menu()
 else:
-    for app_name in ["home", "sponsors"]:
+    for app_name in ["home", "sponsors", "changename"]:
         install(App(app_name))
 
 pyb.hard_reset() # Bye!
