@@ -44,7 +44,7 @@ pinned_buttons = []
 for i in range(0, 8):
 	x = i % 2
 	y = i // 2
-	button_title = "View all" if i == 7 else "???"
+	button_title = "View all" if i == 7 else ""
 	if i < len(pinned):
 		button_title = pinned[i].title
 	pinned_buttons.append(ugfx.Button(35 + 155 * x, 5 + 40 * y, 120, 35, button_title, parent=win_quick))
