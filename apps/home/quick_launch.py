@@ -71,8 +71,8 @@ def quick_launch_screen():
 
 	if not database_get("quicklaunch_firstrun"):
 		dialogs.notice("""This screen displays the most commonly used apps.
-	Apps pinned here can also interact with the name screen.
-	To view all apps, pin and un-pin, select 'View All'
+Apps pinned here can also interact with the name screen.
+To view all apps, pin and un-pin, select 'View All'
 		""", title="TiLDA - Quick Launch", close_text="Close")
 		database_set("quicklaunch_firstrun", True)
 
