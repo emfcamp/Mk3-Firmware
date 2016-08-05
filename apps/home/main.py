@@ -207,7 +207,7 @@ def home_main():
 	last_rssi = 0
 
 	## start connecting to wifi in the background
-	wifi_timeout = 60 #seconds
+	wifi_timeout = 30 #seconds
 	wifi_reconnect_timeout = 0
 	try:
 		wifi.connect(wait = False)
@@ -227,8 +227,8 @@ def home_main():
 		if (wifi_timeout > 0):
 			if wifi.nic().is_connected():
 				wifi_timeout = -1
-				#wifi is connected, but if becomes disconnected, reconnect after 10sec
-				wifi_reconnect_timeout = 10
+				#wifi is connected, but if becomes disconnected, reconnect after 5 sec
+				wifi_reconnect_timeout = 5
 			else:
 				wifi.nic().update()
 
@@ -243,10 +243,10 @@ def home_main():
 
 			# change screen orientation
 			ival = imu.get_acceleration()
-			if ival['y'] < -0.6:
+			if ival['y'] < -0.5:
 				if orientation != 0:
 					ugfx.orientation(0)
-			elif ival['y'] > 0.6:
+			elif ival['y'] > 0.5:
 				if orientation != 180:
 					ugfx.orientation(180)
 			if orientation != ugfx.orientation():
@@ -263,7 +263,7 @@ def home_main():
 				print("Giving up on Wifi connect")
 				wifi_timeout = -1
 				wifi.nic().disconnect()  #give up
-				wifi_reconnect_timeout = 60 #try again in 60sec
+				wifi_reconnect_timeout = 30 #try again in 30sec
 
 			wifi_connect = wifi.nic().is_connected()
 
