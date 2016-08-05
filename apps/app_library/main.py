@@ -177,5 +177,6 @@ if App("home").loadable:
 else:
     for app_name in ["home", "sponsors", "changename", "microsoft~barms-logger", "snake", "nexmo~messages"]:
         install(App(app_name))
+    pyb.hard_reset()
 
 onboard.semihard_reset() # Bye!
