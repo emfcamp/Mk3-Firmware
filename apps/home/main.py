@@ -136,7 +136,7 @@ with Database() as db:
 	if not db.get("home_firstrun"):
 		stats_upload = dialogs.prompt_boolean("""Press menu to see all the available apps and download more.
 
-This badge can occasionally send anonymous data (battery charge) via the BARMS app powered by Microsoft. See the badge wiki for more information. Are you OK with that?
+This badge can occasionally send anonymous sensor data via the BARMS app powered by Microsoft. See the badge wiki for more information. Are you OK with that?
 		""", title="Welcome to EMF camp!", true_text="That's OK", false_text="Please don't", width = 320, height = 240)
 		db.set("home_firstrun", True)
 		db.set("stats_upload", stats_upload)
