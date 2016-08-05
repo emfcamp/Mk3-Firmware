@@ -122,6 +122,7 @@ def prompt_option(options, index=0, text = "Please select one of the following:"
 	If none_text is specified the user can use the B or Menu button to skip the selection
 	if title is specified a blue title will be displayed about the text
 	"""
+	ugfx.set_default_font(ugfx.FONT_SMALL)
 	window = ugfx.Container(5, 5, ugfx.width() - 10, ugfx.height() - 10)
 	window.show()
 
