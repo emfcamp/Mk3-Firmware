@@ -48,16 +48,13 @@ scale_c = [-255, -255, 0,    100]
 colour =  [ugfx.RED, ugfx.ORANGE, ugfx.YELLOW, ugfx.BLUE]
 
 buttons.disable_menu_reset()
-timer = pyb.Timer(3)
-timer.init(freq=10)
-timer.callback(lambda t:ugfx.poll())
 
 ugfx.set_default_font(ugfx.FONT_TITLE)
 title = ugfx.Label(3,3,wi-10,45,"Log Viewer",parent=win_header)
 ugfx.set_default_font(ugfx.FONT_SMALL)
 chk_upload = ugfx.Checkbox(190,3,130,20,"M: Enable uplink",parent=win_header)
 chk_upload.attach_input(ugfx.BTN_MENU,0)
-if database_get("stats_upload", 0):
+if database_get("stats_upload"):
 	chk_upload.checked(1)
 
 win_header.show()
@@ -184,6 +181,7 @@ plot_index = 0
 buttons.init()
 while True:
 	pyb.wfi()
+	ugfx.poll()
 	inc = 0
 	if buttons.is_triggered("JOY_RIGHT"):
 		inc = -1

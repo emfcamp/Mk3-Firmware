@@ -134,12 +134,12 @@ orientation = ugfx.orientation()
 
 with Database() as db:
 	if not db.get("home_firstrun"):
-		barms_opt_in = dialogs.prompt_boolean("""Press menu to see all the available apps and download more.
+		stats_upload = dialogs.prompt_boolean("""Press menu to see all the available apps and download more.
 
 This badge can occasionally send anonymous data (battery charge) via the BARMS app powered by Microsoft. See the badge wiki for more information. Are you OK with that?
 		""", title="Welcome to EMF camp!", true_text="That's OK", false_text="Please don't", width = 320, height = 240)
 		db.set("home_firstrun", True)
-		db.set("barms_opt_in", barms_opt_in)
+		db.set("stats_upload", stats_upload)
 
 while True:
 #	ugfx.init()
