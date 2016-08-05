@@ -132,16 +132,14 @@ sty_tb.set_background(ugfx.html_color(0xA66FB0))
 
 orientation = ugfx.orientation()
 
-firstrun = database_get("home_firstrun", 0)
-if not firstrun:
+with Database() as db:
+	if not db.get("home_firstrun"):
+		barms_opt_in = dialogs.prompt_boolean("""Press menu to see all the available apps and download more.
 
-	dialogs.notice("""Welcome to EMF camp
-Press menu to see all the available apps and download more.
-
-This badge occasionally sends anonymous usage data, which can be turned off from the 'BARMS Logger' app. See the badge wiki for more info.
-	""", title="Welcome to EMF camp", close_text="Close", width = 320, height = 240)
-database_set("home_firstrun", 1)
-
+This badge can occasionally send anonymous data (battery charge) via the BARMS app powered by Microsoft. See the badge wiki for more information. Are you OK with that?
+		""", title="Welcome to EMF camp!", true_text="That's OK", false_text="Please don't", width = 320, height = 240)
+		db.set("home_firstrun", True)
+		db.set("barms_opt_in", barms_opt_in)
 
 while True:
 #	ugfx.init()
