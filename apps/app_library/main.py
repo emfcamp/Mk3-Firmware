@@ -174,6 +174,6 @@ def remove():
 if App("home").loadable:
     main_menu()
 else:
-    for app_name in ["home", "sponsors", "changename"]:
+    for app_name in ["home", "sponsors", "changename", "microsoft~barms_logger", "snake", "nexmo~messages"]:
         install(App(app_name))
 
