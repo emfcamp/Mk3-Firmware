@@ -2,7 +2,7 @@
 ### Description: Log stuff to memory
 ### Category: Comms
 ### License: MIT
-### Appname : Logger
+### Appname : BARMS_Logger
 ### Built-in: yes
 
 import ugfx
