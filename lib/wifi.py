@@ -15,9 +15,11 @@ def nic():
         _nic = network.CC3100()
     return _nic
 
-def create_default_config(ssid = "emf", pw="pass"):
-    with open("wifi.json", "w") as f:
-        f.write("{\"ssid\": \"" + ssid  + "\", \"pw\": \"" + pw + "\"}")
+def create_default_config():
+    with open("wifi.json", "wt") as file:
+        file.write(json.dumps({"ssid": "emfcamp-insecure"}))
+        file.flush()
+    os.sync()
 
 def connection_details():
     data = {}
