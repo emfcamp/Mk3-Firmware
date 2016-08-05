@@ -11,7 +11,7 @@ import onboard
 import binascii
 
 needs_wifi = True
-period = 45 * 1000
+period = 120 * 1000
 
 def tick():
 	bv = str(onboard.get_battery_voltage())
@@ -28,7 +28,6 @@ def tick():
 			nearestbssid = binascii.hexlify(a['bssid'])
 
 	logfile = "log.txt"
-
 	if not highest_rssi > -200:
 		rssis = ","
 		json={"vbat" : bv, "vunreg" : uv, "light" : li}
@@ -40,13 +39,9 @@ def tick():
 		json={"vbat" : bv, "vunreg" : uv, "light" : li, "rssi" : str(highest_rssi), "bssid" : str(nearestbssid), "uuid":"%x" % r1}
 
 	if database_get("stats_upload"):
-		#urlparams = "origin=PBADGE0&data=0bV" + str(uv) + "%5BPBADGE0%5D"
-
 		try:
 			if wifi.nic().is_connected():
-				#with http_client.post('http://ukhas.net/api/upload', urlencoded=urlparams) as resp:
 				with http_client.post('http://api.badge.emfcamp.org/api/barms', json=json) as resp:
-					#print(resp.text)
 					pass
 		except OSError as e:
 			print("Upload failed " + str(e))
