@@ -68,9 +68,6 @@ def draw_wifi(back_colour, rssi, connected, connecting, win_wifi):
 next_tick = 0
 tick = True
 
-def tick_inc(t):
-	ugfx.poll()
-
 def backlight_adjust():
 	if ugfx.backlight() == 0:
 		ugfx.power_mode(ugfx.POWER_ON)
@@ -168,10 +165,6 @@ while True:
 
 	min_ctr = 28
 
-	timer = pyb.Timer(3)
-	timer.init(freq=50)
-	timer.callback(tick_inc)
-
 	# Create external hooks so other apps can run code in the context of
 	# the home screen.
 	# To do so an app needs to have an external.py with a tick() function.
@@ -224,6 +217,7 @@ while True:
 
 	while True:
 		pyb.wfi()
+		ugfx.poll()
 
 		if (next_tick <= pyb.millis()):
 			tick = True
@@ -358,8 +352,6 @@ while True:
 	apps.home.draw_name.draw_destroy(obj_name)
 	win_name.destroy()
 	hook_feeback.destroy()
-	#timerb.deinit()
-	timer.deinit()
 	if ugfx.backlight() == 0:
 		ugfx.power_mode(ugfx.POWER_ON)
 	ugfx.backlight(100)
