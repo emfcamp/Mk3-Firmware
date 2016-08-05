@@ -138,8 +138,8 @@ This badge can occasionally send anonymous sensor data via the BARMS app powered
 		db.set("home_firstrun", True)
 		db.set("stats_upload", stats_upload)
 
-while True:
-#	ugfx.init()
+def home_main():
+	global orientation, next_tick, tick
 
 	ugfx.area(0,0,320,240,sty_tb.background())
 
@@ -361,7 +361,8 @@ while True:
 	if wifi_timeout >= 0: # not (wifi.nic().is_connected()):
 		wifi.nic().disconnect()
 
+while True:
+	# By separating most of the work in a function we save about 1,6kb memory
+	home_main()
 	gc.collect()
-
-	## ToDo: Maybe boot should always chdir to the app folder?
 	execfile("apps/home/quick_launch.py")
