@@ -73,14 +73,12 @@ app_to_load = "home"
 
 torun = None;
 
-firstrun = database_get("quicklaunch_firstrun", 0)
-if not firstrun:
-
+if not database_get("quicklaunch_firstrun"):
 	dialogs.notice("""This screen displays the most commonly used apps.
 Apps pinned here can also interact with the name screen.
 To view all apps, pin and un-pin, select 'View All'
-	""", title="TiLDA - Quick Launch", close_text="Close", width = 213, height = 120)
-database_set("quicklaunch_firstrun", 1)
+	""", title="TiLDA - Quick Launch", close_text="Close")
+	database_set("quicklaunch_firstrun", True)
 
 while True:
 	pyb.wfi()
