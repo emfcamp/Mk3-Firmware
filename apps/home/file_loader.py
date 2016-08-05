@@ -14,6 +14,8 @@ from app import *
 
 ugfx.init()
 buttons.init()
+ugfx.set_default_style(dialogs.default_style_badge)
+ugfx.clear(ugfx.html_color(dialogs.default_style_badge.background()))
 
 def update_options(options, category, pinned):
 	options.disable_draw()
