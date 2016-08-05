@@ -9,7 +9,6 @@ import http_client
 import wifi
 import buttons
 import dialogs
-import onboard
 from app import *
 import filesystem
 
@@ -178,5 +177,3 @@ else:
     for app_name in ["home", "sponsors", "changename", "microsoft~barms-logger", "snake", "nexmo~messages"]:
         install(App(app_name))
     pyb.hard_reset()
-
-onboard.semihard_reset() # Bye!
