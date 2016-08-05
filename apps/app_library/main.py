@@ -177,4 +177,3 @@ else:
     for app_name in ["home", "sponsors", "changename"]:
         install(App(app_name))
 
-pyb.hard_reset() # Bye!
