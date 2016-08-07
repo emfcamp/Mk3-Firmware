@@ -133,6 +133,7 @@ def store_category(category):
 
 def store_details(category, app):
     clear()
+    empty_local_app_cache()
     with dialogs.WaitingMessage(text="Fetching app information...", title="TiLDA App Library") as message:
         app.fetch_api_information()
 
