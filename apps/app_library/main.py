@@ -11,8 +11,12 @@ import buttons
 import dialogs
 from app import *
 import filesystem
-
-reset_and_run("app_library")
+import onboard
+print("start of app lib ")
+pyb.delay(10000)
+import stm
+print("0x40002854: " + str(stm.mem8[0x40002854]))
+onboard.reset_and_run("app_library")
 
 TEMP_FILE = ".temp_download"
 

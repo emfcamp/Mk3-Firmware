@@ -133,7 +133,7 @@ if torun:
 	buttons.enable_menu_reset()
 	gc.collect()
 	#pyb.info()
-	run_app("apps/home/file_loader" if torun == "file_loader" else torun.main_path[:-3])
+	onboard.run_app("apps/home/file_loader" if torun == "file_loader" else torun.main_path[:-3])
 #	try:
 #		mod = __import__("apps/home/file_loader" if torun == "file_loader" else torun.main_path[:-3])
 #		if "main" in dir(mod):

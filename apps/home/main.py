@@ -6,12 +6,39 @@
 ### Built-in: hide
 
 
+def get_reset_app():
+	import stm
+	if stm.mem8[0x40002854] == 0x5A:
+		memloc = 0x40002858
+		mem_max = memloc + 116
+		str = ""
+		while memloc < mem_max:
+			c = chr(stm.mem8[memloc])
+			if not c == 0:
+				str += c
+			else:
+				break;		
+			memloc += 4	
+	else:
+		stm.mem8[0x40002854] = 0
+		return ""	
+	print("reset app str: " + str)
+	stm.mem8[0x40002854] = 0x5B
+	return str
+
 import onboard
 a = get_reset_app()
 if len(a):
-	run_app("/apps/" + a + "/main")
+#	try:
+	print("About to run app " + a)
+	pyb.delay(10000)
+	onboard.run_app("/apps/" + a + "/main")
+	import stm
+	import pyb
 	stm.mem8[0x40002850] = 0x9C
 	pyb.hard_reset()
+#	except:
+#		pass
 
 import ugfx
 import pyb
@@ -31,26 +58,6 @@ import dialogs
 from app import *
 import sys
 
-def get_reset_app():
-	if stm.mem8[0x40002851] == 0x5A:
-		memloc = 0x40002854
-		mem_max = memloc + 120
-		str = ""
-		while 0x40002854 < mem_max:
-			c = chr(stm.mem8[memloc])
-			if not c == 0:
-				str += c
-			else:
-				break;		
-			memloc += 1	
-	else:
-		stm.mem8[0x40002851] = 0
-		return ""
-	
-	print("reset app str: " + str)
-	stm.mem8[0x40002851] = 0x5B
-
-	return str
 
 def draw_battery(back_colour,percent, win_bv):
 	percent = max(0,percent)

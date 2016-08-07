@@ -81,25 +81,26 @@ def run_app(path):
 		raise(e)
 	
 def reset_and_run(path):
-	if stm.mem8[0x40002851] == 0x5B:
-		stm.mem8[0x40002851] = 0
+	if stm.mem8[0x40002854] == 0x5B:
+		stm.mem8[0x40002854] = 0
 		return
-	import struct
-	memloc = 0x40002854
-	mem_max = memloc + 120
-	for s in path:
-		bytes = struct.pack("s",s)
-		for b in bytes:
-			stm.mem8[memloc] = b
-			memloc += 1
-			if (memloc >= mem_max):
-				stm.mem8[0x40002850] = 0x5A
-				stm.mem8[memloc] = 0
-				pyb.hard_reset()
-			
-	stm.mem8[0x40002851] = 0x5A
-	stm.mem8[memloc] = 0
-	
-	pyb.hard_reset()
+	else:
+		import struct
+		memloc = 0x40002858
+		mem_max = memloc + 120
+		for s in path:
+			bytes = struct.pack("s",s)
+			for b in bytes:
+				stm.mem8[memloc] = b
+				memloc += 4
+				if (memloc >= mem_max):
+					stm.mem8[0x40002854] = 0x5A
+					stm.mem8[memloc] = 0
+					pyb.hard_reset()
+				
+		stm.mem8[0x40002854] = 0x5A
+		stm.mem8[memloc] = 0
+		
+		pyb.hard_reset()
 			
 	
