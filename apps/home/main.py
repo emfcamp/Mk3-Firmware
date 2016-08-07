@@ -172,7 +172,7 @@ def home_main():
 	# else via a "period" variable in the module context (use milliseconds)
 	# If you set a variable "needs_wifi" in the module context tick() will
 	# only be called if wifi is available
-	# If you set a variable "needs_wifi" in the module context tick() will
+	# If you set a variable "needs_icon" in the module context tick() will
 	# be called with a reference to a 25x25 pixel ugfx container that you
 	# can modify
 	external_hooks = []
