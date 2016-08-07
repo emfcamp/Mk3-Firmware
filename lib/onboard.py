@@ -60,3 +60,46 @@ def is_splash_hidden():
 def semihard_reset():
 	hide_splash_on_next_boot()
 	pyb.hard_reset()
+
+	
+def run_app(path):
+	try:
+		mod = __import__(path)
+		if "main" in dir(mod):
+			mod.main()
+	except Exception as e:
+		import sys
+		import uio
+		import ugfx
+		s = uio.StringIO()
+		sys.print_exception(e, s)
+		ugfx.clear()
+		ugfx.set_default_font(ugfx.FONT_SMALL)
+		w=ugfx.Container(0,0,ugfx.width(),ugfx.height())
+		l=ugfx.Label(0,0,ugfx.width(),ugfx.height(),s.getvalue(),parent=w)
+		w.show()
+		raise(e)
+	
+def reset_and_run(path):
+	if stm.mem8[0x40002851] == 0x5B:
+		stm.mem8[0x40002851] = 0
+		return
+	import struct
+	memloc = 0x40002854
+	mem_max = memloc + 120
+	for s in path:
+		bytes = struct.pack("s",s)
+		for b in bytes:
+			stm.mem8[memloc] = b
+			memloc += 1
+			if (memloc >= mem_max):
+				stm.mem8[0x40002850] = 0x5A
+				stm.mem8[memloc] = 0
+				pyb.hard_reset()
+			
+	stm.mem8[0x40002851] = 0x5A
+	stm.mem8[memloc] = 0
+	
+	pyb.hard_reset()
+			
+	

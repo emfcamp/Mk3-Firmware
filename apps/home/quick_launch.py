@@ -132,32 +132,33 @@ if torun:
 	empty_local_app_cache()
 	buttons.enable_menu_reset()
 	gc.collect()
-	pyb.info()
-	try:
-		mod = __import__("apps/home/file_loader" if torun == "file_loader" else torun.main_path[:-3])
-		if "main" in dir(mod):
-			mod.main()
-	except Exception as e:
-		s = uio.StringIO()
-		sys.print_exception(e, s)
-		u=pyb.USB_VCP()
-		if u.isconnected():
-			raise(e)
-		else:
-			ugfx.clear()
-			ugfx.set_default_font(ugfx.FONT_SMALL)
-			w=ugfx.Container(0,0,ugfx.width(),ugfx.height())
-			l=ugfx.Label(0,0,ugfx.width(),ugfx.height(),s.getvalue(),parent=w)
-			w.show()
-			while True:
-				pyb.wfi()
-				if (buttons.is_triggered("BTN_B")) or (buttons.is_triggered("BTN_B")) or (buttons.is_triggered("BTN_MENU")):
-					break
-			#dialogs.notice(s.getvalue(), width=wi-10, height=hi-10)
+	#pyb.info()
+	run_app("apps/home/file_loader" if torun == "file_loader" else torun.main_path[:-3])
+#	try:
+#		mod = __import__("apps/home/file_loader" if torun == "file_loader" else torun.main_path[:-3])
+#		if "main" in dir(mod):
+#			mod.main()
+#	except Exception as e:
+#		s = uio.StringIO()
+#		sys.print_exception(e, s)
+#		u=pyb.USB_VCP()
+#		if u.isconnected():
+#			raise(e)
+#		else:
+#			ugfx.clear()
+#			ugfx.set_default_font(ugfx.FONT_SMALL)
+#			w=ugfx.Container(0,0,ugfx.width(),ugfx.height())
+#			l=ugfx.Label(0,0,ugfx.width(),ugfx.height(),s.getvalue(),parent=w)
+#			w.show()
+#			while True:
+#				pyb.wfi()
+#				if (buttons.is_triggered("BTN_B")) or (buttons.is_triggered("BTN_B")) or (buttons.is_triggered("BTN_MENU")):
+#					break
+#			#dialogs.notice(s.getvalue(), width=wi-10, height=hi-10)
 	onboard.semihard_reset()
-	#ugfx.area(0,0,ugfx.width(),ugfx.height(),0)
-
-	#deinit ugfx here
-	#could hard reset here too
-
-#	execfile("apps/%s/main.py" % (app_to_load))
+#	#ugfx.area(0,0,ugfx.width(),ugfx.height(),0)
+#
+#	#deinit ugfx here
+#	#could hard reset here too
+#
+##	execfile("apps/%s/main.py" % (app_to_load))

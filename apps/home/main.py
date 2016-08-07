@@ -5,6 +5,14 @@
 ### Appname: Home
 ### Built-in: hide
 
+
+import onboard
+a = get_reset_app()
+if len(a):
+	run_app("/apps/" + a + "/main")
+	stm.mem8[0x40002850] = 0x9C
+	pyb.hard_reset()
+
 import ugfx
 import pyb
 import os
@@ -18,10 +26,31 @@ import wifi
 import gc
 from imu import IMU
 import pyb
-import onboard
+
 import dialogs
 from app import *
 import sys
+
+def get_reset_app():
+	if stm.mem8[0x40002851] == 0x5A:
+		memloc = 0x40002854
+		mem_max = memloc + 120
+		str = ""
+		while 0x40002854 < mem_max:
+			c = chr(stm.mem8[memloc])
+			if not c == 0:
+				str += c
+			else:
+				break;		
+			memloc += 1	
+	else:
+		stm.mem8[0x40002851] = 0
+		return ""
+	
+	print("reset app str: " + str)
+	stm.mem8[0x40002851] = 0x5B
+
+	return str
 
 def draw_battery(back_colour,percent, win_bv):
 	percent = max(0,percent)

@@ -12,9 +12,12 @@ import dialogs
 from app import *
 import filesystem
 
+reset_and_run("app_library")
+
 TEMP_FILE = ".temp_download"
 
 ugfx.init()
+
 
 ### HELPER FUNCTIONS ###
 
