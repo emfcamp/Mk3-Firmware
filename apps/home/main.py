@@ -5,14 +5,19 @@
 ### Appname: Home
 ### Built-in: hide
 
-import ugfx
 import pyb
+import stm
+from filesystem import *
+if stm.mem8[0x40002850] == 0x9D:
+	if is_file("apps/app_library/main.py"):
+		execfile("apps/app_library/main.py")
+		pyb.hard_reset()
+
+import ugfx
 import os
 from database import *
-from filesystem import *
 import buttons
 import gc
-import stm
 import apps.home.draw_name
 import wifi
 import gc
@@ -86,6 +91,9 @@ def get_external_hook_paths():
 def low_power():
 	ugfx.backlight(0)
 	ugfx.power_mode(ugfx.POWER_OFF)
+
+	
+	
 
 
 ugfx.init()
@@ -283,6 +291,9 @@ def home_main():
 				rssi = last_rssi
 			else:
 				last_rssi = rssi
+				
+			#debug
+			print(gc.mem_free())
 
 
 			draw_wifi(sty_tb.background(),rssi, wifi_connect,wifi_timeout>0,win_wifi)
@@ -338,10 +349,12 @@ def home_main():
 			break
 		if buttons.is_pressed("BTN_A"):
 			inactivity = 0
-			tick = True
+			if ugfx.backlight() == 0:
+				tick = True
 		if buttons.is_pressed("BTN_B"):
 			inactivity = 0
-			tick = True
+			if ugfx.backlight() == 0:
+				tick = True
 
 
 	for hook in external_hooks:
@@ -365,4 +378,12 @@ while True:
 	# By separating most of the work in a function we save about 1,6kb memory
 	home_main()
 	gc.collect()
+	print("leaving home: " + str(gc.mem_free()))
+	for path in get_external_hook_paths():
+		try:
+			del sys.modules[path]
+		except:
+			pass
+	gc.collect()
+	print("now free: " + str(gc.mem_free()))
 	execfile("apps/home/quick_launch.py")

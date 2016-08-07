@@ -11,6 +11,8 @@ import buttons
 import dialogs
 from app import *
 import filesystem
+import stm
+import gc
 
 TEMP_FILE = ".temp_download"
 
@@ -171,6 +173,13 @@ def remove():
     else:
         main_menu()
 
+print(gc.mem_free())
+pyb.delay(1000)	
+if not stm.mem8[0x40002850] == 0x9D:
+	stm.mem8[0x40002850] = 0x9D
+	pyb.hard_reset()
+stm.mem8[0x40002850] = 0
+		
 if App("home").loadable:
     main_menu()
 else:
