@@ -175,6 +175,6 @@ def remove():
 if App("home").loadable:
     main_menu()
 else:
-    for app_name in ["sponsors", "changename", "microsoft~barms-logger", "snake", "nexmo~messages", "home"]:
+    for app_name in ["sponsors", "changename", "microsoft~barms-logger", "snake", "nexmo~messages", "rnalexander~changefi", "home"]:
         install(App(app_name))
     pyb.hard_reset()
