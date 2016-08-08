@@ -33,7 +33,7 @@ class App:
 
 	@property
 	def loadable(self):
-		return filesystem.is_file(self.main_path) and os.size(self.main_path) > 0
+		return filesystem.is_file(self.main_path) and os.stat(self.main_path)[6] > 0
 
 	@property
 	def description(self):
