@@ -1,5 +1,4 @@
 import ugfx
-import os
 import pyb
 import buttons
 import dialogs

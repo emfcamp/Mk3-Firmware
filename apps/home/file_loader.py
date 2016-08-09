@@ -1,7 +1,6 @@
 import ugfx
 import os
 import pyb
-import stm
 import buttons
 import dialogs
 from database import *

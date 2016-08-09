@@ -4,7 +4,6 @@
 
 import usocket
 import ujson
-import gc
 import pyb
 import os
 

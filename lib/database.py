@@ -2,10 +2,8 @@
 ### Description: A simple json backed key/value store
 ### License: MIT
 
-import network
 import os
 import json
-import pyb
 
 class Database:
     """A simple key/value store backed by a json file

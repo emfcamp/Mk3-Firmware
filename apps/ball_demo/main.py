@@ -31,7 +31,6 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import pyb
-import math
 import ugfx
 import buttons
 

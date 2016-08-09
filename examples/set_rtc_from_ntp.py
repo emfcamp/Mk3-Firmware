@@ -1,7 +1,6 @@
 # borrowed from https://github.com/micropython/micropython/blob/master/esp8266/scripts/ntptime.py
 import socket
 import pyb
-import gc
 import network
 
 # (date(2000, 1, 1) - date(1900, 1, 1)).days * 24*60*60

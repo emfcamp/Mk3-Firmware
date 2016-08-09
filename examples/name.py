@@ -1,5 +1,4 @@
 import ugfx
-import pyb
 
 def display_name():
 	ugfx.area(0,0,ugfx.width(),ugfx.height(),0xFFFF)
