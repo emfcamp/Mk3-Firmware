@@ -5,9 +5,28 @@
 ### Appname: Home
 ### Built-in: hide
 
+
+import os
+import json
+
+if 'main.json' in os.listdir():
+	m = None
+	try:
+		with open('main.json', 'r') as f:
+			main_dict = json.loads(f.read())
+			m = main_dict['main']
+			if not main_dict.get('perm', False):
+				os.remove('main.json')				
+	except Exception as e:
+		print(e)	
+		
+	if m:
+		import run_app
+		run_app.run_app(m)
+
+
 import ugfx
 import pyb
-import os
 from database import *
 from filesystem import *
 import buttons
@@ -52,7 +71,7 @@ def draw_wifi(back_colour, rssi, connected, connecting, win_wifi):
 	y = x*4
 	x = x*5
 
-	outline      = [[0,20],[25,20],[25,0]]
+	outline	  = [[0,20],[25,20],[25,0]]
 	outline_rssi = [[0,20],[x,20],[x,20-y]]
 
 	#win_wifi.fill_polygon(0, 0, outline, back_colour^0xFFFF)

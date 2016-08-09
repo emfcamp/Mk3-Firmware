@@ -1,6 +1,17 @@
 ### author: emf badge team
 ### description: updates and installs apps. To publish apps use https://badge.emfcamp.org
 ### license: MIT
+import gc
+gc.collect()
+print("app library, prior to imports: " + str(gc.mem_free()))
+
+import stm
+import pyb
+if stm.mem8[0x40002850] == 0:   # this battery backed RAM section is set to 0 when the name screen runs
+	with open('main.json', 'w') as f:
+		f.write('{"main":"apps/app_library/main.py"}')
+	stm.mem8[0x40002850] = 2    #set this address to != 0 so this if statement doesnt run next time
+	pyb.hard_reset()
 
 import ugfx
 import os
@@ -11,6 +22,8 @@ import buttons
 import dialogs
 from app import *
 import filesystem
+gc.collect()
+print("app library, after imports: " + str(gc.mem_free()))
 
 TEMP_FILE = ".temp_download"
 

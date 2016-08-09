@@ -151,36 +151,8 @@ def file_loader():
 
 app_to_load = file_loader()
 if app_to_load:
-	try:
-		buttons.enable_menu_reset()
-		empty_local_app_cache()
-		gc.collect()
-		pyb.info()
-		print("Loading: %s" % app_to_load)
-		mod = __import__(app_to_load.main_path[:-3])
-		if "main" in dir(mod):
-			mod.main()
-	except Exception as e:
-		s = uio.StringIO()
-		sys.print_exception(e, s)
-		u=pyb.USB_VCP()
-		if u.isconnected():
-			raise(e)
-		else:
-			ugfx.clear()
-			ugfx.set_default_font(ugfx.FONT_SMALL)
-			w=ugfx.Container(0,0,ugfx.width(),ugfx.height())
-			l=ugfx.Label(0,0,ugfx.width(),ugfx.height(),s.getvalue(),parent=w)
-			w.show()
-			while True:
-				pyb.wfi()
-				if (buttons.is_triggered("BTN_B")) or (buttons.is_triggered("BTN_B")) or (buttons.is_triggered("BTN_MENU")):
-					break;
-			#str=s.getvalue().split("\n")
-			#if len(str)>=4:
-			#out = "\n".join(str[4:])
-			#dialogs.notice(out, width=wi-10, height=hi-10)
-	onboard.semihard_reset()
-
-	#deinit ugfx here
-	#could hard reset here too
+	gc.collect()
+	import run_app
+	run_app.run_app(app_to_load.main_path[:-3])
+	
+	
