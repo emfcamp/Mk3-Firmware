@@ -20,9 +20,9 @@ if 'main.json' in os.listdir():
 	except Exception as e:
 		print(e)	
 		
-	if m:
+	if m:		
 		import run_app
-		run_app.run_app(m)
+		run_app.run_app(m[:-3])
 
 
 import ugfx
