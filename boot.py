@@ -4,7 +4,9 @@
 #pyb.usb_mode('CDC+MSC') # act as a serial and a storage device
 #pyb.usb_mode('CDC+HID') # act as a serial device and a mouse
 
-import pyb, json, os, micropython
+import pyb
+import os
+import micropython
 
 micropython.alloc_emergency_exception_buf(100)
 

@@ -7,7 +7,6 @@ import os
 import pyb
 import http_client
 import wifi
-import buttons
 import dialogs
 from app import *
 import filesystem

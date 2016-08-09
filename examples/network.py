@@ -1,4 +1,7 @@
-import network, micropython, gc, socket, pyb
+import network
+import gc
+import socket
+import pyb
 
 nic = network.CC3100()
 nic.connect("ssid","password")

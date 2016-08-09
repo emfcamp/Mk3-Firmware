@@ -1,12 +1,8 @@
 from filesystem import *
 from database import *
-import pyb
 import stm
 import http_client
-import socket
-import network
 import wifi
-import gc
 import onboard
 import binascii
 

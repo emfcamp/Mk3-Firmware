@@ -1,11 +1,6 @@
 import ugfx
-import pyb
-import os
 from database import *
 from filesystem import *
-import buttons
-import gc
-import stm
 
 obj = []
 sty = None

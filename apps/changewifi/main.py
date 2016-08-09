@@ -4,7 +4,6 @@
 ### License: MIT
 ### Appname : Wifi
 
-import pyb
 import buttons
 from dialogs import *
 from database import *
