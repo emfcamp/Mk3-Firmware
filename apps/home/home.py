@@ -23,6 +23,7 @@ import onboard
 import dialogs
 from app import *
 import sys
+import ntp
 
 def draw_battery(back_colour,percent, win_bv):
 	percent = max(0,percent)
@@ -65,6 +66,18 @@ def draw_wifi(back_colour, rssi, connected, connecting, win_wifi):
 		win_wifi.fill_polygon(0, 0, outline, ugfx.YELLOW)
 	else:
 		win_wifi.fill_polygon(0, 0, outline, ugfx.RED)
+
+
+def draw_time(bg_colour, datetime, win_clock):
+	win_clock.area(0, 0, win_clock.width(), win_clock.height(), bg_colour)
+
+	digit_width = 9
+	right_padding = 5
+	time_text = "%02d:%02d" % (datetime[4], datetime[5])
+	start_x = win_clock.width() - (digit_width * len(time_text)) - right_padding
+	start_y = 5
+	win_clock.text(start_x, start_y, time_text, ugfx.WHITE)
+
 
 next_tick = 0
 tick = True
@@ -146,8 +159,9 @@ def home_main():
 	win_wifi = ugfx.Container(82,0,60,25, style=sty_tb)
 	win_name = ugfx.Container(0,25,320,240-25-60, style=dialogs.default_style_badge)
 	win_text = ugfx.Container(0,240-60,320,60, style=sty_tb)
+	win_clock = ugfx.Container(250, 0, 70, 25, style=sty_tb)
 
-	windows = [win_bv, win_wifi, win_text]
+	windows = [win_bv, win_wifi, win_clock, win_text]
 
 	obj_name = apps.home.draw_name.draw(0,25,win_name)
 
@@ -160,6 +174,7 @@ def home_main():
 	win_bv.show()
 	win_text.show()
 	win_wifi.show()
+	win_clock.show()
 
 	min_ctr = 28
 
@@ -207,6 +222,7 @@ def home_main():
 	## start connecting to wifi in the background
 	wifi_timeout = 30 #seconds
 	wifi_reconnect_timeout = 0
+	wifi_did_connect = 0
 	try:
 		wifi.connect(wait = False)
 	except OSError:
@@ -263,15 +279,22 @@ def home_main():
 				wifi.nic().disconnect()  #give up
 				wifi_reconnect_timeout = 30 #try again in 30sec
 
-			wifi_connect = wifi.nic().is_connected()
+			wifi_is_connected = wifi.nic().is_connected()
 
 			#if not connected, see if we should try again
-			if not wifi_connect:
+			if not wifi_is_connected:
+				if wifi_did_connect > 0:
+					wifi_did_connect = 0
 				if wifi_reconnect_timeout>0:
 					wifi_reconnect_timeout -= 1
 					if wifi_reconnect_timeout == 0:
 						wifi_timeout = 60 #seconds
 						wifi.connect(wait = False)
+			else:
+				# If we've just connected, set NTP time
+				if wifi_did_connect == 0:
+					wifi_did_connect = 1
+					ntp.set_NTP_time()
 
 			ledg.on()
 
@@ -282,8 +305,9 @@ def home_main():
 			else:
 				last_rssi = rssi
 
+			draw_time(sty_tb.background(), pyb.RTC().datetime(), win_clock)
 
-			draw_wifi(sty_tb.background(),rssi, wifi_connect,wifi_timeout>0,win_wifi)
+			draw_wifi(sty_tb.background(),rssi, wifi_is_connected,wifi_timeout>0,win_wifi)
 
 			battery_percent = onboard.get_battery_percentage()
 			draw_battery(sty_tb.background(),battery_percent,win_bv)
