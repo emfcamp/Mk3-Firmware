@@ -22,7 +22,7 @@ if 'main.json' in os.listdir():
 		
 	if m:		
 		import run_app
-		run_app.run_app(m[:-3])
+		run_app.run_app(m)
 
 
 execfile("apps/home/home.py")

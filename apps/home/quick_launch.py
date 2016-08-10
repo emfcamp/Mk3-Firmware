@@ -130,12 +130,18 @@ torun = quick_launch_screen()
 if torun:
 	print("Running: %s" % torun)
 	empty_local_app_cache()
-	
+	buttons.enable_menu_reset()
 	gc.collect()
 	pyb.info()
 	
 	import run_app
-	run_app.run_app("apps/home/file_loader" if torun == "file_loader" else torun.main_path[:-3])
+	if torun == "file_loader":
+		run_app.run_app("apps/home/file_loader")
+	else:	
+		rbr = torun.get_attribute("reboot-before-run")
+		if type(rbr) == str and rbr.lower() == "true":
+			run_app.reset_and_run(torun.main_path[:-3])
+		run_app.run_app(torun.main_path[:-3])
 	
 	#ugfx.area(0,0,ugfx.width(),ugfx.height(),0)
 
