@@ -1,7 +1,15 @@
 ### author: emf badge team
 ### description: updates and installs apps. To publish apps use https://badge.emfcamp.org
 ### license: MIT
+### reboot-before-run: True
+### Appname: App Library
 
+
+import gc
+#gc.collect()
+#print("app library, prior to imports: " + str(gc.mem_free()))
+import stm
+import pyb
 import ugfx
 import os
 import pyb
@@ -10,6 +18,8 @@ import wifi
 import dialogs
 from app import *
 import filesystem
+#gc.collect()
+#print("app library, after imports: " + str(gc.mem_free()))
 
 TEMP_FILE = ".temp_download"
 
