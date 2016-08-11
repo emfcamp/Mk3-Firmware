@@ -154,8 +154,8 @@ if app_to_load:
 	buttons.enable_menu_reset()
 	import run_app
 	rbr = app_to_load.get_attribute("reboot-before-run")
-	if type(rbr) == str and rbr.lower() == "true": 
-		run_app.reset_and_run(app_to_load.main_path[:-3])
-	run_app.run_app(app_to_load.main_path[:-3])
+	if type(rbr) == str and rbr.lower() == "false": 
+      run_app.run_app(app_to_load.main_path[:-3])
+	run_app.reset_and_run(app_to_load.main_path[:-3])
 	
 	
