@@ -30,7 +30,7 @@ def draw_battery(back_colour,percent, win_bv):
 	main_c = ugfx.WHITE #back_colour^0xFFFF
 	x=3
 	y=3
-	win_bv.area(x+35,y,40,24,back_colour)
+	win_bv.area(x+35,y,40,19,back_colour)
 	if percent <= 120:
 		win_bv.text(x+35,y,str(int(min(percent,100))),main_c)
 	y += 2
