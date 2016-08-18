@@ -42,9 +42,12 @@ class Response(object):
 			if not self.socket:
 				raise OSError("Invalid response socket state. Has the content been downloaded instead?")
 			try:
-				if "Content-Length" not in self.headers:
+				if "Content-Length" in self.headers:
+					content_length = int(self.headers["Content-Length"])
+				elif "content-length" in self.headers:
+					content_length = int(self.headers["content-length"])
+				else:
 					raise Exception("No Content-Length")
-				content_length = int(self.headers["Content-Length"])
 				self._content = self.content_so_far
 				del self.content_so_far
 				while len(self._content) < content_length:
@@ -75,9 +78,12 @@ class Response(object):
 		if not self.socket:
 			raise OSError("Invalid response socket state. Has the content already been consumed?")
 		try:
-			if "Content-Length" not in self.headers:
+			if "Content-Length" in self.headers:
+				remaining = int(self.headers["Content-Length"])
+			elif "content-length" in self.headers:
+				remaining = int(self.headers["content-length"])
+			else:
 				raise Exception("No Content-Length")
-			remaining = int(self.headers["Content-Length"])
 
 			with open(target, 'wb') as f:
 				f.write(self.content_so_far)
