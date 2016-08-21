@@ -53,7 +53,7 @@ def quick_launch_screen():
 	l_back = ugfx.Label(130,5,100,20,"Back",parent=win_help)
 
 	btn_menu = ugfx.Button(200,5,20,20,"M",parent=win_help,shape=ugfx.Button.ROUNDED)
-	l_back = ugfx.Label(230,5,100,20,"Menu",parent=win_help)
+	l_menu = ugfx.Label(230,5,100,20,"Menu",parent=win_help)
 
 	sty = dialogs.default_style_badge
 
@@ -119,7 +119,7 @@ To view all apps, pin and un-pin, select 'View All'
 		btn_back.destroy()
 		l_back.destroy()
 		btn_menu.destroy()
-		l_back.destroy()
+		l_menu.destroy()
 		win_header.destroy()
 		win_quick.destroy()
 		win_help.destroy()
