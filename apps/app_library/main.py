@@ -5,21 +5,15 @@
 ### Appname: App Library
 
 
-import gc
-#gc.collect()
-#print("app library, prior to imports: " + str(gc.mem_free()))
 import stm
 import pyb
 import ugfx
 import os
-import pyb
 import http_client
 import wifi
 import dialogs
 from app import *
 import filesystem
-#gc.collect()
-#print("app library, after imports: " + str(gc.mem_free()))
 
 TEMP_FILE = ".temp_download"
 
@@ -76,18 +70,21 @@ def connect():
 ### VIEWS ###
 
 def main_menu():
-    clear()
+    while True:
+        clear()
 
-    menu_items = [
-        {"title": "Browse app library", "function": store},
-        {"title": "Update apps and libs", "function": update},
-        {"title": "Remove app", "function": remove}
-    ]
+        menu_items = [
+            {"title": "Browse app library", "function": store},
+            {"title": "Update apps and libs", "function": update},
+            {"title": "Remove app", "function": remove}
+        ]
 
-    option = dialogs.prompt_option(menu_items, none_text="Exit", text="What do you want to do?", title="TiLDA App Library")
+        option = dialogs.prompt_option(menu_items, none_text="Exit", text="What do you want to do?", title="TiLDA App Library")
 
-    if option:
-        option["function"]()
+        if option:
+            option["function"]()
+        else:
+            return
 
 def update():
     clear()
@@ -115,30 +112,30 @@ def update():
 
     dialogs.notice("Everything is up-to-date")
 
-    main_menu()
-
 def store():
     global apps_by_category
 
-    clear()
-    connect()
+    while True:
+        clear()
+        connect()
 
-    with dialogs.WaitingMessage(text="Fetching app library...", title="TiLDA App Library") as message:
-        categories = get_public_app_categories()
+        with dialogs.WaitingMessage(text="Fetching app library...", title="TiLDA App Library") as message:
+            categories = get_public_app_categories()
 
-    category = dialogs.prompt_option(categories, text="Please select a category", select_text="Browse", none_text="Back")
-    if category:
-        store_category(category)
-    else:
-        main_menu()
+        category = dialogs.prompt_option(categories, text="Please select a category", select_text="Browse", none_text="Back")
+        if category:
+            store_category(category)
+        else:
+            return
 
 def store_category(category):
-    clear()
-    app = dialogs.prompt_option(get_public_apps(category), text="Please select an app", select_text="Details / Install", none_text="Back")
-    if app:
-        store_details(category, app)
-    else:
-        store()
+    while True:
+        clear()
+        app = dialogs.prompt_option(get_public_apps(category), text="Please select an app", select_text="Details / Install", none_text="Back")
+        if app:
+            store_details(category, app)
+        else:
+            return
 
 def store_details(category, app):
     clear()
@@ -150,8 +147,6 @@ def store_details(category, app):
     if dialogs.prompt_boolean(app.description, title = str(app), true_text = "Install", false_text="Back"):
         install(app)
         dialogs.notice("%s has been successfully installed" % app)
-
-    store_category(category)
 
 def install(app):
     clear()
@@ -178,8 +173,6 @@ def remove():
                 os.remove(app.folder_path + "/" + file)
             os.remove(app.folder_path)
         remove()
-    else:
-        main_menu()
 
 if App("home").loadable:
     main_menu()

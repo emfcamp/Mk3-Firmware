@@ -1,8 +1,11 @@
 ### Author: EMF Badge team
 ### Description: Model and Helpers for TiLDA apps and the App Library API
 ### License: MIT
-import os, ure, http_client
+import os
+import ure
+import http_client
 import filesystem
+import gc
 
 EMF_USER = "emf"
 USER_NAME_SEPARATOR = "~"
@@ -173,3 +176,4 @@ def empty_local_app_cache():
 	global _public_apps_cache, _category_cache
 	_public_apps_cache = None
 	_category_cache = None
+        gc.collect()
