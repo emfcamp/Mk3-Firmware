@@ -135,9 +135,9 @@ if torun:
 		run_app.run_app("apps/home/file_loader")
 	else:	
 		rbr = torun.get_attribute("reboot-before-run")
-		if type(rbr) == str and rbr.lower() == "true":
-			run_app.reset_and_run(torun.main_path[:-3])
-		run_app.run_app(torun.main_path[:-3])
+		if type(rbr) == str and rbr.lower() == "false":
+			run_app.run_app(torun.main_path[:-3])
+		run_app.reset_and_run(torun.main_path[:-3])
 	
 	#ugfx.area(0,0,ugfx.width(),ugfx.height(),0)
 
