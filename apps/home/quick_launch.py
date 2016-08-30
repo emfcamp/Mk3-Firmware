@@ -38,7 +38,7 @@ def quick_launch_screen():
 	for i in range(0, 8):
 		x = i % 2
 		y = i // 2
-		button_title = "View all" if i == 7 else ""
+		button_title = "Installed Apps" if i == 7 else ""
 		if i < len(pinned):
 			button_title = pinned[i].title
 		pinned_buttons.append(ugfx.Button(35 + 155 * x, 5 + 40 * y, 120, 35, button_title, parent=win_quick))
@@ -68,7 +68,7 @@ def quick_launch_screen():
 	if not database_get("quicklaunch_firstrun"):
 		dialogs.notice("""This screen displays the most commonly used apps.
 Apps pinned here can also interact with the name screen.
-To view all apps, pin and un-pin, select 'View All'
+To view all apps, pin and un-pin, select 'Installed Apps'
 		""", title="TiLDA - Quick Launch", close_text="Close")
 		database_set("quicklaunch_firstrun", True)
 
