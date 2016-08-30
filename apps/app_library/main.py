@@ -4,8 +4,6 @@
 ### reboot-before-run: True
 ### Appname: App Library
 
-
-import stm
 import pyb
 import ugfx
 import os
@@ -177,6 +175,6 @@ def remove():
 if App("home").loadable:
     main_menu()
 else:
-    for app_name in ["sponsors", "changename", "snake", "rnalexander~changefi", "home"]:
+    for app_name in ["changename", "snake", "alistair~selectwifi", "sponsors", "home"]:
         install(App(app_name))
     pyb.hard_reset()

@@ -4,10 +4,7 @@ import buttons
 import dialogs
 from database import *
 from filesystem import *
-import sys
-import uio
 import gc
-import onboard
 from app import *
 
 ugfx.init()
@@ -25,7 +22,7 @@ def quick_launch_screen():
 	win_quick = ugfx.Container(0,33,wi,hi-33-33)
 	win_help = ugfx.Container(0,hi-30,wi,30)
 
-	DEFAULT_APPS = ["app_library", "sponsors", "changename"]
+	DEFAULT_APPS = ["app_library", "changename", "alistair~selectwifi", "snake"]
 	with Database() as db:
 		pinned = [App(a) for a in db.get("pinned_apps", DEFAULT_APPS)]
 		pinned = [app for app in pinned if app.loadable] # Filter out deleted apps
