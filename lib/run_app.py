@@ -1,6 +1,5 @@
 
 def reset_and_run(path):
-	import stm
 	import pyb
 #	if stm.mem8[0x40002850] == 0:   # this battery backed RAM section is set to 0 when the name screen runs
 	with open('main.json', 'w') as f:
@@ -9,7 +8,10 @@ def reset_and_run(path):
 	pyb.hard_reset()
 
 def run_app(path):
-#	buttons.enable_menu_reset()
+	import buttons
+	buttons.init()
+	if not buttons.has_interrupt("BTN_MENU"):
+		buttons.enable_menu_reset()
 	try:
 		mod = __import__(path)
 		if "main" in dir(mod):
@@ -23,10 +25,9 @@ def run_app(path):
 		ugfx.clear()
 		ugfx.set_default_font(ugfx.FONT_SMALL)
 		w=ugfx.Container(0,0,ugfx.width(),ugfx.height())
-		l=ugfx.Label(0,0,ugfx.width(),ugfx.height(),s.getvalue(),parent=w)
+		ugfx.Label(0,0,ugfx.width(),ugfx.height(),s.getvalue(),parent=w)
 		w.show()
 		raise(e)
-	import onboard
 	import stm
 	stm.mem8[0x40002850] = 0x9C
 	import pyb
