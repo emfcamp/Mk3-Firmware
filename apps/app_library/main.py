@@ -32,7 +32,10 @@ def download(url, target, expected_hash):
         if count > 5:
             os.remove(TEMP_FILE)
             raise OSError("Aborting download of %s after 5 unsuccessful attempts" % url)
-        http_client.get(url).raise_for_status().download_to(TEMP_FILE)
+        try:
+            http_client.get(url).raise_for_status().download_to(TEMP_FILE)
+        except OSError:
+            pass
 
     os.rename(TEMP_FILE, target)
 
