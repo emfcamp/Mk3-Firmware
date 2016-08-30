@@ -6,19 +6,15 @@
 ### Built-in: hide
 
 
-import os
 import ugfx
 import pyb
 from database import *
 from filesystem import *
 import buttons
 import gc
-import stm
 import apps.home.draw_name
 import wifi
-import gc
 from imu import IMU
-import pyb
 import onboard
 import dialogs
 from app import *
@@ -145,7 +141,7 @@ orientation = ugfx.orientation()
 
 with Database() as db:
 	if not db.get("home_firstrun"):
-		stats_upload = dialogs.prompt_boolean("""Press menu to see all the available apps and download more.""", title="Welcome to the EMF camp badge!", true_text="OK", false_text = None, width = 320, height = 240)
+		stats_upload = dialogs.prompt_boolean("""Press menu to see all the available apps and download more.""", title="Welcome to the EMF camp badge!", true_text="A: OK", false_text = None, width = 320, height = 240)
 		db.set("home_firstrun", True)
 		db.set("stats_upload", stats_upload)
 

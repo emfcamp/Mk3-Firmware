@@ -116,7 +116,7 @@ def prompt_text(description, init_text = "", true_text="OK", false_text="Back", 
 		edit.destroy();
 	return default
 
-def prompt_option(options, index=0, text = "Please select one of the following:", title=None, select_text="OK", none_text=None):
+def prompt_option(options, index=0, text = "Please select one of the following:", title=None, select_text="A: OK", none_text=None):
 	"""Shows a dialog prompting for one of multiple options
 
 	If none_text is specified the user can use the B or Menu button to skip the selection
