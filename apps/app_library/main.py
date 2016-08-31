@@ -117,6 +117,7 @@ def store():
     global apps_by_category
 
     while True:
+        empty_local_app_cache()
         clear()
         connect()
 
@@ -135,6 +136,7 @@ def store_category(category):
         app = dialogs.prompt_option(get_public_apps(category), text="Please select an app", select_text="Details / Install", none_text="Back")
         if app:
             store_details(category, app)
+            empty_local_app_cache()
         else:
             return
 
