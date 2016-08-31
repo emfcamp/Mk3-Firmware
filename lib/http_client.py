@@ -6,6 +6,7 @@ import usocket
 import ujson
 import os
 import time
+import gc
 
 """Usage
 from http_client import *
@@ -216,9 +217,16 @@ def request(method, url, json=None, timeout=None, headers=None, urlencoded=None)
 				return response
 	finally:
 		if sock: sock.close()
+		gc.collect()
 
 def get(url, **kwargs):
-	return request('GET', url, **kwargs)
+	attempts = 0
+	while attempts < 3:
+		try:
+			return request('GET', url, **kwargs)
+		except OSError:
+			attempts += 1
+	raise
 
 def post(url, **kwargs):
 	return request('POST', url, **kwargs)
