@@ -42,7 +42,7 @@ def download(url, target, expected_hash):
 def download_list(items, message_dialog):
     for i, item in enumerate(items):
         message_dialog.text = "Downloading %s (%d/%d)" % (item["title"], i + 1, len(items))
-        http_client.get(item["url"]).raise_for_status().download_to(item["target"])
+        download(item["url"], item["target"], item["expected_hash"])
 
 def download_app(app, message_dialog):
     files_to_update = []
