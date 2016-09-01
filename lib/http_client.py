@@ -4,7 +4,6 @@
 
 import usocket
 import ujson
-import pyb
 import os
 
 """Usage
@@ -19,8 +18,7 @@ with post("http://mydomain.co.uk/api/post", urlencoded="SOMETHING") as response:
 
 SUPPORT_TIMEOUT = hasattr(usocket.socket, 'settimeout')
 CONTENT_TYPE_JSON = 'application/json'
-DELAY_BETWEEN_READS = 50
-BUFFER_SIZE = 128
+BUFFER_SIZE = 1024
 
 class Response(object):
 	def __init__(self):
@@ -51,7 +49,6 @@ class Response(object):
 				self._content = self.content_so_far
 				del self.content_so_far
 				while len(self._content) < content_length:
-					pyb.delay(DELAY_BETWEEN_READS)
 					buf = self.socket.recv(BUFFER_SIZE)
 					self._content += buf
 
@@ -90,7 +87,6 @@ class Response(object):
 				remaining -= len(self.content_so_far)
 				del self.content_so_far
 				while remaining > 0:
-					pyb.delay(DELAY_BETWEEN_READS)
 					buf = self.socket.recv(BUFFER_SIZE)
 					f.write(buf)
 					remaining -= len(buf)
@@ -177,9 +173,7 @@ def request(method, url, json=None, timeout=None, headers=None, urlencoded=None)
 		response = Response()
 		state = 1
 		hbuf = b""
-		remaining = None
 		while True:
-			pyb.delay(DELAY_BETWEEN_READS)
 			buf = sock.recv(BUFFER_SIZE)
 			if state == 1: # Status
 				nl = buf.find(b"\n")
@@ -213,7 +207,6 @@ def request(method, url, json=None, timeout=None, headers=None, urlencoded=None)
 				return response
 	finally:
 		if sock: sock.close()
-	#	gc.collect()
 
 def get(url, **kwargs):
 	return request('GET', url, **kwargs)
