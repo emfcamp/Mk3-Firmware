@@ -3,7 +3,6 @@
 import pyb
 import machine
 import os
-import json
 import ugfx
 import hashlib
 import binascii
@@ -32,59 +31,15 @@ def download(url, target, expected_hash):
         if calculate_hash(target) == expected_hash:
             break
 
-def choose_wifi():
-    with dialogs.WaitingMessage(text="Scanning for networks...", title="TiLDA Setup"):
-        visible_aps = wifi.nic().list_aps()
-        visible_aps.sort(key=lambda x:x['rssi'], reverse=True)
-        visible_aps = [ ap['ssid'] for ap in visible_aps ]
-
-    ssid = dialogs.prompt_option(
-        visible_aps,
-        text="Choose wifi network", 
-        title="TiLDA Setup"
-    )
-    key = dialogs.prompt_text("Enter wifi key (blank if none)", width = 310, height = 220)
-    if ssid:
-        with open("wifi.json", "wt") as file:
-            if key:
-                conn_details = {"ssid": ssid, "pw": key}
-            else:
-                conn_details = {"ssid": ssid}
-
-            file.write(json.dumps(conn_details))
-        os.sync()
-        pyb.hard_reset()
-
 ugfx.init()
 buttons.init()
-nic = wifi.nic()
 
-w = {}
-try:
-    if "wifi.json" in os.listdir():
-        with open("wifi.json") as f:
-	    w = json.loads(f.read())
-except ValueError as e:
-    print(e)
-
-timeout = 10
-try:
-    if 'ssid' in w and w['ssid']:
-        with dialogs.WaitingMessage(text="Connecting to '%s'...\n(10s timeout)" % w['ssid'], title="TiLDA Setup") as message:
-            if 'pw' in w:
-                nic.connect(w["ssid"], w["pw"], timeout=timeout)
-            else:
-                nic.connect(w["ssid"], timeout=timeout)
-    else:
-        choose_wifi()
-except OSError:
-    dialogs.notice(
-        text="Failed to connect to '%s'" % w['ssid'],
-        title="TiLDA Setup",
-        close_text="A: Choose another wifi network"
-    )
-    os.remove('wifi.json')
-    pyb.hard_reset()
+wifi.connect(
+    wait=True,
+    show_wait_message=True,
+    prompt_on_fail=True,
+    dialog_title='TiLDA Setup'
+)
 
 addendum = "\n\n\n\nIf stalled for 2 minutes please press the reset button on the back"
 with dialogs.WaitingMessage(text="Please wait" + addendum, title="Downloading TiLDA software") as message:

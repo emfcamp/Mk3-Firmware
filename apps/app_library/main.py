@@ -64,9 +64,12 @@ def download_app(app, message_dialog):
     download_list(files_to_update, message_dialog)
 
 def connect():
-    if not wifi.is_connected():
-        with dialogs.WaitingMessage(text=wifi.connection_text(), title="TiLDA App Library") as message:
-            wifi.connect()
+    wifi.connect(
+        wait=True,
+        show_wait_message=True,
+        prompt_on_fail=True,
+        dialog_title='TiLDA App Library'
+    )
 
 ### VIEWS ###
 

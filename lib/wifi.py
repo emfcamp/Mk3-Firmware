@@ -6,6 +6,7 @@ import network
 import os
 import json
 import pyb
+import dialogs
 
 _nic = None
 
@@ -15,55 +16,97 @@ def nic():
         _nic = network.CC3100()
     return _nic
 
-def create_default_config():
-    with open("wifi.json", "wt") as file:
-        file.write(json.dumps({"ssid": "emfcamp-insecure"}))
-        file.flush()
-    os.sync()
-
 def connection_details():
-    data = {}
+    data = None
     try:
-        if "wifi.json" in os.listdir():
-            with open("wifi.json") as f:
-                data = json.loads(f.read())
+	if "wifi.json" in os.listdir():
+	    with open("wifi.json") as f:
+		data = json.loads(f.read())
+            if 'ssid' not in data or not data['ssid']:
+                data = None
     except ValueError as e:
-        print(e)
-
-    if "ssid" not in data:
-        raise OSError("Couldn't find a valid wifi.json. See https://badge.emf.camp for more information")
+	print(e)
 
     return data
 
 def ssid():
     return connection_details()["ssid"]
 
-def connect(wait = True, timeout = 10):
-    if nic().is_connected():
-        return
-    details = connection_details()
+def connect(wait=True, timeout=10, show_wait_message=False, prompt_on_fail=True, dialog_title='TiLDA'):
+    retry_connect = True
 
-    if "pw" in details and details["pw"]:
-        if wait:
-            nic().connect(details["ssid"], details["pw"], timeout=timeout)
-            wait_for_connection()
+    while retry_connect:
+        if nic().is_connected():
+            return
+
+        details = connection_details()
+        if not details:
+            if prompt_on_fail:
+                choose_wifi(dialog_title=dialog_title)
+            else:
+                raise OSError("No valid wifi configuration")
+
+        if not wait:
+            connect_wifi(details, timeout=None, wait=False)
+            return
         else:
-            nic().connect(details["ssid"], details["pw"], timeout=None)
+            try:
+                if show_wait_message:
+                    with dialogs.WaitingMessage(text="Connecting to '%s'...\n(%ss timeout)" % (details['ssid'], timeout), title=dialog_title):
+                        connect_wifi(details, timeout=timeout, wait=True)
+                else:
+                    connect_wifi(details, timeout=timeout, wait=True)
+            except OSError:
+                if prompt_on_fail:
+                    retry_connect = dialogs.prompt_boolean(
+                        text="Failed to connect to '%s'" % details['ssid'],
+                        title=dialog_title,
+                        true_text="Try again",
+                        false_text="Forget it",
+                    )
+                    if not retry_connect:
+                        os.remove('wifi.json')
+                        os.sync()
+                        # We would rather let you choose a new network here, but
+                        # scanning doesn't work after a connect at the moment
+                        pyb.hard_reset()
+                else:
+                    raise
+
+def connect_wifi(details, timeout, wait=False):
+    if 'pw' in details:
+        nic().connect(details['ssid'], details['pw'], timeout=timeout)
     else:
-        if wait:
-            nic().connect(details["ssid"], timeout=timeout)
-            wait_for_connection()
-        else:
-            nic().connect(details["ssid"], timeout=None)
+        nic().connect(details['ssid'], timeout=timeout)
 
-
-def wait_for_connection():
-    while not nic().is_connected():
-        nic().update()
-        pyb.delay(100)
+    if wait:
+        while not nic().is_connected():
+            nic().update()
+            pyb.delay(100)
 
 def is_connected():
     return nic().is_connected()
 
-def connection_text():
-    return "Connecting to wifi '%s'. If this doesn't work, please check your wifi.json. More information: badge.emfcamp.org/TiLDA_MK3/wifi" % (ssid())
+def choose_wifi(dialog_title='TiLDA'):
+    with dialogs.WaitingMessage(text='Scanning for networks...', title=dialog_title):
+        visible_aps = nic().list_aps()
+        visible_aps.sort(key=lambda x:x['rssi'], reverse=True)
+        visible_aps = [ ap['ssid'] for ap in visible_aps ]
+
+    ssid = dialogs.prompt_option(
+        visible_aps,
+        text='Choose wifi network',
+        title=dialog_title
+    )
+    key = dialogs.prompt_text("Enter wifi key (blank if none)", width = 310, height = 220)
+    if ssid:
+        with open("wifi.json", "wt") as file:
+            if key:
+                conn_details = {"ssid": ssid, "pw": key}
+            else:
+                conn_details = {"ssid": ssid}
+
+            file.write(json.dumps(conn_details))
+        os.sync()
+        # We can't connect after scanning for some bizarre reason, so we reset instead
+        pyb.hard_reset()

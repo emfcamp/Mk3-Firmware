@@ -220,10 +220,9 @@ def home_main():
 	wifi_reconnect_timeout = 0
 	wifi_did_connect = 0
 	try:
-		wifi.connect(wait = False)
+		wifi.connect(wait = False, prompt_on_fail = False)
 	except OSError:
-		print("Creating default wifi settings file")
-		wifi.create_default_config()
+		print("Connect failed")
 
 	while True:
 		pyb.wfi()
