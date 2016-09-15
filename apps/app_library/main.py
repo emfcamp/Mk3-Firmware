@@ -4,8 +4,6 @@
 ### reboot-before-run: True
 ### Appname: App Library
 
-
-import stm
 import pyb
 import ugfx
 import os
@@ -34,14 +32,17 @@ def download(url, target, expected_hash):
         if count > 5:
             os.remove(TEMP_FILE)
             raise OSError("Aborting download of %s after 5 unsuccessful attempts" % url)
-        http_client.get(url).raise_for_status().download_to(TEMP_FILE)
+        try:
+            http_client.get(url).raise_for_status().download_to(TEMP_FILE)
+        except OSError:
+            pass
 
     os.rename(TEMP_FILE, target)
 
 def download_list(items, message_dialog):
     for i, item in enumerate(items):
         message_dialog.text = "Downloading %s (%d/%d)" % (item["title"], i + 1, len(items))
-        http_client.get(item["url"]).raise_for_status().download_to(item["target"])
+        download(item["url"], item["target"], item["expected_hash"])
 
 def download_app(app, message_dialog):
     files_to_update = []
@@ -63,9 +64,12 @@ def download_app(app, message_dialog):
     download_list(files_to_update, message_dialog)
 
 def connect():
-    if not wifi.is_connected():
-        with dialogs.WaitingMessage(text=wifi.connection_text(), title="TiLDA App Library") as message:
-            wifi.connect()
+    wifi.connect(
+        wait=True,
+        show_wait_message=True,
+        prompt_on_fail=True,
+        dialog_title='TiLDA App Library'
+    )
 
 ### VIEWS ###
 
@@ -116,6 +120,7 @@ def store():
     global apps_by_category
 
     while True:
+        empty_local_app_cache()
         clear()
         connect()
 
@@ -134,6 +139,7 @@ def store_category(category):
         app = dialogs.prompt_option(get_public_apps(category), text="Please select an app", select_text="Details / Install", none_text="Back")
         if app:
             store_details(category, app)
+            empty_local_app_cache()
         else:
             return
 
@@ -177,6 +183,6 @@ def remove():
 if App("home").loadable:
     main_menu()
 else:
-    for app_name in ["sponsors", "changename", "snake", "rnalexander~changefi", "home"]:
+    for app_name in ["changename", "snake", "alistair~selectwifi", "sponsors", "home"]:
         install(App(app_name))
     pyb.hard_reset()

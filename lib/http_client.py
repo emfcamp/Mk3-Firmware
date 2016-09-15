@@ -5,6 +5,8 @@
 import usocket
 import ujson
 import os
+import time
+import gc
 
 """Usage
 from http_client import *
@@ -35,7 +37,8 @@ class Response(object):
 		self.socket = socket
 
 	@property
-	def content(self):
+	def content(self, timeout=90):
+		start_time = time.time()
 		if not self._content:
 			if not self.socket:
 				raise OSError("Invalid response socket state. Has the content been downloaded instead?")
@@ -51,6 +54,8 @@ class Response(object):
 				while len(self._content) < content_length:
 					buf = self.socket.recv(BUFFER_SIZE)
 					self._content += buf
+					if (time.time() - start_time) > timeout:
+						raise Exception("HTTP request timeout")
 
 			finally:
 				self.close()
@@ -71,7 +76,8 @@ class Response(object):
 
 	# Writes content into a file. This function will write while receiving, which avoids
 	# having to load all content into memory
-	def download_to(self, target):
+	def download_to(self, target, timeout=90):
+		start_time = time.time()
 		if not self.socket:
 			raise OSError("Invalid response socket state. Has the content already been consumed?")
 		try:
@@ -90,6 +96,10 @@ class Response(object):
 					buf = self.socket.recv(BUFFER_SIZE)
 					f.write(buf)
 					remaining -= len(buf)
+
+					if (time.time() - start_time) > timeout:
+						raise Exception("HTTP request timeout")
+
 				f.flush()
 			os.sync()
 
@@ -207,9 +217,16 @@ def request(method, url, json=None, timeout=None, headers=None, urlencoded=None)
 				return response
 	finally:
 		if sock: sock.close()
+		gc.collect()
 
 def get(url, **kwargs):
-	return request('GET', url, **kwargs)
+	attempts = 0
+	while attempts < 3:
+		try:
+			return request('GET', url, **kwargs)
+		except OSError:
+			attempts += 1
+	raise
 
 def post(url, **kwargs):
 	return request('POST', url, **kwargs)

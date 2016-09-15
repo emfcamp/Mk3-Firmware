@@ -6,19 +6,15 @@
 ### Built-in: hide
 
 
-import os
 import ugfx
 import pyb
 from database import *
 from filesystem import *
 import buttons
 import gc
-import stm
 import apps.home.draw_name
 import wifi
-import gc
 from imu import IMU
-import pyb
 import onboard
 import dialogs
 from app import *
@@ -145,7 +141,7 @@ orientation = ugfx.orientation()
 
 with Database() as db:
 	if not db.get("home_firstrun"):
-		stats_upload = dialogs.prompt_boolean("""Press menu to see all the available apps and download more.""", title="Welcome to the EMF camp badge!", true_text="OK", false_text = None, width = 320, height = 240)
+		stats_upload = dialogs.prompt_boolean("""Press menu to see all the available apps and download more.""", title="Welcome to the EMF camp badge!", true_text="A: OK", false_text = None, width = 320, height = 240)
 		db.set("home_firstrun", True)
 		db.set("stats_upload", stats_upload)
 
@@ -224,10 +220,9 @@ def home_main():
 	wifi_reconnect_timeout = 0
 	wifi_did_connect = 0
 	try:
-		wifi.connect(wait = False)
+		wifi.connect(wait = False, prompt_on_fail = False)
 	except OSError:
-		print("Creating default wifi settings file")
-		wifi.create_default_config()
+		print("Connect failed")
 
 	while True:
 		pyb.wfi()
@@ -280,6 +275,7 @@ def home_main():
 				wifi_reconnect_timeout = 30 #try again in 30sec
 
 			wifi_is_connected = wifi.nic().is_connected()
+			time_set = False
 
 			#if not connected, see if we should try again
 			if not wifi_is_connected:
@@ -294,7 +290,7 @@ def home_main():
 				# If we've just connected, set NTP time
 				if wifi_did_connect == 0:
 					wifi_did_connect = 1
-					ntp.set_NTP_time()
+					time_set = ntp.set_NTP_time()
 
 			ledg.on()
 
@@ -305,7 +301,8 @@ def home_main():
 			else:
 				last_rssi = rssi
 
-			draw_time(sty_tb.background(), pyb.RTC().datetime(), win_clock)
+			if time_set:
+				draw_time(sty_tb.background(), pyb.RTC().datetime(), win_clock)
 
 			draw_wifi(sty_tb.background(),rssi, wifi_is_connected,wifi_timeout>0,win_wifi)
 

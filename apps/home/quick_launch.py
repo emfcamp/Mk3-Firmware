@@ -4,10 +4,7 @@ import buttons
 import dialogs
 from database import *
 from filesystem import *
-import sys
-import uio
 import gc
-import onboard
 from app import *
 
 ugfx.init()
@@ -25,7 +22,7 @@ def quick_launch_screen():
 	win_quick = ugfx.Container(0,33,wi,hi-33-33)
 	win_help = ugfx.Container(0,hi-30,wi,30)
 
-	DEFAULT_APPS = ["app_library", "sponsors", "changename"]
+	DEFAULT_APPS = ["app_library", "changename", "alistair~selectwifi", "snake"]
 	with Database() as db:
 		pinned = [App(a) for a in db.get("pinned_apps", DEFAULT_APPS)]
 		pinned = [app for app in pinned if app.loadable] # Filter out deleted apps
@@ -41,7 +38,7 @@ def quick_launch_screen():
 	for i in range(0, 8):
 		x = i % 2
 		y = i // 2
-		button_title = "View all" if i == 7 else ""
+		button_title = "Installed Apps" if i == 7 else ""
 		if i < len(pinned):
 			button_title = pinned[i].title
 		pinned_buttons.append(ugfx.Button(35 + 155 * x, 5 + 40 * y, 120, 35, button_title, parent=win_quick))
@@ -71,7 +68,7 @@ def quick_launch_screen():
 	if not database_get("quicklaunch_firstrun"):
 		dialogs.notice("""This screen displays the most commonly used apps.
 Apps pinned here can also interact with the name screen.
-To view all apps, pin and un-pin, select 'View All'
+To view all apps, pin and un-pin, select 'Installed Apps'
 		""", title="TiLDA - Quick Launch", close_text="Close")
 		database_set("quicklaunch_firstrun", True)
 
@@ -138,9 +135,9 @@ if torun:
 		run_app.run_app("apps/home/file_loader")
 	else:	
 		rbr = torun.get_attribute("reboot-before-run")
-		if type(rbr) == str and rbr.lower() == "true":
-			run_app.reset_and_run(torun.main_path[:-3])
-		run_app.run_app(torun.main_path[:-3])
+		if type(rbr) == str and rbr.lower() == "false":
+			run_app.run_app(torun.main_path[:-3])
+		run_app.reset_and_run(torun.main_path[:-3])
 	
 	#ugfx.area(0,0,ugfx.width(),ugfx.height(),0)
 
