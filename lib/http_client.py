@@ -221,12 +221,13 @@ def request(method, url, json=None, timeout=None, headers=None, urlencoded=None)
 
 def get(url, **kwargs):
 	attempts = 0
-	while attempts < 3:
+	while attempts < 5:
 		try:
 			return request('GET', url, **kwargs)
 		except OSError:
 			attempts += 1
-	raise
+			time.sleep(1)
+	raise OSError('GET Failed')
 
 def post(url, **kwargs):
 	return request('POST', url, **kwargs)
