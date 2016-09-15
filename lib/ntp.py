@@ -46,7 +46,7 @@ def set_NTP_time():
 	t = get_NTP_time()
 	if t is None:
 		print("Could not set time from NTP")
-		return
+		return False
 
 	tz = 0
 	with database.Database() as db:
@@ -62,3 +62,5 @@ def set_NTP_time():
 	rtc = RTC()
 	rtc.init()
 	rtc.datetime(tm)
+
+	return True
