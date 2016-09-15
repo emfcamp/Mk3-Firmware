@@ -61,6 +61,6 @@ timezone_list = [
 
 ugfx.init()
 
-tz = dialogs.prompt_option(timezone_list, text="Select your timezone:")
+tz = dialogs.prompt_option(timezone_list, text="Select your timezone:", index=14)
 with database.Database() as db:
 	db.set("timezone", int(tz.value))
