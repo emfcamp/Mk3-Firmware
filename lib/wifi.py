@@ -91,10 +91,15 @@ def choose_wifi(dialog_title='TiLDA'):
     with dialogs.WaitingMessage(text='Scanning for networks...', title=dialog_title):
         visible_aps = nic().list_aps()
         visible_aps.sort(key=lambda x:x['rssi'], reverse=True)
-        visible_aps = [ ap['ssid'] for ap in visible_aps ]
+        visible_ap_names = []
+        # We'll get one result for each AP, so filter dupes
+        for ap in visible_aps:
+            if ap['ssid'] not in visible_ap_names:
+                visible_ap_names.append(ap['ssid'])
+        visible_aps = None
 
     ssid = dialogs.prompt_option(
-        visible_aps,
+        visible_ap_names,
         text='Choose wifi network',
         title=dialog_title
     )
