@@ -17,8 +17,6 @@ TEMP_FILE = ".temp_download"
 
 ugfx.init()
 
-### HELPER FUNCTIONS ###
-
 def clear():
     ugfx.clear(ugfx.html_color(0x7c1143))
 
@@ -37,6 +35,11 @@ def download(url, target, expected_hash):
         except OSError:
             pass
 
+    # If it already exists the rename will fail
+    try:
+        os.remove(target)
+    except OSError:
+        pass
     os.rename(TEMP_FILE, target)
 
 def download_list(items, message_dialog):
@@ -124,7 +127,7 @@ def store():
         clear()
         connect()
 
-        with dialogs.WaitingMessage(text="Fetching app library...", title="TiLDA App Library") as message:
+        with dialogs.WaitingMessage(text="Fetching app library...", title="TiLDA App Library"):
             categories = get_public_app_categories()
 
         category = dialogs.prompt_option(categories, text="Please select a category", select_text="Browse", none_text="Back")
