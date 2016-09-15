@@ -275,7 +275,6 @@ def home_main():
 				wifi_reconnect_timeout = 30 #try again in 30sec
 
 			wifi_is_connected = wifi.nic().is_connected()
-			time_set = False
 
 			#if not connected, see if we should try again
 			if not wifi_is_connected:
@@ -290,7 +289,7 @@ def home_main():
 				# If we've just connected, set NTP time
 				if wifi_did_connect == 0:
 					wifi_did_connect = 1
-					time_set = ntp.set_NTP_time()
+					ntp.set_NTP_time()
 
 			ledg.on()
 
@@ -301,7 +300,8 @@ def home_main():
 			else:
 				last_rssi = rssi
 
-			if time_set:
+			time = pyb.RTC().datetime()
+			if time[0] >= 2016:
 				draw_time(sty_tb.background(), pyb.RTC().datetime(), win_clock)
 
 			draw_wifi(sty_tb.background(),rssi, wifi_is_connected,wifi_timeout>0,win_wifi)
