@@ -146,9 +146,12 @@ def open_http_socket(method, url, json=None, timeout=None, headers=None, urlenco
 	else:
 		content = None
 
-	# ToDo: Detect IP addresses and skip the lookup
-	ai = usocket.getaddrinfo(host, port)
-	addr = ai[0][4]
+	# ToDo: Handle IPv6 addresses
+	if is_ipv4_address(host):
+		addr = (host, port)
+	else:
+		ai = usocket.getaddrinfo(host, port)
+		addr = ai[0][4]
 
 	sock = None
 	if proto == 'https:':
@@ -231,3 +234,11 @@ def get(url, **kwargs):
 
 def post(url, **kwargs):
 	return request('POST', url, **kwargs)
+
+def is_ipv4_address(address):
+	octets = address.split('.')
+	try:
+		valid_octets = [x for x in octets if 0 <= int(x) and int(x) <= 255]
+		return len(valid_octets) == 4
+	except Exception:
+		return False
