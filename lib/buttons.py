@@ -2,7 +2,8 @@
 ### Description: Convenience methods for dealing with the TiLDA buttons
 ### License: MIT
 
-import pyb, onboard
+import pyb
+import onboard
 
 CONFIG = {
 	"JOY_UP": pyb.Pin.PULL_DOWN,
@@ -64,7 +65,7 @@ def is_triggered(button, interval = 30):
 
 def has_interrupt(button):
 	global _tilda_interrupts
-	pin = _get_pin(button)
+	_get_pin(button)
 	if button in _tilda_interrupts:
 		return True
 	else:
@@ -83,7 +84,10 @@ def enable_interrupt(button, interrupt, on_press = True, on_release = False):
 	global _tilda_interrupts
 	pin = _get_pin(button)
 	if button in _tilda_interrupts:
-		raise ValueError("This button already has an interrupt")
+		# If someone tries to set an interrupt on a pin that already
+		# has one that's totally ok, but we need to remove the old one
+		# first
+		disable_interrupt(button)
 
 	if not (on_press or on_release):
 		return
