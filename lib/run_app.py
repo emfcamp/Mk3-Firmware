@@ -9,9 +9,15 @@ def reset_and_run(path):
 
 def run_app(path):
 	import buttons
+	import ugfx
+
 	buttons.init()
+	ugfx.init()
+	ugfx.clear()
+
 	if not buttons.has_interrupt("BTN_MENU"):
 		buttons.enable_menu_reset()
+
 	try:
 		mod = __import__(path)
 		if "main" in dir(mod):
