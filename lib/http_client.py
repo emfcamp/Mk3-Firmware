@@ -7,6 +7,7 @@ import ujson
 import os
 import time
 import gc
+import wifi
 
 """Usage
 from http_client import *
@@ -121,6 +122,17 @@ class Response(object):
 		self.close()
 
 def open_http_socket(method, url, json=None, timeout=None, headers=None, urlencoded = None):
+        # This will immediately return if we're already connected, otherwise
+        # it'll attempt to connect or prompt for a new network. Proceeding
+        # without an active network connection will cause the getaddrinfo to
+        # fail.
+        wifi.connect(
+            wait=True,
+            show_wait_message=False,
+            prompt_on_fail=True,
+            dialog_title='TiLDA Wifi'
+        )
+
 	urlparts = url.split('/', 3)
 	proto = urlparts[0]
 	host = urlparts[2]
