@@ -1,3 +1,4 @@
+import wifi
 import usocket as socket
 import ustruct as struct
 
@@ -7,6 +8,17 @@ class MQTTException(Exception):
 class MQTTClient:
 
     def __init__(self, client_id, server, port=1883):
+        # This will immediately return if we're already connected, otherwise
+        # it'll attempt to connect or prompt for a new network. Proceeding
+        # without an active network connection will cause the getaddrinfo to
+        # fail.
+        wifi.connect(
+            wait=True,
+            show_wait_message=False,
+            prompt_on_fail=True,
+            dialog_title='TiLDA Wifi'
+        )
+
         self.client_id = client_id
         self.sock = None
         self.addr = socket.getaddrinfo(server, port)[0][-1]
