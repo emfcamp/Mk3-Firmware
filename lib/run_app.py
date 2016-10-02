@@ -10,6 +10,7 @@ def reset_and_run(path):
 def run_app(path):
 	import buttons
 	import ugfx
+	import sys
 
 	buttons.init()
 	ugfx.init()
@@ -19,6 +20,10 @@ def run_app(path):
 		buttons.enable_menu_reset()
 
 	try:
+		# Make libraries shipped by the app importable
+		app_path = '/flash/' + '/'.join(path.split('/')[:-1])
+		sys.path.append(app_path)
+
 		mod = __import__(path)
 		if "main" in dir(mod):
 			mod.main()
