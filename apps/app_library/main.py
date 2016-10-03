@@ -10,7 +10,7 @@ import os
 import http_client
 import wifi
 import dialogs
-from app import *
+from app import App, get_local_apps, get_public_apps, get_public_app_categories, empty_local_app_cache
 import filesystem
 
 TEMP_FILE = ".temp_download"
@@ -149,7 +149,7 @@ def store_category(category):
 def store_details(category, app):
     clear()
     empty_local_app_cache()
-    with dialogs.WaitingMessage(text="Fetching app information...", title="TiLDA App Library") as message:
+    with dialogs.WaitingMessage(text="Fetching app information...", title="TiLDA App Library"):
         app.fetch_api_information()
 
     clear()
@@ -177,7 +177,7 @@ def remove():
 
     if app:
         clear()
-        with dialogs.WaitingMessage(text="Removing %s\nPlease wait..." % app, title="TiLDA App Library") as message:
+        with dialogs.WaitingMessage(text="Removing %s\nPlease wait..." % app, title="TiLDA App Library"):
             for file in os.listdir(app.folder_path):
                 os.remove(app.folder_path + "/" + file)
             os.remove(app.folder_path)

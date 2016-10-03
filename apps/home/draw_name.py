@@ -1,6 +1,5 @@
 import ugfx
-from database import *
-from filesystem import *
+from database import database_get
 
 obj = []
 sty = None

@@ -2,10 +2,9 @@ import ugfx
 import pyb
 import buttons
 import dialogs
-from database import *
-from filesystem import *
+from database import Database, database_get, database_set
 import gc
-from app import *
+from app import App, empty_local_app_cache
 
 ugfx.init()
 ugfx.set_default_style(dialogs.default_style_badge)
@@ -52,8 +51,6 @@ def quick_launch_screen():
 	btn_menu = ugfx.Button(200,5,20,20,"M",parent=win_help,shape=ugfx.Button.ROUNDED)
 	l_menu = ugfx.Label(230,5,100,20,"Menu",parent=win_help)
 
-	sty = dialogs.default_style_badge
-
 	win_header.show()
 	win_quick.show()
 	win_help.show()
@@ -62,8 +59,6 @@ def quick_launch_screen():
 	cursor = {"x": 0, "y": 0}
 	last_cursor = cursor.copy()
 	_draw_cursor(0, 0, ugfx.RED, win_quick)
-
-	app_to_load = "home"
 
 	if not database_get("quicklaunch_firstrun"):
 		dialogs.notice("""This screen displays the most commonly used apps.

@@ -1,3 +1,4 @@
+import pyb
 
 #light sensor is on PA3 (note change this)
 a = pyb.ADC('PA3')

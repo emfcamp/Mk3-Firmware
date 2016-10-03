@@ -2,7 +2,6 @@
 ### License: MIT
 
 import database
-import pyb
 import socket
 
 
@@ -17,7 +16,7 @@ def get_NTP_time():
 	NTP_QUERY[0] = 0x1b
 	addr = socket.getaddrinfo(NTP_HOST, NTP_PORT)[0][-1]
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	res = s.sendto(NTP_QUERY, addr)
+	s.sendto(NTP_QUERY, addr)
 
 	# Setting timeout for receiving data. Because we're using UDP,
 	# there's no need for a timeout on send.

@@ -2,7 +2,9 @@
 ### Description: Small set of micropython specific filesystem helpers
 ### License: MIT
 
-import os, hashlib, binascii
+import os
+import hashlib
+import binascii
 
 def get_app_foldername(path):
 	"""Gets the app name based on a path"""
@@ -39,7 +41,7 @@ def get_app_attribute(path, attribute):
 				else:
 					break
 
-	except OSError as e:
+	except OSError:
 		return ""
 	return rv
 

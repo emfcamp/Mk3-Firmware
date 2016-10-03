@@ -114,7 +114,7 @@ def prompt_text(description, init_text = "", true_text="OK", false_text="Back", 
 		label.destroy()
 		kb.destroy()
 		edit.destroy();
-	return default
+	return
 
 def prompt_option(options, index=0, text = "Please select one of the following:", title=None, select_text="OK", none_text=None):
 	"""Shows a dialog prompting for one of multiple options

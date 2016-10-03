@@ -1,6 +1,7 @@
 #This example shows how to use the ADC, and how to 
 # measure the internal reference to get a more accurate
 # ADC reading
+import pyb
 
 # set adc resolution to 12 bits
 adca = pyb.ADCAll(12)

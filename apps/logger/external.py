@@ -1,5 +1,5 @@
-from filesystem import *
-from database import *
+from filesystem import is_file
+from database import database_get
 import stm
 import http_client
 import wifi
@@ -13,7 +13,7 @@ def tick():
 	bv = str(onboard.get_battery_voltage())
 	uv = str(onboard.get_unreg_voltage())
 	li = str(onboard.get_light())
-	rssi = wifi.nic().get_rssi()
+	wifi.nic().get_rssi()
 
 	aps = wifi.nic().list_aps()
 	highest_rssi = -200
@@ -37,7 +37,7 @@ def tick():
 	if database_get("stats_upload"):
 		try:
 			if wifi.nic().is_connected():
-				with http_client.post('http://api.badge.emfcamp.org/api/barms', json=json) as resp:
+				with http_client.post('http://api.badge.emfcamp.org/api/barms', json=json):
 					pass
 		except OSError as e:
 			print("Upload failed " + str(e))
