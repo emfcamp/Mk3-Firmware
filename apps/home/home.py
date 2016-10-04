@@ -8,8 +8,8 @@
 
 import ugfx
 import pyb
-from database import *
-from filesystem import *
+from database import Database
+from filesystem import is_file
 import buttons
 import gc
 import apps.home.draw_name
@@ -17,7 +17,7 @@ import wifi
 from imu import IMU
 import onboard
 import dialogs
-from app import *
+from app import get_local_apps
 import sys
 import ntp
 
@@ -171,8 +171,6 @@ def home_main():
 	win_text.show()
 	win_wifi.show()
 	win_clock.show()
-
-	min_ctr = 28
 
 	# Create external hooks so other apps can run code in the context of
 	# the home screen.

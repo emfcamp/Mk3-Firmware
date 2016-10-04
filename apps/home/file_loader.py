@@ -3,13 +3,10 @@ import os
 import pyb
 import buttons
 import dialogs
-from database import *
-from filesystem import *
-import uio
-import sys
+from database import database_get, database_set
+from filesystem import is_dir, is_file
 import gc
-import onboard
-from app import *
+from app import get_local_apps, get_local_app_categories
 
 ugfx.init()
 buttons.init()
@@ -72,8 +69,6 @@ def file_loader():
 	desc = ugfx.Label(3,1,win_preview.width()-10,win_preview.height()-83,"",parent=win_preview,justification=ugfx.Label.LEFTTOP)
 	components.append(author)
 	components.append(desc)
-
-	app_to_load = None
 
 	pinned = database_get("pinned_apps", [])
 	catergories = get_local_app_categories()

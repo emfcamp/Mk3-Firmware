@@ -5,7 +5,7 @@
 ### Appname : Change name
 
 import dialogs
-from database import *
+from database import Database
 import buttons
 import ugfx
 

@@ -1,4 +1,5 @@
-dac = DAC(2)
+import pyb
+dac = pyb.DAC(2)
 
 countdown = 10
 

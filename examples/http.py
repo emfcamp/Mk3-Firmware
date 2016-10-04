@@ -1,5 +1,5 @@
 import wifi
-from http_client import *
+from http_client import get
 
 wifi.connect()
 

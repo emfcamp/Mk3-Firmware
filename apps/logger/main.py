@@ -6,8 +6,8 @@
 ### Built-in: yes
 
 import ugfx
-from filesystem import *
-from database import *
+from filesystem import is_file
+from database import database_get, database_set
 import pyb
 import math
 import buttons
