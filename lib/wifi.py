@@ -87,29 +87,64 @@ def connect_wifi(details, timeout, wait=False):
 def is_connected():
     return nic().is_connected()
 
+def get_security_level(ap):
+    n = nic()
+    levels = {}
+    try:
+        levels = {
+            n.SCAN_SEC_OPEN: 0, # I am awful
+            n.SCAN_SEC_WEP: 'WEP',
+            n.SCAN_SEC_WPA: 'WPA',
+            n.SCAN_SEC_WPA2: 'WPA2',
+        }
+    except AttributeError:
+        print("Firmware too old to query wifi security level, please upgrade.")
+        return None
+
+    return levels.get(ap.get('security', None), None)
+
 def choose_wifi(dialog_title='TiLDA'):
+    filtered_aps = []
     with dialogs.WaitingMessage(text='Scanning for networks...', title=dialog_title):
         visible_aps = nic().list_aps()
         visible_aps.sort(key=lambda x:x['rssi'], reverse=True)
-        visible_ap_names = []
         # We'll get one result for each AP, so filter dupes
         for ap in visible_aps:
-            if ap['ssid'] not in visible_ap_names:
-                visible_ap_names.append(ap['ssid'])
-        visible_aps = None
+            title = ap['ssid']
+            security = get_security_level(ap)
+            if security:
+                title = title + ' (%s)' % security
+            ap = {
+                'title': title,
+                'ssid': ap['ssid'],
+                'security': security,
+            }
+            if ap['ssid'] not in [ a['ssid'] for a in filtered_aps ]:
+                filtered_aps.append(ap)
+        del visible_aps
 
-    ssid = dialogs.prompt_option(
-        visible_ap_names,
+    ap = dialogs.prompt_option(
+        filtered_aps,
         text='Choose wifi network',
         title=dialog_title
     )
-    key = dialogs.prompt_text("Enter wifi key (blank if none)", width = 310, height = 220)
-    if ssid:
+    if ap:
+        key = None
+        if ap['security'] != 0:
+            # Backward compat
+            if ap['security'] == None:
+                ap['security'] = 'wifi'
+
+            key = dialogs.prompt_text(
+                "Enter %s key" % ap['security'],
+                width = 310,
+                height = 220
+            )
         with open("wifi.json", "wt") as file:
             if key:
-                conn_details = {"ssid": ssid, "pw": key}
+                conn_details = {"ssid": ap['ssid'], "pw": key}
             else:
-                conn_details = {"ssid": ssid}
+                conn_details = {"ssid": ap['ssid']}
 
             file.write(json.dumps(conn_details))
         os.sync()
